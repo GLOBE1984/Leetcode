@@ -1,0 +1,98 @@
+Given a string s and a non-empty string p, find all the start indices of p's anagrams in s.
+
+Strings consists of lowercase English letters only and the length of both strings s and p will not be larger than 20,100.
+
+The order of output does not matter.
+
+Example 1:
+
+Input:
+s: "cbaebabacd" p: "abc"
+
+Output:
+[0, 6]
+
+Explanation:
+The substring with start index = 0 is "cba", which is an anagram of "abc".
+The substring with start index = 6 is "bac", which is an anagram of "abc".
+Example 2:
+
+Input:
+s: "abab" p: "ab"
+
+Output:
+[0, 1, 2]
+
+Explanation:
+The substring with start index = 0 is "ab", which is an anagram of "ab".
+The substring with start index = 1 is "ba", which is an anagram of "ab".
+The substring with start index = 2 is "ab", which is an anagram of "ab".
+
+
+
+
+public class Solution {
+    public List<Integer> findAnagrams(String s, String p) {
+        List<Integer> results = new ArrayList<Integer>();
+        
+        if(s == null || p == null) {
+            return results;
+        }
+        
+        int length_s = s.length();
+        int length_p = p.length();
+        
+        if(length_s <length_p) {
+            return results;
+        }
+        
+        Map<Character, Integer> map = new HashMap<Character, Integer>();
+        int count = 0;
+        for(int i = 0; i < length_p; ++i) {
+            int tmp = 0;
+            char c = p.charAt(i);
+            if(map.get(c) != null) {
+                tmp = map.get(c).intValue();
+            }
+            else{
+                count++;
+            }
+            tmp++;
+            map.put(c, Integer.valueOf(tmp));
+        }
+        
+        for(int i = 0; i < length_s; ++i) {
+            char c = s.charAt(i);
+            if(i >= length_p) {
+                char prev = s.charAt(i-length_p);
+                if(map.get(prev) != null) {
+                    int tmp = map.get(prev).intValue();
+                    if(tmp == 0) {
+                        count++;
+                    }
+                    tmp++;
+                    if(tmp == 0) {
+                        count--;
+                    }
+                    map.put(prev, Integer.valueOf(tmp));
+                }
+            }
+            if(map.get(c) != null) {
+                int tmp = map.get(c).intValue();
+                if(tmp == 0) {
+                    count++;
+                }
+                tmp--;
+                if(tmp == 0) {
+                    count--;
+                    if(count == 0) {
+                        results.add(i-length_p+1);
+                    }
+                }
+                map.put(c, Integer.valueOf(tmp));
+            }
+        }
+        
+        return results;
+    }
+}

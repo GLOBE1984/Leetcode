@@ -1,0 +1,152 @@
+Serialization is the process of converting a data structure or object into a sequence of bits so that it can be stored in a file or memory buffer, or transmitted across a network connection link to be reconstructed later in the same or another computer environment.
+
+Design an algorithm to serialize and deserialize a binary tree. There is no restriction on how your serialization/deserialization algorithm should work. You just need to ensure that a binary tree can be serialized to a string and this string can be deserialized to the original tree structure.
+
+For example, you may serialize the following tree
+
+    1
+   / \
+  2   3
+     / \
+    4   5
+as "[1,2,3,null,null,4,5]", just the same as how LeetCode OJ serializes a binary tree. You do not necessarily need to follow this format, so please be creative and come up with different approaches yourself.
+Note: Do not use class member/global/static variables to store states. Your serialize and deserialize algorithms should be stateless.
+
+
+
+
+
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */
+public class Codec {
+
+    // Encodes a tree to a single string.
+    public String serialize(TreeNode root) {
+        StringBuilder builder = new StringBuilder();
+        
+        // pre-order traverse the tree
+        TreeNode current = root;
+        int count = 0;
+        TreeNodeWrapper root_wrapper = new TreeNodeWrapper(count, root);
+        preorderTraverse(current, root_wrapper, count, builder);
+        
+        builder.setLength(builder.length() - 1);
+        builder.append(";");
+        
+        // in-order traverse the tree
+        inorderTraverse(root_wrapper, builder);
+        builder.setLength(builder.length() - 1);
+        
+        return builder.toString();
+    }
+
+    // Decodes your encoded data to tree.
+    public TreeNode deserialize(String data) {
+        String[] parts = data.split(";");
+        Map<String, Integer> indexes = new HashMap<String, Integer>();
+        String[] characters = parts[1].split(",");
+        int length = characters.length;
+        for(int i = 0; i < length; ++i) {
+            if(!"#".equals(characters[i])) {
+                indexes.put(characters[i], i);
+            }
+        }
+        
+        TreeNode root = null;
+        characters = parts[0].split(",");
+        length = characters.length;
+        root = deserialize(characters, 0, length-1, 0, length-1, indexes);
+        
+        return root;
+    }
+    
+    private int preorderTraverse(TreeNode node, TreeNodeWrapper node_wrapper, int count, StringBuilder builder) {
+        if(node != null) {
+            builder.append(count + ":" + node.val + ",");
+            int result = count;
+            if(node.left != null) {
+                result++;
+                TreeNodeWrapper left_wrapper = new TreeNodeWrapper(result, node.left);
+                node_wrapper.left = left_wrapper;
+                result = preorderTraverse(node.left, left_wrapper, result, builder);
+            }
+            else {
+                preorderTraverse(null, null, result, builder);
+            }
+            if(node.right != null) {
+                result++;
+                TreeNodeWrapper right_wrapper = new TreeNodeWrapper(result, node.right);
+                node_wrapper.right = right_wrapper;
+                result = preorderTraverse(node.right, right_wrapper, result, builder);
+            }
+            else {
+                preorderTraverse(null, null, result, builder);
+            }
+            return result;
+        }
+        else {
+            builder.append("#,");
+            return count;
+        }
+    }
+    
+    private void inorderTraverse(TreeNodeWrapper wrapper, StringBuilder builder) {
+        if(wrapper != null) {
+            if(wrapper.node != null) {
+                inorderTraverse(wrapper.left, builder);
+                builder.append(wrapper.count + ":" + wrapper.node.val + ",");
+                inorderTraverse(wrapper.right, builder);
+            }
+            else {
+                builder.append("#,");
+            }
+        }
+        else {
+            builder.append("#,");
+        }
+    }
+    
+    private TreeNode deserialize(String[] characters, int start_pre, int end_pre, int start_in, int end_in, 
+                                 Map<String, Integer> indexes) {
+        TreeNode root = null;
+        
+        if(!"#".equals(characters[start_pre])) {
+            int tmp = characters[start_pre].indexOf(":");
+            String str_val = characters[start_pre].substring(tmp + 1);
+            int val = Integer.valueOf(str_val).intValue();
+            root = new TreeNode(val);
+            if(start_pre < end_pre) {
+                int index = indexes.get(characters[start_pre]).intValue();
+                root.left = deserialize(characters, start_pre+1, start_pre+(index-1-start_in+1), start_in, index-1, indexes);
+                root.right = deserialize(characters, start_pre+(index-1-start_in+1)+1, end_pre, index+1, end_in, indexes);
+            }
+        }
+        
+        return root;
+    }
+    
+    private class TreeNodeWrapper {
+        protected int count;
+        protected TreeNode node;
+        protected TreeNodeWrapper left;
+        protected TreeNodeWrapper right;
+        
+        public TreeNodeWrapper(int count, TreeNode node) {
+            this.count = count;
+            this.node = node;
+            this.left = null;
+            this.right = null;
+        }
+    }
+}
+
+// Your Codec object will be instantiated and called as such:
+// Codec codec = new Codec();
+// codec.deserialize(codec.serialize(root));

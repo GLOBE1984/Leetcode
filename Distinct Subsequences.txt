@@ -1,0 +1,59 @@
+Given a string S and a string T, count the number of distinct subsequences of T in S.
+
+A subsequence of a string is a new string which is formed from the original string by deleting some (can be none) of the characters without disturbing the relative positions of the remaining characters. (ie, "ACE" is a subsequence of "ABCDE" while "AEC" is not).
+
+Here is an example:
+S = "rabbbit", T = "rabbit"
+
+Return 3.
+
+
+
+
+public class Solution {
+    public int numDistinct(String s, String t) {
+        int length_s = s.length();
+        int length_t = t.length();
+        
+        if(length_s < length_t) {
+            return 0;
+        }
+        
+        int[][] results = new int[length_s][length_t];
+        
+        char c_t;
+        char c_s;
+        
+        for(int i = 0; i < length_t; ++i) {
+            c_t = t.charAt(i);
+            
+            for(int j = i; j < length_s; ++j) {
+                c_s = s.charAt(j);
+                
+                if(i == 0 || j == 0) {
+                    if(j != 0) {
+                        results[j][i] = results[j-1][i] + ((c_s == c_t)? 1 : 0);
+                    }
+                    else {
+                        results[j][i] = (c_s == c_t)? 1 : 0;
+                    }
+                }
+                else {
+                    if(results[j-1][i-1] == 0) {
+                        results[j][i] = 0;
+                    }
+                    else {
+                        if(c_s == c_t) {
+                            results[j][i] = results[j-1][i-1] + results[j-1][i];
+                        }
+                        else {
+                            results[j][i] = results[j-1][i];
+                        }
+                    }
+                }
+            }
+        }
+        
+        return results[length_s-1][length_t-1];
+    }
+}

@@ -1,0 +1,90 @@
+Given a non-empty binary search tree and a target value, find k values in the BST that are closest to the target.
+
+Note:
+Given target value is a floating point.
+You may assume k is always valid, that is: k ≤ total nodes.
+You are guaranteed to have only one unique set of k values in the BST that are closest to the target.
+Follow up:
+Assume that the BST is balanced, could you solve it in less than O(n) runtime (where n = total nodes)?
+
+
+
+
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */
+public class Solution {
+    public List<Integer> closestKValues(TreeNode root, double target, int k) {
+        List<Integer> results = new ArrayList<Integer>();
+        
+        if(root != null) {
+            // store the treenodes less than the target
+            Stack<TreeNode> stack = new Stack<TreeNode>();
+            
+            // store the treenodes larger than or equals to the target
+            Queue<TreeNode> queue = new LinkedList<TreeNode>();
+            
+            // inorder traverse the tree to confirm that the treenodes are visited by ascending order
+            inorderTraverse(root, stack, queue, target);
+            
+            int count = 0;
+            while(count < k) {
+                if(!stack.empty() && !queue.isEmpty()) {
+                    int num1 = stack.peek().val;
+                    int num2 = queue.peek().val;
+                    if(Math.abs(num1-target) < Math.abs(num2-target)) {
+                        results.add(num1);
+                        stack.pop();
+                    }
+                    else {
+                        results.add(num2);
+                        queue.poll();
+                    }
+                }
+                else if(stack.empty()) {
+                    int num = queue.poll().val;
+                    results.add(num);
+                }
+                else if(queue.isEmpty()) {
+                    int num = stack.pop().val;
+                    results.add(num);
+                }
+                count++;
+            }
+        }
+        
+        return results;
+    }
+    
+    private void inorderTraverse(TreeNode root, Stack<TreeNode> stack, Queue<TreeNode> queue, double target) {
+        if(root.left == null && root.right == null) {
+            if(root.val < target) {
+                stack.push(root);
+            }
+            else {
+                queue.offer(root);
+            }
+            
+            return;
+        }
+        
+        if(root.left != null) {
+            inorderTraverse(root.left, stack, queue, target);
+        }
+        if(root.val < target) {
+            stack.push(root);
+        }
+        else {
+            queue.offer(root);
+        }
+        if(root.right != null) {
+            inorderTraverse(root.right, stack, queue, target);
+        }
+    }
+}

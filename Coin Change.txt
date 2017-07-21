@@ -1,0 +1,75 @@
+You are given coins of different denominations and a total amount of money amount. Write a function to compute the fewest number of coins that you need to make up that amount. If that amount of money cannot be made up by any combination of the coins, return -1.
+
+Example 1:
+coins = [1, 2, 5], amount = 11
+return 3 (11 = 5 + 5 + 1)
+
+Example 2:
+coins = [2], amount = 3
+return -1.
+
+Note:
+You may assume that you have an infinite number of each kind of coin.
+
+
+
+
+public class Solution {
+    public int coinChange(int[] coins, int amount) {
+        if(coins == null || coins.length == 0) {
+            return -1;
+        }
+        if(amount == 0) {
+            return 0;
+        }
+        
+        boolean[] amount_visited = new boolean[amount];
+        for(int i = 0; i < amount; ++i) {
+            amount_visited[i] = false;
+        }
+        
+        int height = 0;
+        int length = coins.length;
+        
+        Queue<Integer> queue = new LinkedList<Integer>();
+        queue.offer(amount);
+        amount_visited[amount-1] = true;
+        
+        boolean found = false;
+        while(!queue.isEmpty()) {
+            Queue<Integer> level = new LinkedList<Integer>();
+            
+            while(!queue.isEmpty()) {
+                int val = queue.poll().intValue();
+                
+                for(int i = length-1; i >= 0; --i) {
+                    if(coins[i] == val) {
+                        found = true;
+                        break;
+                    }
+                    else if(coins[i] < val) {
+                        int rest = val - coins[i];
+                        if(!amount_visited[rest-1]) {
+                            amount_visited[rest-1] = true;
+                            level.offer(rest);
+                        }
+                    }
+                }
+            }
+            
+            if(found) {
+                break;
+            }
+            
+            queue = level;
+            height++;
+        }
+        
+        if(found) {
+            return height + 1;
+        }
+        else {
+            return -1;
+        }
+    }
+}

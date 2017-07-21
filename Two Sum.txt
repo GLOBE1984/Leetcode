@@ -1,0 +1,53 @@
+Given an array of integers, return indices of the two numbers such that they add up to a specific target.
+
+You may assume that each input would have exactly one solution, and you may not use the same element twice.
+
+Example:
+Given nums = [2, 7, 11, 15], target = 9,
+
+Because nums[0] + nums[1] = 2 + 7 = 9,
+return [0, 1].
+
+
+
+
+public class Solution {
+    public int[] twoSum(int[] nums, int target) {
+        if(nums == null || nums.length < 2) {
+            return null;
+        }
+        
+        
+        int[] backup = nums.clone();
+        
+        Arrays.sort(nums);
+        int length = nums.length;
+        int start = 0;
+        int end = length - 1;
+        while(start < end) {
+            int sum = nums[start] + nums[end];
+            if(sum < target) {
+                start++;
+            }
+            else if(sum > target) {
+                end--;
+            }
+            else {
+                break;
+            }
+        }
+        
+        int[] results = new int[2];
+        results[0] = results[1] = -1;
+        for(int i = 0; i < length; ++i) {
+            if(backup[i] == nums[start] && results[0] == -1) {
+                results[0] = i;
+            }
+            else if(backup[i] == nums[end] && results[1] == -1) {
+                results[1] = i;
+            }
+        }
+        
+        return results;
+    }
+}

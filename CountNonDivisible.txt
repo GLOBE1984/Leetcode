@@ -1,0 +1,115 @@
+You are given a non-empty zero-indexed array A consisting of N integers.
+
+For each number A[i] such that 0 ¡Ü i < N, we want to count the number of elements of the array that are not the divisors of A[i]. We say that these elements are non-divisors.
+
+For example, consider integer N = 5 and array A such that:
+
+    A[0] = 3
+    A[1] = 1
+    A[2] = 2
+    A[3] = 3
+    A[4] = 6
+For the following elements:
+
+A[0] = 3, the non-divisors are: 2, 6,
+A[1] = 1, the non-divisors are: 3, 2, 3, 6,
+A[2] = 2, the non-divisors are: 3, 3, 6,
+A[3] = 3, the non-divisors are: 2, 6,
+A[4] = 6, there aren't any non-divisors.
+Write a function:
+
+class Solution { public int[] solution(int[] A); }
+
+that, given a non-empty zero-indexed array A consisting of N integers, returns a sequence of integers representing the amount of non-divisors.
+
+The sequence should be returned as:
+
+a structure Results (in C), or
+a vector of integers (in C++), or
+a record Results (in Pascal), or
+an array of integers (in any other programming language).
+For example, given:
+
+    A[0] = 3
+    A[1] = 1
+    A[2] = 2
+    A[3] = 3
+    A[4] = 6
+the function should return [2, 4, 3, 2, 0], as explained above.
+
+Assume that:
+
+N is an integer within the range [1..50,000];
+each element of array A is an integer within the range [1..2 * N].
+Complexity:
+
+expected worst-case time complexity is O(N*log(N));
+expected worst-case space complexity is O(N), beyond input storage (not counting the storage required for input arguments).
+Elements of input arrays can be modified.
+
+
+
+
+
+// you can also use imports, for example:
+// import java.util.*;
+
+// you can write to stdout for debugging purposes, e.g.
+// System.out.println("this is a debug message");
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+class Solution {
+    public int[] solution(int[] A) {
+        // write your code in Java SE 8
+        int length = A.length;
+        
+        int max = 0;
+        for(int i = 0; i < length; ++i) {
+            if(A[i] > max) {
+                max = A[i];
+            }
+        }
+        
+        int[] count = new int[max];
+        for(int i = 0; i < length; ++i) {
+            count[A[i]-1]++;
+        }
+        
+        Map<Integer, Set<Integer>> map = new HashMap<Integer, Set<Integer>>();
+        for(int i = 0; i < length; ++i) {
+            if(map.get(A[i]) == null) {
+                Set<Integer> set = new HashSet<Integer>();
+                set.add(A[i]);
+                map.put(A[i], set);
+            }
+        }
+        
+        int divisor = 1;
+        while(divisor * divisor <= max) {
+            int candidate = divisor;
+            while(candidate <= max) {
+                if(map.containsKey(candidate) && !map.get(candidate).contains(divisor)) {
+                    map.get(candidate).add(divisor);
+                    map.get(candidate).add(candidate/divisor);
+                }
+                candidate = candidate + divisor;
+            }
+            divisor++;
+        }
+        
+        int[] results = new int[length];
+        for(int i = 0; i < length; ++i) {
+            int sum = 0;
+            Set<Integer> factors = map.get(A[i]);
+            for(Integer factor : factors) {
+                sum = sum + count[factor.intValue()-1];
+            }
+            results[i] = length - sum;
+        }
+        return results;
+    }
+}

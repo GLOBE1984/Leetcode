@@ -1,0 +1,98 @@
+Additive number is a string whose digits can form additive sequence.
+
+A valid additive sequence should contain at least three numbers. Except for the first two numbers, each subsequent number in the sequence must be the sum of the preceding two.
+
+For example:
+"112358" is an additive number because the digits can form an additive sequence: 1, 1, 2, 3, 5, 8.
+
+1 + 1 = 2, 1 + 2 = 3, 2 + 3 = 5, 3 + 5 = 8
+"199100199" is also an additive number, the additive sequence is: 1, 99, 100, 199.
+1 + 99 = 100, 99 + 100 = 199
+Note: Numbers in the additive sequence cannot have leading zeros, so sequence 1, 2, 03 or 1, 02, 3 is invalid.
+
+Given a string containing only digits '0'-'9', write a function to determine if it's an additive number.
+
+Follow up:
+How would you handle overflow for very large input integers?
+
+Credits:
+Special thanks to @jeantimex for adding this problem and creating all test cases.
+
+
+
+
+public class Solution {
+    public boolean isAdditiveNumber(String num) {
+        if(num == null || num.length() < 3) {
+            return false;
+        }
+        
+        int length = num.length();
+        int index_first = 0;
+        int index_second = index_first + 1;
+        
+        while(index_first < length/2) {
+            long num_first = Long.valueOf(num.substring(0, index_first+1)).longValue();
+            long num_second = Long.valueOf(num.substring(index_first+1, index_second+1)).longValue();
+            long num_sum = num_first + num_second;
+            int length_sum = getDigits(num_sum);
+            
+            while(index_second+length_sum < length) {
+                long num_extracted = Long.valueOf(num.substring(index_second+1, index_second+length_sum+1)).longValue();
+                int index_base = index_second;
+                
+                while(num_sum == num_extracted) {
+                    if(index_base+length_sum+1 == length) {
+                        return true;
+                    }
+                    
+                    index_base = index_base + length_sum;
+                    
+                    num_first = num_second;
+                    num_second = num_sum;
+                    num_sum = num_first + num_second;
+                    
+                    length_sum = getDigits(num_sum);
+                    if(index_base+length_sum+1 <= length) {
+                        num_extracted = Long.valueOf(num.substring(index_base+1, index_base+length_sum+1)).longValue();
+                    }
+                    else {
+                        break;
+                    }
+                }
+                
+                if(num.charAt(index_first+1) != '0') {
+                    index_second++;
+                    num_first = Long.valueOf(num.substring(0, index_first+1)).longValue();
+                    num_second = Long.valueOf(num.substring(index_first+1, index_second+1)).longValue();
+                    num_sum = num_first + num_second;
+                    length_sum = getDigits(num_sum);
+                }
+                else {
+                    break;
+                }
+            }
+            
+            if(num.charAt(0) != '0') {
+                index_first++;
+                index_second = index_first + 1;
+            }
+            else {
+                break;
+            }
+        }
+        
+        return false;
+    }
+    
+    private int getDigits(long num) {
+        int digits = 0;
+        
+        while(num != 0) {
+            num = num/10;
+            digits++;
+        }
+        
+        return digits;
+    }
+}

@@ -1,0 +1,52 @@
+Evaluate the value of an arithmetic expression in Reverse Polish Notation.
+
+Valid operators are +, -, *, /. Each operand may be an integer or another expression.
+
+Some examples:
+  ["2", "1", "+", "3", "*"] -> ((2 + 1) * 3) -> 9
+  ["4", "13", "5", "/", "+"] -> (4 + (13 / 5)) -> 6
+
+
+
+
+public class Solution {
+    public int evalRPN(String[] tokens) {
+        int result = 0;
+        
+        if(tokens != null && tokens.length != 0) {
+            Stack<Long> stack = new Stack<Long>();
+            int length = tokens.length;
+            long num1 = 0;
+            long num2 = 0;
+            for(int i = 0; i < length; ++i) {
+                String token = tokens[i];
+                if("+".equals(token)) {
+                    num1 = stack.pop().longValue();
+                    num2 = stack.pop().longValue();
+                    stack.push(Long.valueOf(num2 + num1));
+                }
+                else if("-".equals(token)) {
+                    num1 = stack.pop().longValue();
+                    num2 = stack.pop().longValue();
+                    stack.push(Long.valueOf(num2 - num1));
+                }
+                else if("*".equals(token)) {
+                    num1 = stack.pop().longValue();
+                    num2 = stack.pop().longValue();
+                    stack.push(Long.valueOf(num2 * num1));
+                }
+                else if("/".equals(token)) {
+                    num1 = stack.pop().longValue();
+                    num2 = stack.pop().longValue();
+                    stack.push(Long.valueOf(num2/num1));
+                }
+                else {
+                    stack.push(Long.valueOf(token));
+                }
+            }
+            result = (int)(stack.pop().longValue());
+        }
+        
+        return result;
+    }
+}

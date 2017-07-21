@@ -1,0 +1,238 @@
+Design a simplified version of Twitter where users can post tweets, follow/unfollow another user and is able to see the 10 most recent tweets in the user's news feed. Your design should support the following methods:
+
+postTweet(userId, tweetId): Compose a new tweet.
+getNewsFeed(userId): Retrieve the 10 most recent tweet ids in the user's news feed. Each item in the news feed must be posted by users who the user followed or by the user herself. Tweets must be ordered from most recent to least recent.
+follow(followerId, followeeId): Follower follows a followee.
+unfollow(followerId, followeeId): Follower unfollows a followee.
+Example:
+
+Twitter twitter = new Twitter();
+
+// User 1 posts a new tweet (id = 5).
+twitter.postTweet(1, 5);
+
+// User 1's news feed should return a list with 1 tweet id -> [5].
+twitter.getNewsFeed(1);
+
+// User 1 follows user 2.
+twitter.follow(1, 2);
+
+// User 2 posts a new tweet (id = 6).
+twitter.postTweet(2, 6);
+
+// User 1's news feed should return a list with 2 tweet ids -> [6, 5].
+// Tweet id 6 should precede tweet id 5 because it is posted after tweet id 5.
+twitter.getNewsFeed(1);
+
+// User 1 unfollows user 2.
+twitter.unfollow(1, 2);
+
+// User 1's news feed should return a list with 1 tweet id -> [5],
+// since user 1 is no longer following user 2.
+twitter.getNewsFeed(1);
+
+
+
+
+public class Twitter {
+    private Map<Integer, User> users;
+    private int timestamp;
+    
+    /** Initialize your data structure here. */
+    public Twitter() {
+        this.users = new HashMap<Integer, User>();
+        this.timestamp = 0;
+    }
+    
+    /** Compose a new tweet. */
+    public void postTweet(int userId, int tweetId) {
+        User user = this.users.get(userId);
+        if(user == null) {
+            user = new User(userId);
+            this.users.put(userId, user);
+        }
+        Post post = new Post(tweetId, timestamp);
+        user.postTweet(post);
+        timestamp++;
+    }
+    
+    /** Retrieve the 10 most recent tweet ids in the user's news feed. Each item in the news feed must be posted by users who the user followed or by the user herself. Tweets must be ordered from most recent to least recent. */
+    public List<Integer> getNewsFeed(int userId) {
+        List<Integer> feeds = new LinkedList<Integer>();
+        
+        TreeSet<IteratorWrapper> news = new TreeSet<IteratorWrapper>(new Comparator() { 
+            public int compare(Object o1, Object o2) {
+                IteratorWrapper i1 = (IteratorWrapper)o1;
+                IteratorWrapper i2 = (IteratorWrapper)o2;
+                return i1.getTimeStamp() - i2.getTimeStamp();
+            } 
+        });
+        
+        User user = this.users.get(userId);
+        if(user == null) {
+            user = new User(userId);
+            this.users.put(userId, user);
+        }
+        if(user.getPostsIterator().hasPrevious()) {
+            news.add(new IteratorWrapper(user.getPostsIterator()));
+        }
+        for(User tmp : user.getFollowers()) {
+            if(tmp.getPostsIterator().hasPrevious()) {
+                news.add(new IteratorWrapper(tmp.getPostsIterator()));
+            }
+        }
+        
+        while(!news.isEmpty() && feeds.size() < 10) {
+            IteratorWrapper wrapper = news.last();
+            news.remove(wrapper);
+            feeds.add(wrapper.getId());
+            if(wrapper.getIterator().hasPrevious()) {
+                wrapper.refresh();
+                news.add(wrapper);
+            }
+        }
+        
+        return feeds;
+    }
+    
+    /** Follower follows a followee. If the operation is invalid, it should be a no-op. */
+    public void follow(int followerId, int followeeId) {
+        User user1 = this.users.get(followerId);
+        if(user1 == null) {
+            user1 = new User(followerId);
+            this.users.put(followerId, user1);
+        }
+        User user2 = this.users.get(followeeId);
+        if(user2 == null) {
+            user2 = new User(followeeId);
+            this.users.put(followeeId, user2);
+        }
+        user1.follow(user2);
+    }
+    
+    /** Follower unfollows a followee. If the operation is invalid, it should be a no-op. */
+    public void unfollow(int followerId, int followeeId) {
+        User user1 = this.users.get(followerId);
+        if(user1 == null) {
+            user1 = new User(followerId);
+            this.users.put(followerId, user1);
+        }
+        User user2 = this.users.get(followeeId);
+        if(user2 == null) {
+            user2 = new User(followeeId);
+            this.users.put(followeeId, user2);
+        }
+        user1.unfollow(user2);
+    }
+    
+    private class User {
+        private final int userId;
+        private final Set<User> followers;
+        private final LinkedList<Post> posts;
+        
+        public User(int userId) {
+            this.userId = userId;
+            this.followers = new HashSet<User>();
+            this.posts = new LinkedList<Post>();
+        }
+        
+        public int getUserId() {
+            return this.userId;
+        }
+        
+        public void postTweet(Post post) {
+            this.posts.offer(post);
+            if(this.posts.size() > 10) {
+                this.posts.poll();
+            }
+        }
+        
+        public Set<User> getFollowers() {
+            return this.followers;
+        }
+        
+        public ListIterator<Post> getPostsIterator() {
+            return this.posts.listIterator(this.posts.size());
+        }
+        
+        public void follow(User user) {
+            this.followers.add(user);
+        }
+        
+        public void unfollow(User user) {
+            this.followers.remove(user);
+        }
+        
+        public boolean equals(Object obj) {
+            if(!(obj instanceof User)) {
+                return false;
+            }
+            else {
+                User user = (User)obj;
+                return this.userId == user.userId;
+            }
+        }
+        
+        public int hashCode() {
+            return this.userId;
+        }
+    }
+    
+    private class IteratorWrapper {
+        private int tweetId;
+        private int timestamp;
+        private final ListIterator<Post> iterator;
+        
+        public IteratorWrapper(ListIterator<Post> iterator) {
+            this.iterator = iterator;
+            Post post = this.iterator.previous();
+            this.tweetId = post.getId();
+            this.timestamp = post.getTimeStamp();
+        }
+        
+        public int getId() {
+            return this.tweetId;
+        }
+        
+        public int getTimeStamp() {
+            return this.timestamp;
+        }
+        
+        public ListIterator<Post> getIterator() {
+            return this.iterator;
+        }
+        
+        public void refresh() {
+            Post post = this.iterator.previous();
+            this.tweetId = post.getId();
+            this.timestamp = post.getTimeStamp();
+        }
+    }
+    
+    private class Post {
+        private final int tweetId;
+        private final int timestamp;
+        
+        public Post(int tweetId, int timestamp) {
+            this.tweetId = tweetId;
+            this.timestamp = timestamp;
+        }
+        
+        public int getId() {
+            return this.tweetId;
+        }
+        
+        public int getTimeStamp() {
+            return this.timestamp;
+        }
+    }
+}
+
+/**
+ * Your Twitter object will be instantiated and called as such:
+ * Twitter obj = new Twitter();
+ * obj.postTweet(userId,tweetId);
+ * List<Integer> param_2 = obj.getNewsFeed(userId);
+ * obj.follow(followerId,followeeId);
+ * obj.unfollow(followerId,followeeId);
+ */

@@ -1,0 +1,113 @@
+Implement a basic calculator to evaluate a simple expression string.
+
+The expression string contains only non-negative integers, +, -, *, / operators and empty spaces . The integer division should truncate toward zero.
+
+You may assume that the given expression is always valid.
+
+Some examples:
+"3+2*2" = 7
+" 3/2 " = 1
+" 3+5 / 2 " = 5
+Note: Do not use the eval built-in library function.
+
+
+
+
+public class Solution {
+    public int calculate(String s) {
+        if(s == null || s.length() == 0) {
+            return 0;
+        }
+        
+        s = s.trim();
+        
+        int result = 0;
+        int previous = 1;
+        int num = 0;
+        char preOperator = '+';
+        char operator = '+';
+        
+        boolean inMultiDiv = false;
+
+        for(int i = 0; i < s.length(); ++i) {
+            if(s.charAt(i) == ' ') {
+                continue;
+            }
+            
+            if(s.charAt(i) >= '0' && s.charAt(i) <= '9') {
+                num = 10 * num + (s.charAt(i) - '0');
+            }
+            else {
+                if(s.charAt(i) == '+' || s.charAt(i) == '-') {
+                    if(inMultiDiv) {
+                        if(operator == '*') {
+                            previous = previous * num;
+                        }
+                        else {
+                            previous = (int)(previous/num);
+                        }
+                        if(preOperator == '+') {
+                            result = result + previous;
+                        }
+                        else {
+                            result = result - previous;
+                        }
+                        inMultiDiv = false;
+                    }
+                    else {
+                        if(preOperator == '+') {
+                            result = result + num;
+                        }
+                        else {
+                            result = result - num;
+                        }
+                    }
+                    operator = s.charAt(i);
+                    preOperator = s.charAt(i);
+                }
+                else {
+                    if(inMultiDiv) {
+                        if(operator == '*') {
+                            previous = previous * num;
+                        }
+                        else {
+                            previous = (int)(previous/num);
+                        }
+                    }
+                    else {
+                        previous = num;
+                        inMultiDiv = true;
+                    }
+                    operator = s.charAt(i);
+                }
+                
+                num = 0;
+            }
+        }
+        
+        if(operator == '+' || operator == '-') {
+            if(preOperator == '+') {
+                result = result + num;
+            }
+            else {
+                result = result - num;
+            }
+        }
+        else {
+            if(operator == '*') {
+                previous = previous * num;
+            }
+            else {
+                previous = (int)(previous/num);
+            }
+            if(preOperator == '+') {
+                result = result + previous;
+            }
+            else {
+                result = result - previous;
+            }
+        }
+        
+        return result;
+    }
+}

@@ -1,0 +1,87 @@
+Given two integers representing the numerator and denominator of a fraction, return the fraction in string format.
+
+If the fractional part is repeating, enclose the repeating part in parentheses.
+
+For example,
+
+Given numerator = 1, denominator = 2, return "0.5".
+Given numerator = 2, denominator = 1, return "2".
+Given numerator = 2, denominator = 3, return "0.(6)".
+
+
+
+
+public class Solution {
+    public String fractionToDecimal(int numerator, int denominator) {
+        StringBuilder builder = new StringBuilder();
+        
+        if(denominator != 0) {
+            if(numerator == 0) {
+                return "0";
+            }
+            
+            boolean isPlus = true;
+            if(numerator < 0) {
+                isPlus = !isPlus;
+            }
+            if(denominator < 0) {
+                isPlus = !isPlus;
+            }
+            if(!isPlus) {
+                builder.append("-");
+            }
+            //numerator = Math.abs(numerator);
+            //denominator = Math.abs(denominator);
+            
+            boolean isIntPart = true;
+            String c_prev = null;
+            long numerator_long = (long)numerator;
+            long denominator_long = (long)denominator;
+            long result = 0;
+            long remaining = -1;
+            int index = 0;
+            Map<Long, Integer> map = new HashMap<Long, Integer>();
+            while(remaining != 0) {
+                if(isIntPart) {
+                    result = numerator_long/denominator_long;
+                    remaining = numerator_long%denominator_long;
+                    builder.append(Math.abs(result));
+                    if(remaining == 0) {
+                        break;
+                    }
+                    else {
+                        builder.append(".");
+                        index = builder.length();
+                        numerator_long = remaining;
+                        isIntPart = false;
+                    }
+                }
+                else {
+                    numerator_long = numerator_long * 10;
+                    result = numerator_long/denominator_long;
+                    remaining = numerator_long%denominator_long;
+                    if(remaining == 0) {
+                        builder.append(Math.abs(result));
+                        break;
+                    }
+                    else {
+                        if(map.containsKey(numerator_long)) {
+                            int index_tmp = map.get(numerator_long).intValue();
+                            builder.insert(index_tmp, "(");
+                            builder.append(")");
+                            break;
+                        }
+                        else {
+                            builder.append(Math.abs(result));
+                            map.put(numerator_long, index);
+                            index++;
+                            numerator_long = remaining;
+                        }
+                    }
+                }
+            }
+        }
+        
+        return builder.toString();
+    }
+}

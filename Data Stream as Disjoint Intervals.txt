@@ -1,0 +1,87 @@
+Given a data stream input of non-negative integers a1, a2, ..., an, ..., summarize the numbers seen so far as a list of disjoint intervals.
+
+For example, suppose the integers from the data stream are 1, 3, 7, 2, 6, ..., then the summary will be:
+
+[1, 1]
+[1, 1], [3, 3]
+[1, 1], [3, 3], [7, 7]
+[1, 3], [7, 7]
+[1, 3], [6, 7]
+Follow up:
+What if there are lots of merges and the number of disjoint intervals are small compared to the data stream's size?
+
+
+
+
+
+/**
+ * Definition for an interval.
+ * public class Interval {
+ *     int start;
+ *     int end;
+ *     Interval() { start = 0; end = 0; }
+ *     Interval(int s, int e) { start = s; end = e; }
+ * }
+ */
+public class SummaryRanges {
+    private Map<Integer, Interval> map;
+    private Set<Integer> visited;
+    
+    /** Initialize your data structure here. */
+    public SummaryRanges() {
+        map = new HashMap<Integer, Interval>();
+        visited = new HashSet<Integer>();
+    }
+    
+    public void addNum(int val) {
+        if(!visited.contains(val)) {
+            visited.add(val);
+            
+            Interval interval = map.get(val);
+            Interval interval_m = map.get(val - 1);
+            Interval interval_p = map.get(val + 1);
+            if(interval_m != null && interval_p != null) {
+                interval = new Interval(interval_m.start, interval_p.end);
+                map.remove(val - 1);
+                map.remove(val + 1);
+                map.put(interval_m.start, interval);
+                map.put(interval_p.end, interval);
+            }
+            else if(interval_m != null) {
+                interval = new Interval(interval_m.start, val);
+                map.remove(val - 1);
+                map.put(interval_m.start, interval);
+                map.put(val, interval);
+            }
+            else if(interval_p != null) {
+                interval = new Interval(val, interval_p.end);
+                map.remove(val + 1);
+                map.put(val, interval);
+                map.put(interval_p.end, interval);
+            }
+            else {
+                interval = new Interval(val, val);
+                map.put(val, interval);
+            }
+        }
+    }
+    
+    public List<Interval> getIntervals() {
+        List<Interval> results = new ArrayList<Interval>(new HashSet<Interval>(map.values()));
+        Collections.sort(results, new Comparator<Interval>(){  
+            @Override  
+            public int compare(Interval i1, Interval i2) {  
+                return i1.start - i2.start;  
+            }  
+              
+        });
+        return results;
+    }
+}
+
+/**
+ * Your SummaryRanges object will be instantiated and called as such:
+ * SummaryRanges obj = new SummaryRanges();
+ * obj.addNum(val);
+ * List<Interval> param_2 = obj.getIntervals();
+ */

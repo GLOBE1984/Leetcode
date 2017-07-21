@@ -1,0 +1,117 @@
+Design a data structure that supports the following two operations:
+
+void addWord(word)
+bool search(word)
+search(word) can search a literal word or a regular expression string containing only letters a-z or .. A . means it can represent any one letter.
+
+For example:
+
+addWord("bad")
+addWord("dad")
+addWord("mad")
+search("pad") -> false
+search("bad") -> true
+search(".ad") -> true
+search("b..") -> true
+Note:
+You may assume that all words are consist of lowercase letters a-z.
+
+
+
+
+public class WordDictionary {
+    Node root = new Node(-1);
+    
+    // Adds a word into the data structure.
+    public void addWord(String word) {
+        if(word == null || word.length() == 0) {
+            return;
+        }
+        
+        Node current = root;
+        
+        for(int i = 0; i < word.length(); ++i) {
+            char c = word.charAt(i);
+            if(current.children[c-'a'] == null) {
+                current.children[c-'a'] = new Node(i);
+            }
+            current = current.children[c-'a'];
+        }
+        
+        current.end = true;
+    }
+
+    // Returns if the word is in the data structure. A word could
+    // contain the dot character '.' to represent any one letter.
+    public boolean search(String word) {
+        if(word == null || word.length() == 0) {
+            return false;
+        }
+        
+        Queue<Node> queue = new LinkedList<Node>();
+        
+        char head = word.charAt(0);
+        if(head == '.') {
+            for(int i = 0; i < 26; ++i) {
+                if(root.children[i] != null) {
+                    queue.offer(root.children[i]);
+                }
+            }
+        }
+        else {
+            if(root.children[head-'a'] == null) {
+                return false;
+            }
+            queue.offer(root.children[head-'a']);
+        }
+        
+        while(!queue.isEmpty()) {
+            Node current = queue.poll();
+            
+            int index = current.i;
+            if(index < (word.length()-1)) {
+                char c = word.charAt(index+1);
+                
+                if(c == '.') {
+                    for(int i = 0; i < 26; ++i) {
+                        if(current.children[i] != null) {
+                            queue.offer(current.children[i]);
+                        }
+                    }
+                }
+                else {
+                    if(current.children[c-'a'] != null) {
+                        queue.offer(current.children[c-'a']);
+                    }
+                }
+            }
+            else {
+                if(current.end) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
+    }
+    
+    class Node {
+        int i;
+        Node[] children;
+        boolean end;
+        
+        private Node(int i) {
+            this.i = i;
+            children = new Node[26];
+            for(int j = 0; j < 26; ++j) {
+                children[j] = null;
+            }
+            end = false;
+        }
+    }
+}
+
+// Your WordDictionary object will be instantiated and called as such:
+// WordDictionary wordDictionary = new WordDictionary();
+// wordDictionary.addWord("word");
+// wordDictionary.search("pattern");

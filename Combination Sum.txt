@@ -1,0 +1,53 @@
+﻿Given a set of candidate numbers (C) and a target number (T), find all unique combinations in C where the candidate numbers sums to T.
+
+The same repeated number may be chosen from C unlimited number of times.
+
+Note:
+All numbers (including target) will be positive integers.
+Elements in a combination (a1, a2, … , ak) must be in non-descending order. (ie, a1 ≤ a2 ≤ … ≤ ak).
+The solution set must not contain duplicate combinations.
+For example, given candidate set 2,3,6,7 and target 7, 
+A solution set is: 
+[7] 
+[2, 2, 3] 
+
+
+
+
+public class Solution {
+    public List<List<Integer>> combinationSum(int[] candidates, int target) {
+        List<List<Integer>> results = new ArrayList<List<Integer>>();
+        
+        if(candidates != null && candidates.length != 0) {
+            Arrays.sort(candidates);
+            
+            Stack<Integer> path = new Stack<Integer>();
+            
+            subtract(results, path, candidates, target);
+        }
+        
+        return results;
+    }
+    
+    private void subtract(List<List<Integer>> results, Stack<Integer> path, int[] candidates, int target) {
+        if(target > 0) {
+            for(int i = 0; i < candidates.length; ++i) {
+                try {
+                    path.push(Integer.valueOf(candidates[i]));
+                    int[] newCandidates = Arrays.copyOfRange(candidates, i, candidates.length);
+                    subtract(results, path, newCandidates, target-candidates[i]);
+                    path.pop();
+                } catch(Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        else {
+            if(target == 0) {
+                List<Integer> tmp = new ArrayList<Integer>();
+                tmp.addAll(path);
+                results.add(tmp);
+            }
+        }
+    }
+}

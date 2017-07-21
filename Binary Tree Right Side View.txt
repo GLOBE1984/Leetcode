@@ -1,0 +1,53 @@
+Given a binary tree, imagine yourself standing on the right side of it, return the values of the nodes you can see ordered from top to bottom.
+
+For example:
+Given the following binary tree,
+   1            <---
+ /   \
+2     3         <---
+ \     \
+  5     4       <---
+You should return [1, 3, 4].
+
+
+
+
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */
+public class Solution {
+    public List<Integer> rightSideView(TreeNode root) {
+        List<Integer> list = new ArrayList<Integer>();
+        
+        if(root != null) {
+            Queue<TreeNode> thisLevel = new LinkedList<TreeNode>();
+            thisLevel.offer(root);
+            
+            while(!thisLevel.isEmpty()) {
+                TreeNode current = root;
+                
+                Queue<TreeNode> nextLevel = new LinkedList<TreeNode>();
+                while(!thisLevel.isEmpty()) {
+                    current = thisLevel.poll();
+                    if(current.left != null) {
+                        nextLevel.offer(current.left);
+                    }
+                    if(current.right != null) {
+                        nextLevel.offer(current.right);
+                    }
+                }
+                
+                list.add(Integer.valueOf(current.val));
+                thisLevel = nextLevel;
+            }
+        }
+        
+        return list;
+    }
+}

@@ -1,0 +1,49 @@
+Given a binary tree, return the postorder traversal of its nodes' values.
+
+For example:
+Given binary tree {1,#,2,3},
+   1
+    \
+     2
+    /
+   3
+return [3,2,1].
+
+
+
+
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */
+public class Solution {
+    public List<Integer> postorderTraversal(TreeNode root) {
+        List<Integer> list = new ArrayList<Integer>();
+        
+        if(root != null) {
+            postorderTraversal(root, list);
+        }
+        
+        return list;
+    }
+    
+    private void postorderTraversal(TreeNode root, List<Integer> list) {
+        if(root.left == null && root.right == null) {
+            list.add(Integer.valueOf(root.val));
+            return;
+        }
+        
+        if(root.left != null) {
+            postorderTraversal(root.left, list);
+        }
+        if(root.right != null) {
+            postorderTraversal(root.right, list);
+        }
+        list.add(Integer.valueOf(root.val));
+    }
+}

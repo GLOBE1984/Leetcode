@@ -1,0 +1,67 @@
+Write an efficient algorithm that searches for a value in an m x n matrix. This matrix has the following properties:
+
+Integers in each row are sorted in ascending from left to right.
+Integers in each column are sorted in ascending from top to bottom.
+For example,
+
+Consider the following matrix:
+
+[
+  [1,   4,  7, 11, 15],
+  [2,   5,  8, 12, 19],
+  [3,   6,  9, 16, 22],
+  [10, 13, 14, 17, 24],
+  [18, 21, 23, 26, 30]
+]
+Given target = 5, return true.
+
+Given target = 20, return false.
+
+
+
+
+
+public class Solution {
+    public boolean searchMatrix(int[][] matrix, int target) {
+        if(matrix == null || matrix.length == 0 || matrix[0].length == 0) {
+			return false;
+		}
+		
+		int m = matrix.length;
+		int n = matrix[0].length;
+		
+		return searchMatrix(matrix, 0, m-1, 0, n-1, target);
+    }
+	
+	private boolean searchMatrix(int[][] matrix, int row_start, int row_end, int column_start, int column_end, int target) {
+		if(row_start == row_end && column_start == column_end) {
+			if(matrix[row_start][column_start] == target) {
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
+		if(row_start > row_end || column_start > column_end) {
+			return false;
+		}
+		
+		int i = 0;
+		while((i+row_start) <= row_end && (i+column_start) <= column_end && matrix[i+row_start][i+column_start] <= target) {
+			if(matrix[i+row_start][i+column_start] == target) {
+				return true;
+			}
+			else {
+				i++;
+			}
+		}
+		
+		if(i == 0) {
+			return false;
+		}
+		else {
+			return searchMatrix(matrix, i+row_start, row_end, column_start, column_start+i-1, target) 
+                || searchMatrix(matrix, row_start, row_start+i-1, column_start+i, column_end, target);
+		}
+	}
+}

@@ -1,0 +1,114 @@
+Given a binary tree, count the number of uni-value subtrees.
+
+A Uni-value subtree means all nodes of the subtree have the same value.
+
+For example:
+Given binary tree,
+              5
+             / \
+            1   5
+           / \   \
+          5   5   5
+return 4.
+
+
+
+
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */
+public class Solution {
+    public int countUnivalSubtrees(TreeNode root) {
+        int result = 0;
+        
+        if(root != null) {
+            result = postorderTraverse(root).getCount();
+        }
+        
+        return result;
+    }
+    
+    private SubTreeInfo postorderTraverse(TreeNode root) {
+        SubTreeInfo info = new SubTreeInfo();
+        
+        if(root.left == null && root.right == null) {
+            info.setCommonValue(Integer.valueOf(root.val));
+            info.setCount(1);
+        }
+        else if(root.left != null && root.right != null) {
+            SubTreeInfo info_left = postorderTraverse(root.left);
+            SubTreeInfo info_right = postorderTraverse(root.right);
+            
+            if(info_left.getCommonValue() != null && info_right.getCommonValue() != null) {
+                if(info_left.getCommonValue().intValue() == root.val && info_right.getCommonValue().intValue() == root.val) {
+                    info.setCommonValue(info_left.getCommonValue());
+                    info.setCount(info_left.getCount()+info_right.getCount()+1);
+                }
+                else {
+                    info.setCommonValue(null);
+                    info.setCount(info_left.getCount()+info_right.getCount());
+                }
+            }
+            else {
+                info.setCommonValue(null);
+                info.setCount(info_left.getCount()+info_right.getCount());
+            }
+        }
+        else if(root.left != null) {
+            SubTreeInfo info_left = postorderTraverse(root.left);
+            if(info_left.getCommonValue() != null && info_left.getCommonValue().intValue() == root.val) {
+                info.setCommonValue(info_left.getCommonValue());
+                info.setCount(info_left.getCount()+1);
+            }
+            else {
+                info.setCommonValue(null);
+                info.setCount(info_left.getCount());
+            }
+        }
+        else {
+            SubTreeInfo info_right = postorderTraverse(root.right);
+            if(info_right.getCommonValue() != null && info_right.getCommonValue().intValue() == root.val) {
+                info.setCommonValue(info_right.getCommonValue());
+                info.setCount(info_right.getCount()+1);
+            }
+            else {
+                info.setCommonValue(null);
+                info.setCount(info_right.getCount());
+            }
+        }
+        
+        return info;
+    }
+    
+    private class SubTreeInfo {
+        Integer val_common;
+        int count;
+        
+        public SubTreeInfo() {
+            val_common = null;
+            count = 0;
+        }
+        
+        public void setCommonValue(Integer val_common) {
+            this.val_common = val_common;
+        }
+        
+        public Integer getCommonValue() {
+            return this.val_common;
+        }
+        
+        public void setCount(int count) {
+            this.count = count;
+        }
+        
+        public int getCount() {
+            return this.count;
+        }
+    }
+}

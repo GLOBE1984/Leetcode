@@ -1,0 +1,79 @@
+A group of two or more people wants to meet and minimize the total travel distance. You are given a 2D grid of values 0 or 1, where each 1 marks the home of someone in the group. The distance is calculated using Manhattan Distance, where distance(p1, p2) = |p2.x - p1.x| + |p2.y - p1.y|.
+
+For example, given three people living at (0,0), (0,4), and (2,2):
+
+1 - 0 - 0 - 0 - 1
+|   |   |   |   |
+0 - 0 - 0 - 0 - 0
+|   |   |   |   |
+0 - 0 - 1 - 0 - 0
+The point (0,2) is an ideal meeting point, as the total travel distance of 2+2+2=6 is minimal. So return 6.
+
+
+
+
+public class Solution {
+    public int minTotalDistance(int[][] grid) {
+        if(grid == null || grid.length == 0 || grid[0].length == 0) {
+            return -1;
+        }
+        
+        Map<Integer, Integer> count_x = new HashMap<Integer, Integer>();
+        Map<Integer, Integer> count_y = new HashMap<Integer, Integer>();
+        
+        int length_x = grid[0].length;
+        int length_y = grid.length;
+        
+        int min = 0;
+        int num_total = 0;
+        
+        for(int i = 0; i < length_y; ++i) {
+            int count = 0;
+            for(int j = 0; j < length_x; ++j) {
+                if(grid[i][j] == 1) {
+                    num_total++;
+                    min = min + i + j;
+                    count++;
+                    Integer count_tmp = count_x.get(j);
+                    if(count_tmp != null) {
+                        count_tmp = Integer.valueOf(count_tmp.intValue() + 1);
+                    }
+                    else {
+                        count_tmp = Integer.valueOf(1);
+                    }
+                    count_x.put(j, count_tmp);
+                }
+            }
+            count_y.put(i, count);
+        }
+        
+        int[][] count = new int[length_y][length_x];
+        count[0][0] = min;
+        
+        int num_upper = 0;
+        
+        for(int i = 0; i < length_y; ++i) {
+            if(i != 0) {
+                if(count_y.get(i - 1) != null) {
+                    num_upper = num_upper + count_y.get(i - 1).intValue();
+                }
+                count[i][0] = count[i-1][0] + num_upper - (num_total - num_upper);
+                if(count[i][0] < min) {
+                    min = count[i][0];
+                }
+            }
+            int num_lefter = 0;
+            for(int j = 1; j < length_x; ++j) {
+                if(count_x.get(j - 1) != null) {
+                    num_lefter = num_lefter + count_x.get(j - 1).intValue();
+                }
+                count[i][j] = count[i][j-1] + num_lefter - (num_total - num_lefter);
+                if(count[i][j] < min) {
+                    min = count[i][j];
+                }
+            }
+        }
+        
+        return min;
+    }
+}

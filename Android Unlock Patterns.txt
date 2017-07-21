@@ -1,0 +1,249 @@
+Given an Android 3x3 key lock screen and two integers m and n, where 1 ¡Ü m ¡Ü n ¡Ü 9, count the total number of unlock patterns of the Android lock screen, which consist of minimum of m keys and maximum n keys.
+
+Rules for a valid pattern:
+Each pattern must connect at least m keys and at most n keys.
+All the keys must be distinct.
+If the line connecting two consecutive keys in the pattern passes through any other keys, the other keys must have previously selected in the pattern. No jumps through non selected key is allowed.
+The order of keys used matters.
+
+Explanation:
+| 1 | 2 | 3 |
+| 4 | 5 | 6 |
+| 7 | 8 | 9 |
+Invalid move: 4 - 1 - 3 - 6 
+Line 1 - 3 passes through key 2 which had not been selected in the pattern.
+
+Invalid move: 4 - 1 - 9 - 2
+Line 1 - 9 passes through key 5 which had not been selected in the pattern.
+
+Valid move: 2 - 4 - 1 - 3 - 6
+Line 1 - 3 is valid because it passes through key 2, which had been selected in the pattern
+
+Valid move: 6 - 5 - 4 - 1 - 9 - 2
+Line 1 - 9 is valid because it passes through key 5, which had been selected in the pattern.
+
+Example:
+Given m = 1, n = 1, return 9.
+
+
+
+
+public class Solution {
+    public int numberOfPatterns(int m, int n) {
+        int count = 0;
+        int depth = 1;
+        Map<Node, Integer> nodes_count = new HashMap<Node, Integer>();
+        
+        for(int i = 1; i <= 9; ++i) {
+            count = count + numberOfPatterns(nodes_count, new Node(new HashSet<Integer>(), i), depth, m, n);
+        }
+        
+        return count;
+    }
+    
+    private int numberOfPatterns(Map<Node, Integer> nodes_count, Node node, int depth, int m, int n) {
+        if(depth > n) {
+            return 0;
+        }
+        
+        int count = 0;
+        
+        if(nodes_count.get(node) != null) {
+            return nodes_count.get(node).intValue();
+        }
+        else {
+            for(Integer integer : node.children) {
+                count = count 
+                    + numberOfPatterns(nodes_count, new Node(new HashSet<Integer>(node.path), integer.intValue()), depth+1, m, n);
+            }
+            
+            if(m > depth) {
+                nodes_count.put(node, count);
+                return count;
+            }
+            else {
+                nodes_count.put(node, count+1);
+                return count + 1;
+            }
+        }
+    }
+    
+    private static class Node {
+        int code;
+        int val;
+        Set<Integer> path;
+        Set<Integer> children;
+        
+        public Node(Set<Integer> path, int val) {
+            this.path = path;
+            for(Integer integer : path) {
+                this.code = this.code | (int)Math.pow(2, integer.intValue());
+            }
+            this.val = val;
+            if(val != 0) {
+                this.path.add(val);
+            }
+            this.children = new HashSet<Integer>();
+            if(this.path.size() == 0) {
+                for(int i = 1; i <= 9; ++i) {
+                    this.children.add(i);
+                }
+            }
+            else {
+                this.children.addAll(getReachableIntegers(this.path, val));
+                this.children.removeAll(this.path);
+            }
+        }
+        
+        public Set<Integer> getChildren() {
+            return this.children;
+        }
+        
+        private Set<Integer> getReachableIntegers(Set<Integer> path, int val) {
+            Set<Integer> reachable = new HashSet<Integer>();
+        
+            int remaining = val%3;
+        
+            if(remaining == 1) {
+                if(val - 6 >= 1 && path.contains(val - 3)) {
+                    reachable.add(val - 6);
+                }
+                if(val - 5 >= 1) {
+                    reachable.add(val - 5);
+                }
+                if(val - 4 >= 1 && path.contains(val - 2)) {
+                    reachable.add(val - 4);
+                }
+                if(val - 3 >= 1) {
+                    reachable.add(val - 3);
+                }
+                if(val - 2 >= 1) {
+                    reachable.add(val - 2);
+                }
+                if(val - 1 >= 1) {
+                    reachable.add(val - 1);
+                }
+                reachable.add(val + 1);
+                if(val + 2 <= 9  && path.contains(val + 1)) {
+                    reachable.add(val + 2);
+                }
+                if(val + 3 <= 9) {
+                    reachable.add(val + 3);
+                }
+                if(val + 4 <= 9) {
+                    reachable.add(val + 4);
+                }
+                if(val + 5 <= 9) {
+                    reachable.add(val + 5);
+                }
+                if(val + 6 <= 9 && path.contains(val + 3)) {
+                    reachable.add(val + 6);
+                }
+                if(val + 7 <= 9) {
+                    reachable.add(val + 7);
+                }
+                if(val + 8 <= 9 && path.contains(val + 4)) {
+                    reachable.add(val + 8);
+                }
+            }
+            else if(remaining == 2) {
+                if(val - 7 >= 1) {
+                    reachable.add(val - 7);
+                }
+                if(val - 6 >= 1 && path.contains(val - 3)) {
+                    reachable.add(val - 6);
+                }
+                if(val - 5 >= 1) {
+                    reachable.add(val - 5);
+                }
+                if(val - 4 >= 1) {
+                    reachable.add(val - 4);
+                }
+                if(val - 3 >= 1) {
+                    reachable.add(val - 3);
+                }
+                if(val - 2 >= 1) {
+                    reachable.add(val - 2);
+                }
+                reachable.add(val - 1);
+                reachable.add(val + 1);
+                if(val + 2 <= 9) {
+                    reachable.add(val + 2);
+                }
+                if(val + 3 <= 9) {
+                    reachable.add(val + 3);
+                }
+                if(val + 4 <= 9) {
+                    reachable.add(val + 4);
+                }
+                if(val + 5 <= 9) {
+                    reachable.add(val + 5);
+                }
+                if(val + 6 <= 9 && path.contains(val + 3)) {
+                    reachable.add(val + 6);
+                }
+                if(val + 7 <= 9) {
+                    reachable.add(val + 7);
+                }
+            }
+            else {
+                if(val - 8 >= 1 && path.contains(val - 4)) {
+                    reachable.add(val - 8);
+                }
+                if(val - 7 >= 1) {
+                    reachable.add(val - 7);
+                }
+                if(val - 6 >= 1 && path.contains(val - 3)) {
+                    reachable.add(val - 6);
+                }
+                if(val - 5 >= 1) {
+                    reachable.add(val - 5);
+                }
+                if(val - 4 >= 1) {
+                    reachable.add(val - 4);
+                }
+                if(val - 3 >= 1) {
+                    reachable.add(val - 3);
+                }
+                if(val - 2 >= 1 && path.contains(val - 1)) {
+                    reachable.add(val - 2);
+                }
+                reachable.add(val - 1);
+                if(val + 1 <= 9) {
+                    reachable.add(val + 1);
+                }
+                if(val + 2 <= 9) {
+                    reachable.add(val + 2);
+                }
+                if(val + 3 <= 9) {
+                    reachable.add(val + 3);
+                }
+                if(val + 4 <= 9 && path.contains(val + 2)) {
+                    reachable.add(val + 4);
+                }
+                if(val + 5 <= 9) {
+                    reachable.add(val + 5);
+                }
+                if(val + 6 <= 9 && path.contains(val + 3)) {
+                    reachable.add(val + 6);
+                }
+            }
+            
+            return reachable;
+        }
+        
+        public int hashCode() {
+            return this.code * 1000 + this.val;
+        }
+        
+        public boolean equals(Object obj) {
+            if(!(obj instanceof Node)) {
+                return false;
+            }
+            else {
+                Node node = (Node)obj;
+                return this.code == node.code && this.val == node.val;
+            }
+        }
+    }
+}

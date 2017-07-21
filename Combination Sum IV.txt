@@ -1,0 +1,87 @@
+Given an integer array with all positive numbers and no duplicates, find the number of possible combinations that add up to a positive integer target.
+
+Example:
+
+nums = [1, 2, 3]
+target = 4
+
+The possible combination ways are:
+(1, 1, 1, 1)
+(1, 1, 2)
+(1, 2, 1)
+(1, 3)
+(2, 1, 1)
+(2, 2)
+(3, 1)
+
+Note that different sequences are counted as different combinations.
+
+Therefore the output is 7.
+Follow up:
+What if negative numbers are allowed in the given array?
+How does it change the problem?
+What limitation we need to add to the question to allow negative numbers?
+
+
+
+
+public class Solution {
+    public int combinationSum4(int[] nums, int target) {
+        if(nums == null || nums.length == 0) {
+            return 0;
+        }
+        
+        Arrays.sort(nums);
+        Map<Integer, Integer> map = new HashMap<Integer, Integer>();
+        
+        int result = 0;
+        
+        result = combinationSum4(nums, target, map);
+        
+        return result;
+    }
+    
+    public int combinationSum4(int[] nums, int target, Map<Integer, Integer> map) {
+        if(map.get(target) != null) {
+            return map.get(target).intValue();
+        }
+        
+        int result = 0;
+        
+        int length = nums.length;
+        int index_start = 0;
+        
+        if(nums[0] >= 0) {
+            if(nums[0] == 0) {
+                if(length == 1) {
+                    if(target == 0) {
+                        return 1;
+                    }
+                    else {
+                        return 0;
+                    }
+                }
+                else {
+                    index_start++;
+                }
+            }
+            if(target >= nums[index_start]) {
+                for(int i = index_start; i < length; ++i) {
+                    if(target > nums[i]) {
+                        result = result + combinationSum4(nums, target-nums[i], map);
+                    }
+                    else if(target == nums[i]) {
+                        result++;
+                    }
+                    else {
+                        break;
+                    }
+                }
+            }
+        }
+        
+        map.put(target, result);
+        
+        return result;
+    }
+}
