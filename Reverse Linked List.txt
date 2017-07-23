@@ -3,7 +3,6 @@ Reverse a singly linked list.
 
 
 
-
 /**
  * Definition for singly-linked list.
  * public class ListNode {
@@ -18,16 +17,15 @@ public class Solution {
             return null;
         }
         
+        ListNode prev = null;
         ListNode current = head;
-        ListNode current_new = null;
-        ListNode pre_new = null;
         while(current != null) {
-            pre_new = current_new;
-            current_new = new ListNode(current.val);
-            current_new.next = pre_new;
-            current = current.next;
+            ListNode tmp = current.next;
+            current.next = prev;
+            prev = current;
+            current = tmp;
         }
         
-        return current_new;
+        return prev;
     }
 }

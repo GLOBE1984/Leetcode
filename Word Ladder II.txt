@@ -1,0 +1,111 @@
+Given two words (beginWord and endWord), and a dictionary's word list, find all shortest transformation sequence(s) from beginWord to endWord, such that:
+
+Only one letter can be changed at a time
+Each transformed word must exist in the word list. Note that beginWord is not a transformed word.
+For example,
+
+Given:
+beginWord = "hit"
+endWord = "cog"
+wordList = ["hot","dot","dog","lot","log","cog"]
+Return
+  [
+    ["hit","hot","dot","dog","cog"],
+    ["hit","hot","lot","log","cog"]
+  ]
+Note:
+Return an empty list if there is no such transformation sequence.
+All words have the same length.
+All words contain only lowercase alphabetic characters.
+You may assume no duplicates in the word list.
+You may assume beginWord and endWord are non-empty and are not the same.
+UPDATE (2017/1/20):
+The wordList parameter had been changed to a list of strings (instead of a set of strings). Please reload the code definition to get the latest changes.
+
+
+
+
+
+public class Solution {
+    public List<List<String>> findLadders(String beginWord, String endWord, List<String> wordList) {
+        List<List<String>> results = new ArrayList<List<String>>();
+        
+        if(beginWord != null && endWord != null && !wordList.isEmpty()) {
+            Map<String, Node> map = new HashMap<String, Node>();
+            Set<String> words = new HashSet<String>(wordList);
+            Node root = new Node(beginWord);
+            Node end = new Node(endWord);
+            int length = beginWord.length();
+            getTree(root, end, length, map, words);
+            traverseTree(root, end, new LinkedList<String>(), results);
+        }
+        
+        return results;
+    }
+    
+    private void getTree(Node root, Node end, int length, Map<String, Node> map, Set<String> words) {
+        Queue<Node> queue = new LinkedList<Node>();
+        queue.offer(root);
+        boolean found = false;
+        while(!queue.isEmpty()) {
+            Queue<Node> level = new LinkedList<Node>();
+            Set<String> remove = new HashSet<String>();
+            while(!queue.isEmpty()) {
+                Node node = queue.poll();
+                String word = node.word;
+                for(int i = 0; i < length; ++i) {
+                    for(char c = 'a'; c <= 'z'; ++c) {
+                        String word_new = word.substring(0, i) + c + word.substring(i+1);
+                        if(words.contains(word_new) && !word.equals(word_new)) {
+                            if(end.word.equals(word_new)) {
+                                end.parents.add(node);
+                                found = true;
+                            }
+                            else {
+                                Node node_new = map.get(word_new);
+                                if(node_new == null) {
+                                    node_new = new Node(word_new);
+                                    map.put(word_new, node_new);
+                                    level.add(node_new);
+                                }
+                                node_new.parents.add(node);
+                                remove.add(word_new);
+                            }
+                        }
+                    }
+                }
+            }
+            if(found) {
+                break;
+            }
+            else {
+                words.removeAll(remove);
+                queue = level;
+            }
+        }
+    }
+    
+    private void traverseTree(Node root, Node node, LinkedList<String> result, List<List<String>> results) {
+        result.addFirst(node.word);
+        if(root == node) {
+            results.add(result);
+        }
+        else {
+            Set<Node> parents = node.parents;
+            for(Node parent : parents) {
+                LinkedList<String> result_new = new LinkedList<String>(result);
+                traverseTree(root, parent, result_new, results);
+            }
+        }
+    }
+    
+    private class Node {
+        protected String word;
+        protected Set<Node> parents;
+        
+        public Node(String word) {
+            this.word = word;
+            this.parents = new HashSet<Node>();
+        }
+    }
+}
