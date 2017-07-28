@@ -1,0 +1,49 @@
+iven an index k, return the kth row of the Pascal's triangle.
+
+For example, given k = 3,
+Return [1,3,3,1].
+
+Note:
+Could you optimize your algorithm to use only O(k) extra space?
+
+
+
+
+public class Solution {
+    public List<Integer> getRow(int rowIndex) {
+        List<Integer> level_this = new ArrayList<Integer>();
+        
+        if(rowIndex <= 0) {
+            if(rowIndex == 0) {
+                level_this.add(1);
+            }
+            return level_this;
+        }
+        
+        level_this.add(1);
+        level_this.add(1);
+        int level = 1;
+        List<Integer> level_next = new ArrayList<Integer>();
+        level_next.add(1);
+        level_next.add(1);
+        
+        while(level < rowIndex) {
+            level_next = new ArrayList<Integer>();
+            int prev = level_this.get(0);
+            level_next.add(1);
+            int index = 1;
+            int size = level_this.size();
+            while(index < size) {
+                int current = level_this.get(index);
+                level_next.add(prev + current);
+                prev = current;
+                index++;
+            }
+            level_next.add(1);
+            level_this = level_next;
+            level++;
+        }
+        
+        return level_next;
+    }
+}

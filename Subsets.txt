@@ -1,0 +1,70 @@
+Given a set of distinct integers, nums, return all possible subsets.
+
+Note: The solution set must not contain duplicate subsets.
+
+For example,
+If nums = [1,2,3], a solution is:
+
+[
+  [3],
+  [1],
+  [2],
+  [1,2,3],
+  [1,3],
+  [2,3],
+  [1,2],
+  []
+]
+
+
+
+
+
+public class Solution {
+    public List<List<Integer>> subsets(int[] nums) {
+        List<List<Integer>> results = new ArrayList<List<Integer>>();
+        
+        if(nums != null && nums.length != 0) {
+            results.add(new ArrayList<Integer>());
+            
+            int length = nums.length;
+            Queue<SetWrapper> queue = new LinkedList<SetWrapper>();
+            SetWrapper head = new SetWrapper();
+            queue.offer(head);
+            while(!queue.isEmpty()) {
+                Queue<SetWrapper> level = new LinkedList<SetWrapper>();
+                while(!queue.isEmpty()) {
+                    SetWrapper wrapper = queue.poll();
+                    int index = wrapper.index;
+                    List<Integer> list = wrapper.list;
+                    index++;
+                    while(index < length) {
+                        SetWrapper wrapper_new = new SetWrapper(list, index);
+                        wrapper_new.list.add(nums[index]);
+                        level.offer(wrapper_new);
+                        results.add(wrapper_new.list);
+                        index++;                        
+                    }
+                }
+                queue = level;
+            }
+        }
+        
+        return results;
+    }
+    
+    private class SetWrapper {
+        protected List<Integer> list;
+        protected int index;
+        
+        public SetWrapper(List<Integer> list, int index) {
+            this.list = new ArrayList<Integer>(list);
+            this.index = index;
+        }
+        
+        public SetWrapper() {
+            this.list = new ArrayList<Integer>();
+            this.index = -1;
+        }
+    }
+}
