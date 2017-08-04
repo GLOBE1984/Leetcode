@@ -1,0 +1,104 @@
+Given a string, sort it in decreasing order based on the frequency of characters.
+
+Example 1:
+
+Input:
+"tree"
+
+Output:
+"eert"
+
+Explanation:
+'e' appears twice while 'r' and 't' both appear once.
+So 'e' must appear before both 'r' and 't'. Therefore "eetr" is also a valid answer.
+Example 2:
+
+Input:
+"cccaaa"
+
+Output:
+"cccaaa"
+
+Explanation:
+Both 'c' and 'a' appear three times, so "aaaccc" is also a valid answer.
+Note that "cacaca" is incorrect, as the same characters must be together.
+Example 3:
+
+Input:
+"Aabb"
+
+Output:
+"bbAa"
+
+Explanation:
+"bbaA" is also a valid answer, but "Aabb" is incorrect.
+Note that 'A' and 'a' are treated as two different characters.
+
+
+
+
+
+public class Solution {
+    public String frequencySort(String s) {
+        if(s == null || s.length() == 0) {
+            return s;
+        }
+        
+        Map<Character, Integer> map = new HashMap<Character, Integer>();
+        Map<Integer, Set<Character>> map_sorted = new TreeMap<Integer, Set<Character>>(
+            new Comparator<Integer>() {
+                @Override  
+                public int compare(Integer o1, Integer o2) {  
+                    return o2.compareTo(o1);
+                } 
+            }
+        );
+            
+        int length = s.length();
+        for(int i = 0; i < length; ++i) {
+            char c = s.charAt(i);
+            Integer count = map.get(c);
+            if(count == null) {
+                count = Integer.valueOf(0);
+            }
+            Set<Character> set = map_sorted.get(count);
+            if(set != null) {
+                set.remove(c);
+                if(set.size() == 0) {
+                    map_sorted.remove(count);
+                }
+                else {
+                    map_sorted.put(count, set);
+                }
+            }
+            
+            count = Integer.valueOf(count.intValue() + 1);
+            map.put(c, count);
+            set = map_sorted.get(count);
+            if(set == null) {
+                set = new HashSet<Character>();
+            }
+            set.add(c);
+            map_sorted.put(count, set);
+        }
+        
+        StringBuilder builder = new StringBuilder();
+        Set<Map.Entry<Integer, Set<Character>>> set = map_sorted.entrySet();
+        Iterator<Map.Entry<Integer, Set<Character>>> iterator = set.iterator();
+        while(iterator.hasNext()) {
+            Map.Entry<Integer, Set<Character>> entry = iterator.next();
+            int count_tmp = entry.getKey().intValue();
+            Set<Character> set_tmp = entry.getValue();
+            Iterator<Character> iterator_tmp = set_tmp.iterator();
+            while(iterator_tmp.hasNext()) {
+                char c_tmp = iterator_tmp.next().charValue();
+                int times = 0;
+                while(times < count_tmp) {
+                    builder.append(c_tmp);
+                    times++;
+                }
+            }
+        }
+        return builder.toString();
+    }
+}

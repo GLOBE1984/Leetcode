@@ -1,0 +1,64 @@
+You are given n pairs of numbers. In every pair, the first number is always smaller than the second number.
+
+Now, we define a pair (c, d) can follow another pair (a, b) if and only if b < c. Chain of pairs can be formed in this fashion.
+
+Given a set of pairs, find the length longest chain which can be formed. You needn't use up all the given pairs. You can select pairs in any order.
+
+Example 1:
+Input: [[1,2], [2,3], [3,4]]
+Output: 2
+Explanation: The longest chain is [1,2] -> [3,4]
+Note:
+The number of given pairs will be in the range [1, 1000].
+
+
+
+
+
+public class Solution {
+    /*
+     * First sort the array based on the end point, 
+     * then choose the range with the smallest end point
+     */
+    public int findLongestChain(int[][] pairs) {
+        Arrays.sort(pairs, (a,b) -> a[1] - b[1]);
+        int sum = 0; 
+        int length = pairs.length;
+        int i = 0;
+        while (i < length) {
+            int current_end = pairs[i][1];
+            sum++;
+            while (i < length && pairs[i][0] <= current_end) {
+                i++;
+            }
+        }
+        return sum;
+    }
+}
+
+
+Another solution:
+public int findLongestChain(int[][] pairs) {  
+    Arrays.sort(pairs, new Comparator<int[]>(){  
+        @Override  
+        public int compare(int[] o1, int[] o2) {  
+            if(o1[0] == o2[0])  return o1[1]-o2[1];  
+            return o1[0] - o2[0];  
+        }  
+              
+    });  
+          
+    int ret = 1;  
+    int[] dp = new int[pairs.length];  
+    dp[0] = 1;  
+    for(int i=1; i<pairs.length; i++) {  
+        dp[i] = 1;  
+        for(int j=0; j<i; j++) {  
+            if(pairs[j][1] < pairs[i][0])  
+                dp[i] = Math.max(dp[i], dp[j]+1);  
+        }  
+        ret = Math.max(ret, dp[i]);  
+    }  
+          
+    return ret;  
+}
