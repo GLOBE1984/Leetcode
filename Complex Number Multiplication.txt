@@ -1,0 +1,105 @@
+Given two strings representing two complex numbers.
+
+You need to return a string representing their multiplication. Note i2 = -1 according to the definition.
+
+Example 1:
+Input: "1+1i", "1+1i"
+Output: "0+2i"
+Explanation: (1 + i) * (1 + i) = 1 + i2 + 2 * i = 2i, and you need convert it to the form of 0+2i.
+Example 2:
+Input: "1+-1i", "1+-1i"
+Output: "0+-2i"
+Explanation: (1 - i) * (1 - i) = 1 + i2 - 2 * i = -2i, and you need convert it to the form of 0+-2i.
+Note:
+
+The input strings will not have extra blank.
+The input strings will be given in the form of a+bi, where the integer a and b will both belong to the range of [-100, 100]. And the output should be also in this form.
+
+
+
+
+
+public class Solution {
+    public String complexNumberMultiply(String a, String b) {
+        if(a == null || b == null) {
+            return null;
+        }
+        
+        int i_a = 0;
+        int val_a = 0;
+        int val = 0;
+        int index = 0;
+        int multi = 1;
+        int length = a.length();
+        boolean is_val_before_i = false;
+        while(index < length) {
+            char c = a.charAt(index);
+            if(c >= '0' && c <= '9') {
+                val = 10 * val + (c - '0');
+                is_val_before_i = true;
+            }
+            else if(c == '+') {
+                val_a = val_a + multi * val;
+                multi = 1;
+                val = 0;
+                is_val_before_i = false;
+            }
+            else if(c == '-') {
+                val_a = val_a + multi * val;
+                multi = -1;
+                val = 0;
+                is_val_before_i = false;
+            }
+            else {
+                if(is_val_before_i) {
+                    i_a = multi * val;
+                }
+                else {
+                    i_a = multi;
+                }
+            }
+            index++;
+        }
+        
+        int i_b = 0;
+        int val_b = 0;
+        val = 0;
+        index = 0;
+        multi = 1;
+        length = b.length();
+        is_val_before_i = false;
+        while(index < length) {
+            char c = b.charAt(index);
+            if(c >= '0' && c <= '9') {
+                val = 10 * val + (c - '0');
+                is_val_before_i = true;
+            }
+            else if(c == '+') {
+                val_b = val_b + multi * val;
+                multi = 1;
+                val = 0;
+                is_val_before_i = false;
+            }
+            else if(c == '-') {
+                val_b = val_b + multi * val;
+                multi = -1;
+                val = 0;
+                is_val_before_i = false;
+            }
+            else {
+                if(is_val_before_i) {
+                    i_b = multi * val;
+                }
+                else {
+                    i_b = multi;
+                }
+            }
+            index++;
+        }
+        
+        val = val_a * val_b - (i_a * i_b);
+        int i = val_a * i_b + val_b * i_a;
+        
+        return val + "+" + i + "i";
+    }
+}

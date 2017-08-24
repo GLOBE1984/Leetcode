@@ -1,0 +1,126 @@
+Solve a given equation and return the value of x in the form of string "x=#value". The equation contains only '+', '-' operation, the variable x and its coefficient.
+
+If there is no solution for the equation, return "No solution".
+
+If there are infinite solutions for the equation, return "Infinite solutions".
+
+If there is exactly one solution for the equation, we ensure that the value of x is an integer.
+
+Example 1:
+Input: "x+5-3+x=6+x-2"
+Output: "x=2"
+Example 2:
+Input: "x=x"
+Output: "Infinite solutions"
+Example 3:
+Input: "2x=x"
+Output: "x=0"
+Example 4:
+Input: "2x+3x-6x=x+2"
+Output: "x=-1"
+Example 5:
+Input: "x=x+2"
+Output: "No solution"
+
+
+
+
+
+public class Solution {
+    public String solveEquation(String equation) {
+        if(equation == null || equation.isEmpty()) {
+            return "No solution";
+        }
+        
+        int x_left = 0;
+        int x_right = 0;
+        int num_left = 0;
+        int num_right = 0;
+        
+        String[] parts = equation.split("=");
+        boolean is_val_before_x = false;
+        int length = parts[0].length();
+        int index = 0;
+        int val = 0;
+        int multi = 1;
+        while(index < length) {
+            char c = parts[0].charAt(index);
+            if(c >= '0' && c <= '9') {
+                val = 10 * val + (c - '0');
+                is_val_before_x = true;
+            }
+            else if(c == '+') {
+                num_left = num_left + multi * val;
+                val = 0;
+                multi = 1;
+                is_val_before_x = false;
+            }
+            else if(c == '-') {
+                num_left = num_left + multi * val;
+                val = 0;
+                multi = -1;
+                is_val_before_x = false;
+            }
+            else {
+                if(is_val_before_x) {
+                    x_left = x_left + multi * val;
+                }
+                else {
+                    x_left = x_left + multi;
+                }
+                val = 0;
+            }
+            index++;
+        }
+        num_left = num_left + multi * val;
+        is_val_before_x = false;
+        length = parts[1].length();
+        index = 0;
+        val = 0;
+        multi = 1;
+        while(index < length) {
+            char c = parts[1].charAt(index);
+            if(c >= '0' && c <= '9') {
+                val = 10 * val + (c - '0');
+                is_val_before_x = true;
+            }
+            else if(c == '+') {
+                num_right = num_right + multi * val;
+                val = 0;
+                multi = 1;
+                is_val_before_x = false;
+            }
+            else if(c == '-') {
+                num_right = num_right + multi * val;
+                val = 0;
+                multi = -1;
+                is_val_before_x = false;
+            }
+            else {
+                if(is_val_before_x) {
+                    x_right = x_right + multi * val;
+                }
+                else {
+                    x_right = x_right + multi;
+                }
+                val = 0;
+            }
+            index++;
+        }
+        num_right = num_right + multi * val;
+        
+        if(x_left == x_right) {
+            if(num_left == num_right) {
+                return "Infinite solutions";
+            }
+            else {
+                return "No solution";
+            }
+        }
+        else {
+            x_left = x_left + (-1) * x_right;
+            num_right = num_right + (-1) * num_left;
+            return "x=" + (num_right/x_left);
+        }
+    }
+}
