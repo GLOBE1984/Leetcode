@@ -1,0 +1,104 @@
+Given n points on a 2D plane, find the maximum number of points that lie on the same straight line.
+
+
+
+
+
+/**
+ * Definition for a point.
+ * class Point {
+ *     int x;
+ *     int y;
+ *     Point() { x = 0; y = 0; }
+ *     Point(int a, int b) { x = a; y = b; }
+ * }
+ */
+class Solution {
+    public int maxPoints(Point[] points) {
+        int max = 0;
+        
+        if(points != null && points.length >= 2) {
+            Map<Line, Integer> map = new HashMap<Line, Integer>();
+            
+            int length = points.length;
+            for(int i = 0; i < length; ++i) {
+                int duplicate = 0;
+                int max_round = 0;
+                Point p1 = points[i];
+                for(int j = i+1; j < length; ++j) {
+                    Point p2 = points[j];
+                    if(p1.x != p2.x || p1.y != p2.y) {
+                        Line line = null;
+                        if(p1.x != p2.x && p1.y != p2.y) {
+                            line = new Line(1, -1.0*(p2.x-p1.x)/(p2.y-p1.y), 0.0+(p2.x*p1.y-p1.x*p2.y)/(p2.y-p1.y));
+                        }
+                        else if(p1.x == p2.x) {
+                            line = new Line(1, 0, -1*p1.x);
+                        }
+                        else {
+                            line = new Line(0, 1, -1*p1.y);
+                        }
+                        
+                        Integer count = map.get(line);
+                        if(count == null) {
+                            count = Integer.valueOf(2);
+                        }
+                        else {
+                            count = Integer.valueOf(count.intValue() + 1);
+                        }
+                        if(count.intValue() > max_round) {
+                            max_round = count.intValue();
+                        }
+                        map.put(line, count);
+                    }
+                    else {
+                        duplicate++;
+                        if(max_round == 0) {
+                            max_round = 1;
+                        }
+                    }                    
+                }
+                max_round = max_round + duplicate;
+                if(max_round > max) {
+                    max = max_round;
+                }
+                map.clear();
+            }
+        }
+        else if(points != null && points.length == 1) {
+            max = 1;
+        }
+        
+        return max;
+    }
+    
+    private class Line {
+    	double a;
+    	double b;
+    	double c;
+        
+        public Line(double a, double b, double c) {
+            this.a = a;
+            this.b = b;
+            this.c = c;
+        }
+        
+        public int hashCode() {
+        	double[] array = new double[3];
+            array[0] = this.a;
+            array[1] = this.b;
+            array[2] = this.c;
+            return Arrays.hashCode(array);
+        }
+        
+        public boolean equals(Object obj) {
+            if(obj instanceof Line) {
+                Line line = (Line)obj;
+                return this.a == line.a && this.b == line.b && this.c == line.c;
+            }
+            else {
+                return false;
+            }
+        }
+    }
+}

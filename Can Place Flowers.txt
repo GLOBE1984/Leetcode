@@ -1,0 +1,79 @@
+Suppose you have a long flowerbed in which some of the plots are planted and some are not. However, flowers cannot be planted in adjacent plots - they would compete for water and both would die.
+
+Given a flowerbed (represented as an array containing 0 and 1, where 0 means empty and 1 means not empty), and a number n, return if n new flowers can be planted in it without violating the no-adjacent-flowers rule.
+
+Example 1:
+Input: flowerbed = [1,0,0,0,1], n = 1
+Output: True
+Example 2:
+Input: flowerbed = [1,0,0,0,1], n = 2
+Output: False
+Note:
+The input array won't violate no-adjacent-flowers rule.
+The input array size is in the range of [1, 20000].
+n is a non-negative integer which won't exceed the input array size.
+
+
+
+
+
+class Solution {
+    public boolean canPlaceFlowers(int[] flowerbed, int n) {
+        if(flowerbed != null && flowerbed.length > 0 && n > 0) {
+            int length = flowerbed.length;
+            if(length == 1) {
+                if(flowerbed[0] == 1) {
+                    return false;
+                }
+                else {
+                    if(n > 1) {
+                        return false;
+                    }
+                    else {
+                        return true;
+                    }
+                }
+            }
+            int count = 0;
+            int count_zero = 0;
+            boolean started = false;
+            
+            for(int i = 0; i < length; ++i) {
+                if(flowerbed[i] == 0) {
+                    count_zero++;
+                }
+                else {
+                    if(!started) {
+                        started = true;
+                        count = count + count_zero/2;
+                        count_zero = 0;
+                    }
+                    else {
+                        count = count + (count_zero-1)/2;
+                        count_zero = 0;
+                    }
+                }
+            }
+            if(!started) {
+                count = (count_zero+1)/2;
+            }
+            else {
+                count = count + count_zero/2;
+            }
+            
+            
+            if(count >= n) {
+                return true;                
+            }
+            else {
+                return false;
+            }
+        }
+        else if(flowerbed != null && flowerbed.length > 0 && n == 0) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+}

@@ -1,0 +1,97 @@
+Given an array of words and a length L, format the text such that each line has exactly L characters and is fully (left and right) justified.
+
+You should pack your words in a greedy approach; that is, pack as many words as you can in each line. Pad extra spaces ' ' when necessary so that each line has exactly L characters.
+
+Extra spaces between words should be distributed as evenly as possible. If the number of spaces on a line do not divide evenly between words, the empty slots on the left will be assigned more spaces than the slots on the right.
+
+For the last line of text, it should be left justified and no extra space is inserted between words.
+
+For example,
+words: ["This", "is", "an", "example", "of", "text", "justification."]
+L: 16.
+
+Return the formatted lines as:
+[
+   "This    is    an",
+   "example  of text",
+   "justification.  "
+]
+Note: Each word is guaranteed not to exceed L in length.
+
+
+
+
+
+class Solution {
+    public List<String> fullJustify(String[] words, int maxWidth) {
+        List<String> list = new ArrayList<String>();
+        
+        if(words != null && words.length != 0 && maxWidth >= 0) {
+            int length = words.length;
+            int index = 0;
+            
+            LinkedList<String> strs = new LinkedList<String>();
+            while(index < length) {
+                int width = 0;
+                strs.clear();
+                while(index < length && width <= maxWidth) {
+                    width = width + words[index].length() + 1;
+                    strs.add(words[index]);
+                    index++;
+                }
+                if((width-maxWidth) > 1) {
+                	index--;
+                	width = width - words[index].length() - 1;
+                    strs.removeLast();
+                }
+                if(index < length) {
+                    int size = strs.size();
+                    int spaces = maxWidth - width + size;
+                    StringBuilder builder = new StringBuilder();
+                    if(size == 1) {
+                        builder.append(strs.getFirst());
+                        for(int i = 0; i < spaces; ++i) {
+                            builder.append(" ");
+                        }
+                    }
+                    else if(size > 1) {
+                        int result = spaces/(size-1);
+                        int remaining = spaces%(size-1);
+                        int count = 0;
+                        for(String str : strs) {
+                            builder.append(str);
+                            for(int i = 0; i < result; ++i) {
+                                builder.append(" ");
+                            }
+                            if(remaining != 0 && count < remaining) {
+                                builder.append(" ");
+                                count++;
+                            }
+                        }
+                        builder.setLength(maxWidth);
+                    }
+                    list.add(builder.toString());
+                }
+            }
+            
+            StringBuilder builder = new StringBuilder();
+            for(String str : strs) {
+                builder.append(str);
+                builder.append(" ");
+            }
+            int width = builder.length();
+            if(width > maxWidth) {
+                builder.setLength(maxWidth);
+            }
+            else if(width < maxWidth) {
+                int diff = maxWidth - width;
+                for(int i = 0; i < diff; ++i) {
+                    builder.append(" ");
+                }
+            }
+            list.add(builder.toString());
+        }
+        
+        return list;
+    }
+}

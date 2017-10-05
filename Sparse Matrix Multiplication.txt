@@ -1,0 +1,70 @@
+Given two sparse matrices A and B, return the result of AB.
+
+You may assume that A's column number is equal to B's row number.
+
+Example:
+
+A = [
+  [ 1, 0, 0],
+  [-1, 0, 3]
+]
+
+B = [
+  [ 7, 0, 0 ],
+  [ 0, 0, 0 ],
+  [ 0, 0, 1 ]
+]
+
+
+     |  1 0 0 |   | 7 0 0 |   |  7 0 0 |
+AB = | -1 0 3 | x | 0 0 0 | = | -7 0 3 |
+                  | 0 0 1 |
+
+
+
+
+
+class Solution {
+    public int[][] multiply(int[][] A, int[][] B) {
+        int length1 = A.length;
+        int length2 = A[0].length;
+        int length3 = B[0].length;
+        int[][] C = new int[length1][length3];
+        Map<Integer, Map<Integer, Integer>> arows = map(A);
+        Map<Integer, Map<Integer, Integer>> brows = map(B);
+        for(int i : arows.keySet()) {
+            Map<Integer, Integer> acol = arows.get(i);
+            for(int j : acol.keySet()) {
+                Map<Integer, Integer> bcol = brows.get(j);
+                if (bcol == null) {
+                    continue;
+                }
+                int a = acol.get(j);
+                for(int l: bcol.keySet()) {
+                    C[i][l] += a * bcol.get(l);
+                }
+            }
+        }
+        return C;
+    }
+    
+    private Map<Integer, Map<Integer, Integer>> map(int[][] m) {
+        Map<Integer, Map<Integer, Integer>> rows = new HashMap<>();
+        int length1 = m.length;
+        int length2 = m[0].length;
+        for(int i = 0; i < length1; ++i) {
+            for(int j = 0; j < length2; j++) {
+                if(m[i][j] == 0) {
+                    continue;
+                }
+                Map<Integer, Integer> cols = rows.get(i);
+                if (cols == null) {
+                    cols = new HashMap<Integer, Integer>();
+                    rows.put(i, cols);
+                }
+                cols.put(j, m[i][j]);
+            }
+        }
+        return rows;
+    }
+}

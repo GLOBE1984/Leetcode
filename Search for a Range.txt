@@ -1,0 +1,82 @@
+Given an array of integers sorted in ascending order, find the starting and ending position of a given target value.
+
+Your algorithm's runtime complexity must be in the order of O(log n).
+
+If the target is not found in the array, return [-1, -1].
+
+For example,
+Given [5, 7, 7, 8, 8, 10] and target value 8,
+return [3, 4].
+
+
+
+
+
+class Solution {
+    public int[] searchRange(int[] nums, int target) {
+        int[] positions = new int[2];
+        positions[0] = -1;
+        positions[1] = -1;
+        
+        if(nums != null && nums.length > 0) {
+            int pos = binarySearch(nums, target, 0, nums.length-1);
+            if(pos >= 0) {
+                positions[0] = pos;
+                pos = binarySearch(nums, target+1, 0, nums.length-1);
+                if(pos >= 0) {
+                    positions[1] = pos - 1;
+                }
+                else {
+                    positions[1] = -1 * (pos + 1) - 1;
+                }
+            }
+        }
+        
+        return positions;
+    }
+    
+    private int binarySearch(int[] nums, int target, int start, int end) {
+        if(start == end) {
+            if(nums[start] == target) {
+                return start;
+            }
+            else if(nums[start] > target) {
+                return -1 * start - 1;
+            }
+            else {
+                return -1 * (start + 1) - 1;
+            }
+        }
+        
+        int mid = (start + end)/2;
+        int result = 0;
+        if(nums[mid] == target) {
+            result = mid;
+            if(start <= mid-1) {
+                int tmp = binarySearch(nums, target, start, mid-1);
+                if(tmp >= 0) {
+                    result = tmp;
+                }
+            }
+            else {
+                int tmp = binarySearch(nums, target, start, start);
+                if(tmp >= 0) {
+                    result = tmp;
+                }
+            }
+        }
+        else if(nums[mid] > target) {
+            if(start <= mid-1) {
+                result = binarySearch(nums, target, start, mid-1);
+            }
+            else {
+                result = binarySearch(nums, target, start, start);
+            }
+        }
+        else {
+            result = binarySearch(nums, target, mid+1, end);
+        }
+            
+        return result;
+    }
+}
