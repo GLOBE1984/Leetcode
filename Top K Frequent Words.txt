@@ -1,0 +1,87 @@
+Given a non-empty list of words, return the k most frequent elements.
+
+Your answer should be sorted by frequency from highest to lowest. If two words have the same frequency, then the word with the lower alphabetical order comes first.
+
+Example 1:
+Input: ["i", "love", "leetcode", "i", "love", "coding"], k = 2
+Output: ["i", "love"]
+Explanation: "i" and "love" are the two most frequent words.
+    Note that "i" comes before "love" due to a lower alphabetical order.
+Example 2:
+Input: ["the", "day", "is", "sunny", "the", "the", "the", "sunny", "is", "is"], k = 4
+Output: ["the", "is", "sunny", "day"]
+Explanation: "the", "is", "sunny" and "day" are the four most frequent words,
+    with the number of occurrence being 4, 3, 2 and 1 respectively.
+Note:
+You may assume k is always valid, 1 ¡Ü k ¡Ü number of unique elements.
+Input words contain only lowercase letters.
+Follow up:
+Try to solve it in O(n log k) time and O(n) extra space.
+
+
+
+
+
+class Solution {
+    public List<String> topKFrequent(String[] words, int k) {
+        List<String> results = new ArrayList<String>();
+        
+        if(words != null && words.length > 0) {
+            Map<String, Integer> counter = new HashMap<String, Integer>();
+            TreeMap<Integer, Set<String>> groups = new TreeMap<Integer, Set<String>>(new Comparator<Integer>(){
+                public int compare(Integer i1, Integer i2){
+                    return  i2.compareTo(i1);
+                }
+            });
+            
+            int length = words.length;
+            for(int i = 0; i < length; ++i) {
+                String word = words[i];
+                int tmp = 0;
+                if(counter.get(word) != null) {
+                    tmp = counter.get(word).intValue();
+                }
+                tmp++;
+                counter.put(word, tmp);
+                
+                Set<String> set = groups.get(tmp);
+                if(set == null) {
+                    set = new TreeSet<String>(new Comparator<String>(){
+                        public int compare(String s1, String s2){
+                            return  s1.compareTo(s2);
+                        }
+                    });
+                }
+                set.add(word);
+                groups.put(tmp, set);
+                set = groups.get(tmp - 1);
+                if(set != null) {
+                    set.remove(word);
+                    groups.put(tmp-1, set);
+                }
+            }
+            
+            Set<Map.Entry<Integer, Set<String>>> entries = groups.entrySet();
+            Iterator<Map.Entry<Integer, Set<String>>> iterator = entries.iterator();
+            int count = k;
+            while(count > 0 && iterator.hasNext()) {
+                Map.Entry<Integer, Set<String>> entry = iterator.next();
+                if(count > entry.getValue().size()) {
+                    results.addAll(entry.getValue());
+                    count = count - entry.getValue().size();
+                }
+                else {
+                    for(String word : entry.getValue()) {
+                        results.add(word);
+                        count--;
+                        if(count == 0) {
+                            break;
+                        }
+                    }
+                }                
+            }
+        }
+        
+        return results;
+    }
+}
