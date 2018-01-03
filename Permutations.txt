@@ -1,0 +1,46 @@
+Given a collection of distinct numbers, return all possible permutations.
+
+For example,
+[1,2,3] have the following permutations:
+[
+  [1,2,3],
+  [1,3,2],
+  [2,1,3],
+  [2,3,1],
+  [3,1,2],
+  [3,2,1]
+]
+
+
+
+
+
+class Solution {
+    public List<List<Integer>> permute(int[] nums) {
+        List<List<Integer>> results = new ArrayList<List<Integer>>();
+        
+        if(nums != null && nums.length > 0) {
+            int length = nums.length;
+            Queue<List<Integer>> queue = new LinkedList<List<Integer>>();
+            queue.add(new LinkedList<Integer>());
+            int index = 0;
+            while(index < length) {
+                Queue<List<Integer>> level = new LinkedList<List<Integer>>();
+                while(!queue.isEmpty()) {
+                    List<Integer> list = queue.poll();
+                    int size = list.size();
+                    for(int i = 0; i <= size; ++i) {
+                        List<Integer> copy = new LinkedList<Integer>(list);
+                        copy.add(i, nums[index]);
+                        level.add(copy);
+                    }
+                }
+                queue = level;
+                index++;
+            }
+            results.addAll(queue);
+        }
+        
+        return results;
+    }
+}

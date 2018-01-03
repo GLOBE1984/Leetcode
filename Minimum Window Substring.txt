@@ -1,0 +1,101 @@
+Given a string S and a string T, find the minimum window in S which will contain all the characters in T in complexity O(n).
+
+For example,
+S = "ADOBECODEBANC"
+T = "ABC"
+Minimum window is "BANC".
+
+Note:
+If there is no such window in S that covers all characters in T, return the empty string "".
+
+If there are multiple such windows, you are guaranteed that there will always be only one unique minimum window in S.
+
+
+
+
+
+class Solution {
+    public String minWindow(String s, String t) {
+        if(s != null && t != null && !s.isEmpty() && !t.isEmpty() && s.length() >= t.length()) {
+            Map<Character, Integer> map = new HashMap<Character, Integer>();
+            
+            int index_start = -1;
+            int index_end = -1;
+            int min = Integer.MAX_VALUE;
+            String str_min = "";
+            int counter = 0;
+            
+            int length = t.length();
+            for(int i = 0; i < length; ++i) {
+                char c = t.charAt(i);
+                if(map.get(c) != null) {
+                    int count = map.get(c).intValue() + 1;
+                    map.put(c, count);
+                }
+                else {
+                    map.put(c, 1);
+                    counter++;
+                }
+            }
+            
+            length = s.length();
+            for(int i = 0; i < length; ++i) {
+                char c = s.charAt(i);
+                
+                if(map.get(c) != null) {
+                    if(index_start == -1) {
+                        index_start = i;
+                    }
+                    int count = map.get(c).intValue();
+                    count--;
+                    if(count == 0) {
+                        counter--;
+                        if(counter == 0) {
+                            index_end = i;
+                            if(min > (index_end-index_start)) {
+                                min = index_end - index_start;
+                                str_min = s.substring(index_start, index_end+1);
+                            }
+                        }
+                        map.put(c, 0);
+                    }
+                    else if(count < 0) {
+                        map.put(c, count);
+                        char c_start = s.charAt(index_start);
+                        if(c == c_start) {
+                            while(index_start < i) {
+                                c_start = s.charAt(index_start);
+                                if(map.get(c_start) != null) {
+                                    int tmp = map.get(c_start).intValue();
+                                    if(tmp >= 0) {
+                                        break;
+                                    }
+                                    else {
+                                        tmp++;
+                                        map.put(c_start, tmp);
+                                    }
+                                }
+                                index_start++;
+                            }
+                            if(counter == 0) {
+                                index_end = i;
+                                if(min > (index_end-index_start)) {
+                                    min = index_end - index_start;
+                                    str_min = s.substring(index_start, index_end+1);
+                                }
+                            }
+                        }
+                    }
+                    else {
+                        map.put(c, count);
+                    }
+                }
+            }
+            
+            return str_min;
+        }
+        else {
+            return "";
+        }
+    }
+}
