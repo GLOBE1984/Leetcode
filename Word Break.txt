@@ -35,7 +35,6 @@ public class Solution {
 		}
 		
 		int size = wordDict.size();
-		boolean result = false;
 		for(int i = 0; i < size; ++i) {
 			String word = wordDict.get(i);
 			int index = s.indexOf(word, start);
@@ -44,9 +43,6 @@ public class Solution {
 				if(tmp) {
 					records[start] = 2;
 					return true;
-				}
-				else {
-					result = result | tmp;
 				}
 			}
 		}

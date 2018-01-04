@@ -35,13 +35,17 @@ public class BSTIterator {
     }
 
     /** @return the next smallest number */
-    public int next() {
-        TreeNode result = stack.pop();
-        int next = result.val;
-        
-        
-        
-        return next;
+    public int next() {        
+        TreeNode node = stack.pop();
+	int result = node.val;
+	if(node.right != null) {
+	    node = node.right;
+	    while (node != null) {
+	        stack.push(node);
+	        node = node.left;
+	    }
+	}
+	return result;
     }
 }
 
