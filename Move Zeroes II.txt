@@ -6,36 +6,17 @@ e.g. [0, 1, 0, 1, 1, 0] -> [0, 0, 0, 1, 1, 1] -> 4 steps
 
 class Solution {
     public int moveZeroes(int[] nums) {
-        return Math.min(count1(nums), count2(nums));
+        return Math.min(count(nums, 0), count(nums, 1));
     }
     
-    private int count1(int[] nums) {
+    private int count(int[] nums, int num) {
 	int result = 0;
 		
 	if(nums != null && nums.length > 0) {
 		int length = nums.length;
 		int count = 0;
 		for(int i = 0; i < length; ++i) {
-			if(nums[i] == 0) {
-				count++;
-			}
-			else {
-				result = result + count;
-			}
-		}
-	}
-		
-	return result;
-    }
-	
-    private int count2(int[] nums) {
-	int result = 0;
-		
-	if(nums != null && nums.length > 0) {
-		int length = nums.length;
-		int count = 0;
-		for(int i = 0; i < length; ++i) {
-			if(nums[i] == 1) {
+			if(nums[i] == num) {
 				count++;
 			}
 			else {
