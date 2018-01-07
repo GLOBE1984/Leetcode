@@ -1,0 +1,66 @@
+A robot is located at the top-left corner of a m x n grid (marked 'Start' in the diagram below).
+
+The robot can only move either down or right at any point in time. The robot is trying to reach the bottom-right corner of the grid (marked 'Finish' in the diagram below).
+
+How many possible unique paths are there?
+
+Note: m and n will be at most 100.
+
+
+
+
+
+class Solution {
+    public int uniquePaths(int m, int n) {
+        Point start = new Point(0, 0);
+        Point end = new Point(m - 1, n - 1);
+        Map<Point, Integer> map = new HashMap<Point, Integer>();
+        return uniquePaths(start, end, map);
+    }
+    
+    private int uniquePaths(Point point, Point end, Map<Point, Integer> map) {
+        if(point.x == end.x && point.y == end.y) {
+            return 1;
+        }
+        
+        if(map.containsKey(point)) {
+            return map.get(point).intValue();
+        }
+        
+        int count = 0;
+        if(point.x < end.x) {
+            Point newPoint = new Point(point.x+1, point.y);
+            count = count + uniquePaths(newPoint, end, map);
+        }
+        if(point.y < end.y) {
+            Point newPoint = new Point(point.x, point.y+1);
+            count = count + uniquePaths(newPoint, end, map);
+        }
+        map.put(point, count);
+        return count;
+    }
+    
+    private class Point {
+        int x;
+        int y;
+        
+        public Point(int x, int y) {
+            this.x = x;
+            this.y = y;
+        }
+        
+        public boolean equals(Object obj) {
+            if(obj instanceof Point) {
+                Point point = (Point)obj;
+                return this.x == point.x && this.y == point.y;
+            }
+            else {
+                return false;
+            }
+        }
+        
+        public int hashCode() {
+            return (this.x + " " + this.y).hashCode();
+        }
+    }
+}

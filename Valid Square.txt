@@ -1,0 +1,78 @@
+Given the coordinates of four points in 2D space, return whether the four points could construct a square.
+
+The coordinate (x,y) of a point is represented by an integer array with two integers.
+
+Example:
+Input: p1 = [0,0], p2 = [1,1], p3 = [1,0], p4 = [0,1]
+Output: True
+Note:
+
+All the input integers are in the range [-10000, 10000].
+A valid square has four equal sides with positive length and four equal angles (90-degree angles).
+Input points have no order.
+
+
+
+
+
+class Solution {
+    public boolean validSquare(int[] p1, int[] p2, int[] p3, int[] p4) {
+        if(p1 != null && p2 != null && p3 != null && p4 != null) {
+            int d12 = (int)(Math.pow((p2[0]-p1[0]), 2) + Math.pow((p2[1]-p1[1]), 2));
+            int d13 = (int)(Math.pow((p3[0]-p1[0]), 2) + Math.pow((p3[1]-p1[1]), 2));
+            int d14 = (int)(Math.pow((p4[0]-p1[0]), 2) + Math.pow((p4[1]-p1[1]), 2));
+            
+            int[][][] groups = new int[2][2][2];
+            if(d12 == d13 && d12 != 0) {
+                groups[0][0] = p1;
+                groups[0][1] = p4;
+                groups[1][0] = p2;
+                groups[1][1] = p3;
+            }
+            else if(d12 == d14 && d12 != 0) {
+                groups[0][0] = p1;
+                groups[0][1] = p3;
+                groups[1][0] = p2;
+                groups[1][1] = p4;
+            }
+            else if(d13 == d14 && d12 != 0) {
+                groups[0][0] = p1;
+                groups[0][1] = p2;
+                groups[1][0] = p3;
+                groups[1][1] = p4;
+            }
+            else {
+                return false;
+            }
+            
+            int d1 = (int)(Math.pow((groups[0][1][0] - groups[0][0][0]), 2) + Math.pow((groups[0][1][1] - groups[0][0][1]), 2));
+            int d2 = (int)(Math.pow((groups[1][1][0] - groups[1][0][0]), 2) + Math.pow((groups[1][1][1] - groups[1][0][1]), 2));
+            if(d1 == d2 && d1 != 0) {
+                int x1_sum = groups[0][0][0] + groups[0][1][0];
+                int y1_sum = groups[0][0][1] + groups[0][1][1];
+                int x2_sum = groups[1][0][0] + groups[1][1][0];
+                int y2_sum = groups[1][0][1] + groups[1][1][1];
+                if(x1_sum == x2_sum && y1_sum == y2_sum) {
+                    if(((groups[0][0][1]-groups[0][1][1]) == -1*(groups[1][1][0]-groups[1][0][0]) 
+                      && (groups[0][1][0]-groups[0][0][0]) == (groups[1][0][1]-groups[1][1][1])) || 
+                      ((groups[0][0][1]-groups[0][1][1]) == (groups[1][1][0]-groups[1][0][0]) 
+                      && (groups[0][1][0]-groups[0][0][0]) == -1*(groups[1][0][1]-groups[1][1][1]))) {
+                        return true;
+                    }
+                    else {
+                        return false;
+                    }
+                }
+                else {
+                    return false;
+                }
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
+    }
+}
