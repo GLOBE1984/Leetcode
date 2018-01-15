@@ -25,86 +25,19 @@ For example, the lowest common ancestor (LCA) of nodes 5 and 1 is 3. Another exa
  */
 public class Solution {
     public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
-        if(root == null || p == null || q == null) {
-            return null;
+        //发现目标节点则通过返回值标记该子树发现了某个目标结点
+        if(root == null || root == p || root == q) {
+            return root;
         }
-        
-        TreeNodeWrapper ancestor = new TreeNodeWrapper();
-        
-        lowestCommonAncestor(root, p, q, ancestor);
-        
-        return ancestor.getNode();
-    }
-    
-    private int lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q, TreeNodeWrapper ancestor) {
-        if(root == p && root == q) {
-            ancestor.setNode(p);
-            return 3;
+        //查看左子树中是否有目标结点，没有为null
+        TreeNode left = lowestCommonAncestor(root.left, p, q);
+        //查看右子树是否有目标节点，没有为null
+        TreeNode right = lowestCommonAncestor(root.right, p, q);
+        //都不为空，说明做右子树都有目标结点，则公共祖先就是本身
+        if(left != null && right != null) {
+            return root;
         }
-        else if(root == p) {
-            if(root.left != null) {
-                if(lowestCommonAncestor(root.left, p, q, ancestor) == 2) {
-                    ancestor.setNode(root);
-                    return 3;
-                }
-            }
-            if(root.right != null) {
-                if(lowestCommonAncestor(root.right, p, q, ancestor) == 2) {
-                    ancestor.setNode(root);
-                    return 3;
-                }
-            }
-            return 1;
-        }
-        else if(root == q) {
-            if(root.left != null) {
-                if(lowestCommonAncestor(root.left, p, q, ancestor) == 1) {
-                    ancestor.setNode(root);
-                    return 3;
-                }
-            }
-            if(root.right != null) {
-                if(lowestCommonAncestor(root.right, p, q, ancestor) == 1) {
-                    ancestor.setNode(root);
-                    return 3;
-                }
-            }
-            return 2;
-        }
-        else {
-            int result = 0;
-            if(root.left != null) {
-                result = result + lowestCommonAncestor(root.left, p, q, ancestor);
-            }
-            if(result == 3) {
-                if(ancestor.getNode() == null) {
-                    ancestor.setNode(root);
-                }
-                return 3;
-            }
-            if(root.right != null) {
-                result = result + lowestCommonAncestor(root.right, p, q, ancestor);
-            }
-            if(result == 3) {
-                if(ancestor.getNode() == null) {
-                    ancestor.setNode(root);
-                }
-                return 3;
-            }
-            
-            return result;
-        }
-    }
-    
-    private class TreeNodeWrapper {
-        private TreeNode node;          
-            
-        public void setNode(TreeNode node) {
-            this.node = node;
-        }
-        
-        public TreeNode getNode() {
-            return this.node;
-        }
+        //如果发现了目标节点，则继续向上标记为该目标节点
+        return left == null ? right : left;
     }
 }

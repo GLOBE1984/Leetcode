@@ -1,0 +1,186 @@
+Given a binary tree where every node has a unique value, and a target key k, find the value of the nearest leaf node to target k in the tree.
+
+Here, nearest to a leaf means the least number of edges travelled on the binary tree to reach any leaf of the tree. Also, a node is called a leaf if it has no children.
+
+In the following examples, the input tree is represented in flattened form row by row. The actual root tree given will be a TreeNode object.
+
+Example 1:
+
+Input:
+root = [1, 3, 2], k = 1
+Diagram of binary tree:
+          1
+         / \
+        3   2
+
+Output: 2 (or 3)
+
+Explanation: Either 2 or 3 is the nearest leaf node to the target of 1.
+Example 2:
+
+Input:
+root = [1], k = 1
+Output: 1
+
+Explanation: The nearest leaf node is the root node itself.
+Example 3:
+
+Input:
+root = [1,2,3,4,null,null,null,5,null,6], k = 2
+Diagram of binary tree:
+             1
+            / \
+           2   3
+          /
+         4
+        /
+       5
+      /
+     6
+
+Output: 3
+Explanation: The leaf node with value 3 (and not the leaf node with value 6) is nearest to the node with value 2.
+
+Note:
+root represents a binary tree with at least 1 node and at most 1000 nodes.
+Every node has a unique node.val in range [1, 1000].
+There exists some node in the given binary tree for which node.val == k.
+
+
+
+
+
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */
+class Solution {
+    public int findClosestLeaf(TreeNode root, int k) {
+        if(root != null) {
+            Stack<TreeNode> stack = new Stack<TreeNode>();
+            findPath(root, k, stack);
+            
+            int edges = 0;
+            int val = 0;
+            int distance = Integer.MAX_VALUE;
+            TreeNode prev = null;
+            while(!stack.empty()) {
+                TreeNode node = stack.pop();
+                if(prev != null) {
+                    if(node.left == prev) {
+                        if(node.right != null) {
+                            Wrapper wrapper = findMinLeaf(node.right);
+                            if(distance > wrapper.distance + edges) {
+                                val = wrapper.val;
+                                distance = wrapper.distance + edges;
+                            }
+                        }
+                    }
+                    else {
+                        if(node.left != null) {
+                            Wrapper wrapper = findMinLeaf(node.left);
+                            if(distance > wrapper.distance + edges) {
+                                val = wrapper.val;
+                                distance = wrapper.distance + edges;
+                            }
+                        }
+                    }
+                }
+                else {
+                    if(node.left == null && node.right == null) {
+                        return node.val;
+                    }
+                    else {
+                        Wrapper wrapper = null;
+                        if(node.left != null) {
+                                wrapper = findMinLeaf(node.left);
+                            if(distance > wrapper.distance + edges) {
+                                val = wrapper.val;
+                                distance = wrapper.distance + edges;
+                            }
+                        }
+                        if(node.right != null) {
+                            wrapper = findMinLeaf(node.right);
+                            if(distance > wrapper.distance + edges) {
+                                val = wrapper.val;
+                                distance = wrapper.distance + edges;
+                            }
+                        } 
+                    }
+                    
+                }
+                prev = node;
+                edges++;
+            }
+            
+            return val;
+        }
+        else {
+            return -1;
+        }
+    }
+    
+    private Wrapper findMinLeaf(TreeNode root) {
+        if(root.left == null && root.right == null) {
+            return new Wrapper(root.val, 0);
+        }
+        
+        int val = 0;
+        int distance = Integer.MAX_VALUE;
+        if(root.left != null) {
+            Wrapper tmp = findMinLeaf(root.left);
+            val = tmp.val;
+            distance = tmp.distance;
+        }
+        if(root.right != null) {
+            Wrapper tmp = findMinLeaf(root.right);
+            if(distance > tmp.distance) {
+                val = tmp.val;
+                distance = tmp.distance;
+            }
+        }
+        
+        return new Wrapper(val, distance + 1);
+    }
+    
+    private boolean findPath(TreeNode root, int k, Stack<TreeNode> stack) {
+        if(root == null) {
+            return false;
+        }
+        if(root.val == k) {
+            stack.push(root);
+            return true;
+        }
+        
+        stack.push(root);
+        boolean found = findPath(root.left, k, stack);
+        if(found) {
+            return true;
+        }
+        else {
+            found = findPath(root.right, k, stack);
+        }
+        if(found) {
+            return true;
+        }
+        else {
+            stack.pop();
+            return false;
+        }
+    }
+
+    class Wrapper {
+        public int val;
+        public int distance;
+        
+        public Wrapper(int val, int distance) {
+            this.val = val;
+            this.distance = distance;
+        }
+    }
+}

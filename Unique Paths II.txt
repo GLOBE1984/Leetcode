@@ -1,0 +1,84 @@
+Follow up for "Unique Paths":
+
+Now consider if some obstacles are added to the grids. How many unique paths would there be?
+
+An obstacle and empty space is marked as 1 and 0 respectively in the grid.
+
+For example,
+There is one obstacle in the middle of a 3x3 grid as illustrated below.
+
+[
+  [0,0,0],
+  [0,1,0],
+  [0,0,0]
+]
+The total number of unique paths is 2.
+
+Note: m and n will be at most 100.
+
+
+
+
+class Solution {
+    public int uniquePathsWithObstacles(int[][] obstacleGrid) {
+        if(obstacleGrid != null && obstacleGrid.length > 0 && obstacleGrid[0].length > 0 && obstacleGrid[0][0] == 0) {
+            int y = obstacleGrid.length;
+            int x = obstacleGrid[0].length;
+            
+            Point start = new Point(0, 0);
+            Point end = new Point(x - 1, y - 1);
+            Map<Point, Integer> map = new HashMap<Point, Integer>();
+            
+            return uniquePathsWithObstacles(start, end, map, obstacleGrid);
+        }
+        else {
+            return 0;
+        }
+    }
+    
+    private int uniquePathsWithObstacles(Point point, Point end, Map<Point, Integer> map, int[][] obstacleGrid) {
+        if(point.x == end.x && point.y == end.y) {
+            return 1;
+        }
+        
+        if(map.containsKey(point)) {
+            return map.get(point).intValue();
+        }
+        
+        int count = 0;
+        if(point.x < end.x && obstacleGrid[point.y][point.x+1] != 1) {
+            Point newPoint = new Point(point.x + 1, point.y);
+            count = count + uniquePathsWithObstacles(newPoint, end, map, obstacleGrid);
+        }
+        if(point.y < end.y && obstacleGrid[point.y+1][point.x] != 1) {
+            Point newPoint = new Point(point.x, point.y + 1);
+            count = count + uniquePathsWithObstacles(newPoint, end, map, obstacleGrid);
+        }
+        map.put(point, count);
+        return count;
+    }
+    
+    private class Point {
+        int x;
+        int y;
+        
+        public Point(int x, int y) {
+            this.x = x;
+            this.y = y;
+        }
+        
+        public boolean equals(Object obj) {
+            if(obj instanceof Point) {
+                Point point = (Point)obj;
+                return this.x == point.x && this.y == point.y;
+            }
+            else {
+                return false;
+            }
+        }
+        
+        public int hashCode() {
+            return (this.x + " " + this.y).hashCode();
+        }
+    }
+}

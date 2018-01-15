@@ -1,0 +1,39 @@
+There is a fence with n posts, each post can be painted with one of the k colors.
+
+You have to paint all the posts such that no more than two adjacent fence posts have the same color.
+
+Return the total number of ways you can paint the fence.
+
+Note:
+n and k are non-negative integers.
+
+
+
+
+
+class Solution {
+    public int numWays(int n, int k) {
+        if(n > 0 && k > 0) {
+            int[] count_same = new int[n];
+            int[] count_diff = new int[n];
+
+            count_same[0] = 0;
+            count_diff[0] = k;
+            
+            if(n > 1) {
+                count_same[1] = k;
+                count_diff[1] = (k - 1) * k;
+
+                for(int i = 2; i < n; ++i) {
+                    count_same[i] = count_diff[i-1];
+                    count_diff[i] = (k - 1) * (count_same[i-1] + count_diff[i-1]);
+                }
+            }
+            
+            return count_same[n-1] + count_diff[n-1];
+        }
+        else {
+            return 0;
+        }
+    }
+}
