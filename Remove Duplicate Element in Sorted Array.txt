@@ -1,0 +1,29 @@
+Remove Duplicate Element in Sorted Array
+
+
+
+
+
+// In place solution
+public class Solution {
+    public int[] removeDuplicateElementFromSortedArray(int[] nums) {
+        if(nums.length() > 1) {  
+            int j = 0;//for next element  
+            for (int i = 0; i < n-1; i++){  
+                if (arr[i] != arr[i+1]){  
+                    arr[j++] = arr[i];  
+                }  
+            }  
+            arr[j++] = arr[n-1];
+
+	    //Copying only unique elements of my_array into array1
+            int[] array1 = Arrays.copyOf(my_array, j);
+         
+            return array1;
+        }
+	else {
+	    return nums;
+	}    
+          
+    }
+}

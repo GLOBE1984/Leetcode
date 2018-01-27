@@ -1,0 +1,100 @@
+Given a char array representing tasks CPU need to do. It contains capital letters A to Z where different letters represent different tasks.Tasks could be done without original order. Each task could be done in one interval. For each interval, CPU could finish one task or just be idle.
+
+However, there is a non-negative cooling interval n that means between two same tasks, there must be at least n intervals that CPU are doing different tasks or just be idle.
+
+You need to return the least number of intervals the CPU will take to finish all the given tasks.
+
+Example 1:
+Input: tasks = ["A","A","A","B","B","B"], n = 2
+Output: 8
+Explanation: A -> B -> idle -> A -> B -> idle -> A -> B.
+
+Note:
+The number of tasks is in the range [1, 10000].
+The integer n is in the range [0, 100].
+
+
+
+
+
+class Solution {
+    public int leastInterval(char[] tasks, int n) {
+        if(tasks != null && tasks.length > 0 && n >= 0) {
+            int length = tasks.length;
+            Map<Character, Task> taskMap = new HashMap<Character, Task>();
+            for(char c : tasks) {
+                Task task = taskMap.get(c);
+                if(task == null) {
+                    task = new Task(c, 0);
+                }
+                task.num = task.num + 1;
+                taskMap.put(c, task);
+            }
+            
+            PriorityQueue<Task> queue = new PriorityQueue<Task>(taskMap.size(), new Comparator<Task>() {
+                public int compare(Task t1, Task t2) {
+                    if(t1.num != t2.num) {
+                        return t2.num - t1.num;
+                    }
+                    else {
+                        return t1.c - t2.c;
+                    }
+                }
+            });
+            Set<Task> allTasks = new HashSet<Task>();
+            Queue<Task> canNotScheduledTasks = new LinkedList<Task>();
+            for(Task task : taskMap.values()) {
+                queue.offer(task);
+                allTasks.add(task);
+            }
+            
+            int count = 0;
+            while(!allTasks.isEmpty()) {
+                if(!queue.isEmpty()) {
+                    Task task = queue.poll();
+                    task.num--;
+                    if(task.num > 0) {
+                        canNotScheduledTasks.offer(task);
+                    }
+                    else {
+                        allTasks.remove(task);
+                        canNotScheduledTasks.offer(new Task(' ', 0));
+                    }
+                    if(canNotScheduledTasks.size() > n) {
+                        Task tmp = canNotScheduledTasks.poll();
+                        if(tmp.c != ' ') {
+                            queue.offer(tmp);
+                        }
+                    }
+                }
+                else {
+                    canNotScheduledTasks.offer(new Task(' ', 0));
+                    if(canNotScheduledTasks.size() > n) {
+                        Task tmp = canNotScheduledTasks.poll();
+                        if(tmp.c != ' ') {
+                            queue.offer(tmp);
+                        }
+                    }
+                }
+                count++;
+            }
+            return count;
+        }
+        else if(tasks == null || tasks.length == 0) {
+            return 0;
+        }
+        else {
+            return -1;
+        }
+    }
+    
+    private class Task {
+        public char c;
+        public int num;
+        
+        public Task(char c, int num) {
+            this.c = c;
+            this.num = num;
+        }
+    }
+}
