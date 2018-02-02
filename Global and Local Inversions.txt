@@ -1,0 +1,110 @@
+We have some permutation A of [0, 1, ..., N - 1], where N is the length of A.
+
+The number of (global) inversions is the number of i < j with 0 <= i < j < N and A[i] > A[j].
+
+The number of local inversions is the number of i with 0 <= i < N and A[i] > A[i+1].
+
+Return true if and only if the number of global inversions is equal to the number of local inversions.
+
+Example 1:
+
+Input: A = [1,0,2]
+Output: true
+Explanation: There is 1 global inversion, and 1 local inversion.
+Example 2:
+
+Input: A = [1,2,0]
+Output: false
+Explanation: There are 2 global inversions, and 1 local inversion.
+
+Note:
+A will be a permutation of [0, 1, ..., A.length - 1].
+A will have length in range [1, 5000].
+The time limit for this problem has been reduced.
+
+
+
+
+
+class Solution {
+    public boolean isIdealPermutation(int[] A) {
+        if(A != null && A.length > 1) {
+            Counter counter = mergeSort(A, 0, A.length-1);
+            return counter.local == counter.global;
+        }
+        else {
+            return true;
+        }
+    }
+    
+    private Counter mergeSort(int[] A, int start, int end) {
+        if(start == end) {
+            return new Counter();
+        }
+        
+        int mid = (start + end)/2;
+        int tmp1 = A[mid];
+        int tmp2 = A[mid + 1];
+        
+        Counter counter1 = mergeSort(A, start, mid);
+        Counter counter2 = mergeSort(A, mid+1, end);
+        
+        Counter counter = new Counter();
+        counter.local = counter1.local + counter2.local;
+        counter.global = counter1.global + counter2.global;
+        
+        int[] tmp = new int[end-start+1];
+        int i = start;
+        int j = mid + 1;
+        int index = 0;
+        boolean isIChanged = false;
+        while(i <= mid && j <= end) {
+            if(A[i] <= A[j]) {
+                tmp[index] = A[i];
+                if(isIChanged) {
+                    counter.global = counter.global + j - mid - 1;
+                }
+                isIChanged = true;
+                i++;
+            }
+            else {
+                tmp[index] = A[j];
+                counter.global = counter.global + j - mid;
+                isIChanged = false;
+                j++;
+            }
+            index++;
+        }
+        if(i <= mid) {
+            tmp[index] = A[i];
+            i++;
+            index++;
+        }
+        while(i <= mid) {
+            tmp[index] = A[i];
+            counter.global = counter.global + end - mid;
+            i++;
+            index++;
+        }
+        while(j <= end) {
+            tmp[index] = A[j];
+            j++;
+            index++;
+        }
+        index = start;
+        for(int k = 0; k < tmp.length; ++k) {
+            A[index] = tmp[k];
+            index++;
+        }
+        if(tmp1 > tmp2) {
+            counter.local++;
+        }
+        
+        return counter;
+    }
+    
+    private class Counter {
+        public int local;
+        public int global;
+    }
+}
