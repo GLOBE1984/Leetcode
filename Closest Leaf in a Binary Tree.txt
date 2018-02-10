@@ -98,7 +98,7 @@ class Solution {
                     else {
                         Wrapper wrapper = null;
                         if(node.left != null) {
-                                wrapper = findMinLeaf(node.left);
+                            wrapper = findMinLeaf(node.left);
                             if(distance > wrapper.distance + edges) {
                                 val = wrapper.val;
                                 distance = wrapper.distance + edges;

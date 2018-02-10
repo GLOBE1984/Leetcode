@@ -21,7 +21,7 @@ Given target = 20, return false.
 
 
 
-public class Solution {
+class Solution {
     public boolean searchMatrix(int[][] matrix, int target) {
         if(matrix == null || matrix.length == 0 || matrix[0].length == 0) {
 			return false;
@@ -32,8 +32,8 @@ public class Solution {
 		
 		return searchMatrix(matrix, 0, m-1, 0, n-1, target);
     }
-	
-	private boolean searchMatrix(int[][] matrix, int row_start, int row_end, int column_start, int column_end, int target) {
+    
+    private boolean searchMatrix(int[][] matrix, int row_start, int row_end, int column_start, int column_end, int target) {
 		if(row_start == row_end && column_start == column_end) {
 			if(matrix[row_start][column_start] == target) {
 				return true;

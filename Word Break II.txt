@@ -1,0 +1,71 @@
+Given a non-empty string s and a dictionary wordDict containing a list of non-empty words, add spaces in s to construct a sentence where each word is a valid dictionary word. You may assume the dictionary does not contain duplicate words.
+
+Return all such possible sentences.
+
+For example, given
+s = "catsanddog",
+dict = ["cat", "cats", "and", "sand", "dog"].
+
+A solution is ["cats and dog", "cat sand dog"].
+
+UPDATE (2017/1/4):
+The wordDict parameter had been changed to a list of strings (instead of a set of strings). Please reload the code definition to get the latest changes.
+
+
+
+
+
+class Solution {
+    public List<String> wordBreak(String s, List<String> wordDict) {
+        if(s == null || wordDict == null || s.isEmpty() | wordDict.isEmpty()) {
+			return new ArrayList<String>();
+		}
+		
+		int length = s.length();
+		Map<Integer, List<String>> records = new HashMap<Integer, List<String>>();
+        wordBreak(s, 0, wordDict, records);
+		
+        return records.get(0); 
+    }
+    
+    private List<String> wordBreak(String s, int start, List<String> wordDict, Map<Integer, List<String>> records) {
+		if(start == s.length()) {
+            List<String> list = new ArrayList<String>();
+            list.add("");
+			return list;
+		}
+	
+		if(records.get(start) != null) {
+			return records.get(start);
+		}
+		
+		int size = wordDict.size();
+        List<String> list = new ArrayList<String>();
+		for(int i = 0; i < size; ++i) {
+			String word = wordDict.get(i);
+			int index = s.indexOf(word, start);
+			if(index != -1 && index == start) {
+				List<String> strs = wordBreak(s, start+word.length(), wordDict, records);
+				if(strs != null) {
+					for(String str : strs) {
+                        if(str.length() > 0) {
+                            list.add(word + " " + str);
+                        }
+                        else {
+                            list.add(word);
+                        }
+                    }
+				}
+			}
+		}
+		
+        records.put(start, list);
+        
+		if(!list.isEmpty()) {
+            return list;
+        }
+        else {
+            return null;
+        }
+    }
+}

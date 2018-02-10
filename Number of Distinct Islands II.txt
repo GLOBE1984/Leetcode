@@ -75,8 +75,8 @@ class Solution {
 		return count;
     }
     
+    //use dfs way to find all map
     private void helper (int i, int j, int [][] grid, List<Integer> shape) { 
-		//use dfs way to find all map
 		if (i >= grid.length || j >= grid[0].length || i < 0 || j < 0 || grid[i][j] == 0) {
 			return;
 		}
@@ -91,8 +91,8 @@ class Solution {
 		}
 	}
 	
-	private String norm (List<Integer> shape, int m, int n) { //normalization the map, 
-		
+    //normalization the map
+	private String norm (List<Integer> shape, int m, int n) { 
 		String ret = "";
 		int [] res = new int [shape.size()];
 		int [] xs = new int [shape.size()];

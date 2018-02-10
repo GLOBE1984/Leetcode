@@ -16,7 +16,7 @@ Note: You may assume the string contain only lowercase letters.
 public class Solution {
     public int firstUniqChar(String s) {
         Map<Character, Integer> records = new HashMap<Character, Integer>();
-        LinkedList<Integer> poses = new LinkedList<Integer>();
+        LinkedHashSet<Integer> poses = new LinkedHashSet<Integer>();
         
         int length = s.length();
         for(int i = 0; i < length; ++i) {
@@ -32,8 +32,9 @@ public class Solution {
             }
         }
         
-        if(poses.size() > 0) {
-            return poses.getFirst().intValue();
+        Iterator<Integer> iterator = poses.iterator();
+        if(iterator.hasNext()) {
+            return iterator.next();
         }
         else {
             return -1;

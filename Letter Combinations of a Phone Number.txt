@@ -1,0 +1,63 @@
+Given a digit string, return all possible letter combinations that the number could represent.
+
+A mapping of digit to letters (just like on the telephone buttons) is given below.
+
+
+
+Input:Digit string "23"
+Output: ["ad", "ae", "af", "bd", "be", "bf", "cd", "ce", "cf"].
+Note:
+Although the above answer is in lexicographical order, your answer could be in any order you want.
+
+
+
+
+
+class Solution {
+    public List<String> letterCombinations(String digits) {
+        LinkedList<String> strs = new LinkedList<String>();
+        
+        if(digits != null && digits.length() > 0) {
+            Map<Character, String> map = new HashMap<Character, String>();
+            generateMap(map);
+            
+            int length = digits.length();
+            boolean found = false;
+            for(int i = 0; i < length; ++i) {
+                char c = digits.charAt(i);
+                if(map.containsKey(c)) {
+                    if(!found) {
+                        strs.add("");
+                        found = true;
+                    }
+                    String bottonString = map.get(c);
+                    int bottonStringLength = bottonString.length();
+                    LinkedList<String> tmpList = new LinkedList<String>();
+                    while(!strs.isEmpty()) {
+                        String tmp = strs.poll();
+                        for(int j = 0; j < bottonStringLength; ++j) {
+                            char tmpChar = bottonString.charAt(j);
+                            tmpList.add(new String(tmp + tmpChar));
+                        }
+                    }
+                    strs = tmpList;
+                }
+            }
+        }
+        
+        return strs;
+    }
+    
+    private void generateMap(Map<Character, String> map) {
+        map.put('1', "");
+        map.put('2', "abc");
+        map.put('3', "def");
+        map.put('4', "ghi");
+        map.put('5', "jkl");
+        map.put('6', "mno");
+        map.put('7', "pqrs");
+        map.put('8', "tuv");
+        map.put('9', "wxyz");
+        map.put('0', " ");
+    }
+}
