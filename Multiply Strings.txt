@@ -1,0 +1,115 @@
+Given two non-negative integers num1 and num2 represented as strings, return the product of num1 and num2.
+
+Note:
+
+The length of both num1 and num2 is < 110.
+Both num1 and num2 contains only digits 0-9.
+Both num1 and num2 does not contain any leading zero.
+You must not use any built-in BigInteger library or convert the inputs to integer directly.
+
+
+
+
+
+class Solution {
+    public String multiply(String num1, String num2) {
+        if(num1 != null && num1.length() > 0 && num2 != null && num2.length() > 0) {
+            int length1 = num1.length();
+            int length2 = num2.length();
+            int index = length2 - 1;
+            
+            String result = "0";
+            String multiply = "1";
+            int number1 = 0;
+            
+            while(index >= 0) {
+                String tmp = multiply(num1, num2.charAt(index), multiply);
+                result = add(tmp, result);
+                multiply = multiply + "0";
+                index--;
+            }
+            
+            return result;
+        }
+        else {
+            return "0";
+        }
+    }
+    
+    private String multiply(String num1, char num2, String multiply) {
+        int length = num1.length();
+        int carry = 0;
+        StringBuilder builder = new StringBuilder();
+        for(int i = length-1; i >= 0; --i) {
+            int num = (num1.charAt(i) - '0') * (num2 - '0') + carry;
+            if(num >= 10) {
+                carry = num/10;
+                num = num%10;
+            }
+            else {
+                carry = 0;
+            }
+            builder.insert(0, num);
+        }
+        if(carry > 0) {
+            builder.insert(0, carry);
+        }
+        builder.append(multiply.substring(1));
+        int index = 0;
+        while(index < builder.length()-1 && builder.charAt(index) == '0') {
+            index++;
+        }
+        return builder.substring(index);
+    }
+    
+    private String add(String num1, String num2) {
+        int length1 = num1.length();
+        int length2 = num2.length();
+        
+        int index1 = length1 - 1;
+        int index2 = length2 - 1;
+        int carry = 0;
+        StringBuilder builder = new StringBuilder();
+        while(index1 >= 0 && index2 >= 0) {
+            int num = (num1.charAt(index1) - '0') + (num2.charAt(index2) - '0') + carry;
+            if(num >= 10) {
+                carry = num/10;
+                num = num%10;
+            }
+            else {
+                carry = 0;
+            }
+            builder.insert(0, num);
+            index1--;
+            index2--;
+        }
+        while(index1 >= 0) {
+            int num = (num1.charAt(index1) - '0') + carry;
+            if(num >= 10) {
+                carry = num/10;
+                num = num%10;
+            }
+            else {
+                carry = 0;
+            }
+            builder.insert(0, num);
+            index1--;
+        }
+        while(index2 >= 0) {
+            int num = (num2.charAt(index2) - '0') + carry;
+            if(num >= 10) {
+                carry = num/10;
+                num = num%10;
+            }
+            else {
+                carry = 0;
+            }
+            builder.insert(0, num);
+            index2--;
+        }
+        if(carry > 0) {
+            builder.insert(0, carry);
+        }
+        return builder.toString();
+    }
+}
