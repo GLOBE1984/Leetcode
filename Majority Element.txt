@@ -1,0 +1,44 @@
+Given an array of size n, find the majority element. The majority element is the element that appears more than floor(n/2) times.
+
+You may assume that the array is non-empty and the majority element always exist in the array.
+
+
+
+
+//Boyer¨CMoore Majority Vote Algorithm
+class Solution {
+    public int majorityElement(int[] nums) {
+        if(nums != null && nums.length > 0) {
+            int length = nums.length;
+            int m = nums[0];
+            int count = 1;
+            for(int i = 1; i < length; ++i) {
+                if(m == nums[i]) {
+                    count++;
+                }
+                else if(count == 0) {
+                    m = nums[i];
+                }
+                else {
+                    count--;
+                }
+            }
+            
+            count = 0;
+            for(int i = 0; i < length; ++i) {
+                if(m == nums[i]) {
+                    count++;
+                }
+            }
+            if(count > length/2) {
+                return m;
+            }
+            else {
+                return -1;
+            }
+        }
+        else {
+            return -1;
+        }
+    }
+}
