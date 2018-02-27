@@ -1,0 +1,86 @@
+The n-queens puzzle is the problem of placing n queens on an n¡Án chessboard such that no two queens attack each other.
+
+
+
+Given an integer n, return all distinct solutions to the n-queens puzzle.
+
+Each solution contains a distinct board configuration of the n-queens' placement, where 'Q' and '.' both indicate a queen and an empty space respectively.
+
+For example,
+There exist two distinct solutions to the 4-queens puzzle:
+
+[
+ [".Q..",  // Solution 1
+  "...Q",
+  "Q...",
+  "..Q."],
+
+ ["..Q.",  // Solution 2
+  "Q...",
+  "...Q",
+  ".Q.."]
+]
+
+
+
+
+
+class Solution {
+    public List<List<String>> solveNQueens(int n) {
+        List<List<String>> results = new ArrayList<List<String>>();
+        
+        if(n > 0) {
+            int[] records = new int[n];
+            solveNQueens(records, 0, results);
+        }
+        
+        return results;
+    }
+    
+    private void solveNQueens(int[] records, int row, List<List<String>> results) {
+        if(row == records.length) {
+            results.add(boardToStringList(records));
+            return;
+        }
+        
+        for(int col = 0; col < records.length; ++col) {
+            records[row] = col;
+            if(isValid(records, row)) {
+                solveNQueens(records, row+1, results);
+            }
+        }
+    }
+    
+    private boolean isValid(int[] records, int row) {
+        for(int i = 0; i < row; ++i) {
+            int index = 1;
+            if(records[row] == records[i] || Math.abs(records[row]-records[i]) == row-i) {
+                return false;
+            }
+        }
+        
+        return true;
+    }
+    
+    private List<String> boardToStringList(int[] records) {
+        StringBuilder builder = new StringBuilder();
+        List<String> list = new ArrayList<String>();
+        int index = 0;
+        for(int i = 0; i < records.length; ++i) {
+            while(index < records[i]) {
+                builder.append(".");
+                index++;
+            }
+            builder.append("Q");
+            index++;
+            while(index < records.length) {
+                builder.append(".");
+                index++;
+            }
+            list.add(builder.toString());
+            builder = new StringBuilder();
+            index = 0;
+        }
+        return list;
+    }
+}

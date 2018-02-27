@@ -1,0 +1,63 @@
+Given a sorted array, two integers k and x, find the k closest elements to x in the array. The result should also be sorted in ascending order. If there is a tie, the smaller elements are always preferred.
+
+Example 1:
+Input: [1,2,3,4,5], k=4, x=3
+Output: [1,2,3,4]
+Example 2:
+Input: [1,2,3,4,5], k=4, x=-1
+Output: [1,2,3,4]
+Note:
+The value k is positive and will always be smaller than the length of the sorted array.
+Length of the given array is positive and will not exceed 104
+Absolute value of elements in the array and x will not exceed 104
+
+
+
+
+
+class Solution {
+    public List<Integer> findClosestElements(int[] arr, int k, int x) {
+        List<Integer> list = new LinkedList<Integer>();
+        
+        if(arr != null && arr.length > 0 && k > 0) {
+            int index = Arrays.binarySearch(arr, x);
+            int left = 0;
+            int right = 0;
+            int count = 0;
+            if(index >= 0) {
+                left = index - 1;
+                right = index + 1;
+                list.add(x);
+                count++;
+            }
+            else {
+                index = -1*index - 1;
+                left = index - 1;
+                right = index;
+            }
+            
+            int length = arr.length;
+            while(count < k) {
+                int leftDiff = Integer.MAX_VALUE;
+                if(left >= 0) {
+                    leftDiff = x - arr[left];
+                }
+                int rightDiff = Integer.MAX_VALUE;
+                if(right < length) {
+                    rightDiff = arr[right] - x;
+                }
+                if(leftDiff <= rightDiff) {
+                    list.add(0, arr[left]);
+                    left--;
+                }
+                else {
+                    list.add(arr[right]);
+                    right++;
+                }
+                count++;
+            }
+        }
+        
+        return list;
+    }
+}

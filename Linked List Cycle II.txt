@@ -1,0 +1,54 @@
+Given a linked list, return the node where the cycle begins. If there is no cycle, return null.
+
+Note: Do not modify the linked list.
+
+
+
+
+
+/**
+ * Definition for singly-linked list.
+ * class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode(int x) {
+ *         val = x;
+ *         next = null;
+ *     }
+ * }
+ */
+public class Solution {
+    public ListNode detectCycle(ListNode head) {
+        if(head == null) {
+            return null;
+        }
+        
+        ListNode step1 = head;
+        ListNode step2 = head;
+        while(step1 != null && step2 != null) {
+            step1 = step1.next;
+            step2 = step2.next;
+            if(step2 != null) {
+                step2 = step2.next;
+            }
+            else {
+                return null;
+            }
+            if(step1 == step2) {
+                break;
+            }
+        }
+        
+        if(step1 != null && step2 != null) {
+            step1 = head;
+            while(step1 != step2) {
+                step1 = step1.next;
+                step2 = step2.next;
+            }
+            return step2;
+        }
+        else {
+            return null;
+        }
+    }
+}

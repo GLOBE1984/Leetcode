@@ -1,0 +1,65 @@
+Given a string s, partition s such that every substring of the partition is a palindrome.
+
+Return all possible palindrome partitioning of s.
+
+For example, given s = "aab",
+Return
+
+[
+  ["aa","b"],
+  ["a","a","b"]
+]
+
+
+
+
+
+class Solution {
+    public List<List<String>> partition(String s) {
+        List<List<String>> results = new LinkedList<List<String>>();
+        
+        if(s != null && s.length() > 1) {
+            int length = s.length();
+            boolean[][] dp = new boolean[length][length];
+            for(int i = 0; i < length; ++i) {
+                dp[i][i] = true;
+            }
+            
+            for(int i = length-1; i >= 0; --i) {
+                for(int j = i+1; j < length; ++j) {
+                    if(dp[i+1][j-1] && s.charAt(i) == s.charAt(j)) {
+                        dp[i][j] = true;
+                    }
+                    else if(i == j-1 && s.charAt(i) == s.charAt(j)) {
+                        dp[i][j] = true;
+                    }
+                }
+            }
+            
+            findPatitions(s, 0, dp, results, new LinkedList<String>());
+        }
+        else if(s != null && s.length() == 1) {
+            List<String> result = new LinkedList<String>();
+            result.add(s);
+            results.add(result);
+        }
+        
+        return results;
+    }
+    
+    private void findPatitions(String s, int index, boolean[][] dp, List<List<String>> results, List<String> result) {
+        if(index == s.length()) {
+            results.add(result);
+            return;
+        }
+        
+        for(int i = index; i < s.length(); ++i) {
+            if(dp[index][i]) {
+                List<String> tmp = new LinkedList<String>();
+                tmp.addAll(result);
+                tmp.add(s.substring(index, i+1));
+                findPatitions(s, i+1, dp, results, tmp);
+            }
+        }
+    }
+}

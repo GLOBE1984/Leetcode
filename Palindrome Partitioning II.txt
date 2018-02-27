@@ -1,0 +1,61 @@
+Given a string s, partition s such that every substring of the partition is a palindrome.
+
+Return the minimum cuts needed for a palindrome partitioning of s.
+
+For example, given s = "aab",
+Return 1 since the palindrome partitioning ["aa","b"] could be produced using 1 cut.
+
+
+
+
+
+class Solution {
+    public int minCut(String s) {
+        int count = 0;
+        
+        if(s != null && s.length() > 1) {
+            int length = s.length();
+            boolean[][] dp = new boolean[length][length];
+            for(int i = 0; i < length; ++i) {
+                dp[i][i] = true;
+            }
+            
+            for(int i = length-1; i >= 0; --i) {
+                for(int j = i+1; j < length; ++j) {
+                    if(dp[i+1][j-1] && s.charAt(i) == s.charAt(j)) {
+                        dp[i][j] = true;
+                    }
+                    else if(i == j-1 && s.charAt(i) == s.charAt(j)) {
+                        dp[i][j] = true;
+                    }
+                }
+            }
+            
+            Map<Integer, Integer> counter = new HashMap<Integer, Integer>();
+            
+            count = countPatitions(s, 0, dp, counter);
+        }
+        
+        return count;
+    }
+    
+    private int countPatitions(String s, int index, boolean[][] dp, Map<Integer, Integer> counter) {
+        if(index == s.length()) {
+            return -1;
+        }
+        if(counter.get(index) != null) {
+            return counter.get(index).intValue();
+        }
+        
+        int length = s.length();
+        int min = Integer.MAX_VALUE;
+        for(int i = index; i < length; ++i) {
+            if(dp[index][i]) {
+                min = Math.min(min, countPatitions(s, i+1, dp, counter));
+            }
+        }
+        min++;
+        counter.put(index, min);
+        return min;
+    }
+}

@@ -1,0 +1,85 @@
+Given n non-negative integers representing the histogram's bar height where the width of each bar is 1, find the area of largest rectangle in the histogram.
+
+
+Above is a histogram where width of each bar is 1, given height = [2,1,5,6,2,3].
+
+The largest rectangle is shown in the shaded area, which has area = 10 unit.
+
+For example,
+Given heights = [2,1,5,6,2,3],
+return 10 as area=[height=5, width=2(5 and 6)].
+
+
+
+
+
+class Solution {
+    public int largestRectangleArea(int[] heights) {
+        if(heights != null && heights.length > 0) {
+            int length = heights.length;
+            PriorityQueue<Bar> queue = new PriorityQueue<Bar>(new Comparator<Bar>(){
+                public int compare(Bar b1, Bar b2) {
+                    return b2.val - b1.val;
+                }
+            });
+            
+            int[] areas = new int[length];
+            for(int i = 0; i < length; ++i) {
+                while(!queue.isEmpty()) {
+                    if(queue.peek().val > heights[i]) {
+                        Bar bar = queue.poll();
+                        areas[bar.x] = bar.val * (i-bar.x);
+                    }
+                    else {
+                        break;
+                    }
+                }
+                Bar bar = new Bar();
+                bar.x = i;
+                bar.val = heights[i];
+                queue.offer(bar);
+            }
+            
+            while(!queue.isEmpty()) {
+                Bar bar = queue.poll();
+                areas[bar.x] = bar.val * (length-bar.x);
+            }
+            
+            for(int i = length-1; i >= 0; --i) {
+                while(!queue.isEmpty()) {
+                    if(queue.peek().val > heights[i]) {
+                        Bar bar = queue.poll();
+                        areas[bar.x] = areas[bar.x] + bar.val * (bar.x-i);
+                    }
+                    else {
+                        break;
+                    }
+                }
+                Bar bar = new Bar();
+                bar.x = i;
+                bar.val = heights[i];
+                queue.offer(bar);
+            }
+            
+            while(!queue.isEmpty()) {
+                Bar bar = queue.poll();
+                areas[bar.x] = areas[bar.x] + bar.val * (bar.x+1);
+            }
+            
+            int max = 0;
+            for(int i = 0; i < length; ++i) {
+                max = Math.max(max, areas[i]-heights[i]);
+            }
+            
+            return max;
+        }
+        else {
+            return 0;
+        }
+    }
+    
+    private class Bar {
+        public int x;
+        public int val;
+    }
+}
