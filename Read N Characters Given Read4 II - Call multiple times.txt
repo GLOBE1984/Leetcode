@@ -1,0 +1,58 @@
+The API: int read4(char *buf) reads 4 characters at a time from a file.
+
+The return value is the actual number of characters read. For example, it returns 3 if there is only 3 characters left in the file.
+
+By using the read4 API, implement the function int read(char *buf, int n) that reads n characters from the file.
+
+Note:
+The read function may be called multiple times.
+
+
+
+
+
+/* The read4 API is defined in the parent class Reader4.
+      int read4(char[] buf); */
+
+// 尝试了好几次才弄明白意思。给定read4，跟上一题一样，求可以call multiple times的read()。假如文件字符串是"abc"，我们调用read(1)，应该返回"a"，再调用read(2)，应该返回bc"。这里要注意的是，之前我们再第一次调用的时候，read4就已经读取了"abc"，所以这道题其实就是要在上一题的基础上处理这种情况。解决方法不难，我们可以用一个queue来存储多读取的部分，然后在下次调用read的时候，根据情况判断，先读queue里面上次读剩下的数据，再进行下面的读取。也可以把read4的buffer放在global，然后用一个int型的offset来记录上次读了read4的多少。由于这个global buffer不会超过4，所以space complexity算是O(1)的。 LeetCode有些题真的很难读懂题意。
+
+public class Solution extends Reader4 {        
+    /**
+     * @param buf Destination buffer
+     * @param n   Maximum number of characters to read
+     * @return    The number of characters read
+     */
+    private Queue<Character> q;
+    private boolean EOF;
+    
+    public Solution() {
+        this.q = new LinkedList<>();
+        this.EOF = false;
+    }
+    
+    public int read(char[] buf, int n) {
+        char[] read4Buffer = new char[4];
+        int bytesRead = 0;
+        
+        while (!q.isEmpty() && bytesRead < n)             //try read queue buffer first
+            buf[bytesRead++] = q.poll();
+        
+        while(!this.EOF && bytesRead < n) {
+            int read4Bytes = read4(read4Buffer);
+            if(read4Bytes < 4) {
+                this.EOF = true;
+            }
+            int bytes = Math.min(n - bytesRead, read4Bytes);
+            System.arraycopy(read4Buffer, 0, buf, bytesRead, bytes);
+            bytesRead += bytes;
+            
+            if(bytes < 4) {                                 //push read4 reminder to q for next read
+                for(int i = bytes; i < read4Bytes; i++) {
+                    this.q.offer(read4Buffer[i]);
+                }
+            }
+        }
+        
+        return bytesRead;
+    }
+}
