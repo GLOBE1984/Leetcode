@@ -1,0 +1,103 @@
+The structure of Expression Tree is a binary tree to evaluate certain expressions.
+All leaves of the Expression Tree have an number string value. All non-leaves of the Expression Tree have an operator string value.
+
+Now, given an expression array, build the expression tree of this expression, return the root of this expression tree.
+
+Clarification
+See wiki:
+Expression Tree
+
+Example
+For the expression (2*6-(23+7)/(1+2)) (which can be represented by ["2" "*" "6" "-" "(" "23" "+" "7" ")" "/" "(" "1" "+" "2" ")"]). 
+The expression tree will be like
+
+                 [ - ]
+             /          \
+        [ * ]              [ / ]
+      /     \           /         \
+    [ 2 ]  [ 6 ]      [ + ]        [ + ]
+                     /    \       /      \
+                   [ 23 ][ 7 ] [ 1 ]   [ 2 ]
+
+
+
+// 观察example，可以看出所有叶节点都为数字。如果给每个元素赋予一个优先级， 和 ／ 为2， ＋ 和 － 为1， 数字为极大值，然后规定优先级越大的越在下，越小的越在上。这样，这道题就转化为构建*Min Tree，和之前的Max Tree做法类似，只是这里维持的是一个递增栈。同时，当遇见“（”时，提高优先级，遇见“）”时，降低优先级。
+遍历数组，给每个新来的元素赋予一个val值用以比较优先级。 * 和 ／ 为2， ＋ 和 － 为1， 数字为极大值。
+此时看栈顶元素（若栈为空则直接加入）。为了维持一个递增栈，若栈顶元素比新来元素val大（或相等），则出栈；若栈顶元素比新来元素val小，则break。
+若2中栈顶元素出栈，此时若栈为空，则将出栈元素作为新来元素的左节点，并将新来元素加入栈中；若不为空，看新栈顶元素，若新栈顶元素比新来元素val小，则将出栈元素作为新来元素的左孩子，并将新来元素加入栈中；若新栈顶元素比新来元素val大（或相等），则将出栈元素作为新栈顶元素的右节点，重复2-3，直到栈为空或者栈顶元素比新来元素要小，将新来元素加入栈中。
+tips：在遍历万整个数组后，多加一个值，将其val赋值为极小，这样所有元素都会出栈并构建成完整的树。
+
+
+/**
+ * Definition of ExpressionTreeNode:
+ * public class ExpressionTreeNode {
+ *     public String symbol;
+ *     public ExpressionTreeNode left, right;
+ *     public ExpressionTreeNode(String symbol) {
+ *         this.symbol = symbol;
+ *         this.left = this.right = null;
+ *     }
+ * }
+ */
+
+
+public class Solution {
+    class TreeNode {
+        int val;
+        ExpressionTreeNode eNode;
+        public TreeNode(int val, String s) {
+            this.val = val;
+            eNode = new ExpressionTreeNode(s);
+        }
+    }
+    /**
+     * @param expression: A string array
+     * @return: The root of expression tree
+     */
+    public ExpressionTreeNode build(String[] expression) {
+        if (expression == null || expression.length == 0) {
+            return null;
+        }
+        Stack<TreeNode> stack = new Stack<TreeNode>();
+        int base = 0;
+        int val = 0;
+
+        for (int i = 0; i < expression.length; i++) {
+            if (expression[i].equals("(")) {
+                base += 10;
+                continue;
+            }
+            if (expression[i].equals(")")) {
+                base -= 10;
+                continue;
+            }
+            val = getWeight(base, expression[i]);
+            TreeNode node = new TreeNode(val, expression[i]);
+            while (!stack.isEmpty() && node.val <= stack.peek().val) {
+                node.eNode.left = stack.pop().eNode;
+            }
+            if (!stack.isEmpty()) {
+                stack.peek().eNode.right = node.eNode;
+            }
+            stack.push(node);
+        }
+        if (stack.isEmpty()) {
+            return null;
+        }
+        TreeNode rst = stack.pop();
+        while (!stack.isEmpty()) {
+            rst = stack.pop();
+        }
+        return rst.eNode;
+    }
+    //Calculate weight for characters
+    public int getWeight(int base, String s) {
+        if (s.equals("+") || s.equals("-")) {
+            return base + 1;
+        }
+        if (s.equals("*") || s.equals("/")) {
+            return base + 2;
+        }
+        return Integer.MAX_VALUE;
+    }
+}

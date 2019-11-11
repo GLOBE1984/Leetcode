@@ -12,7 +12,7 @@ Your algorithm should run in O(n) time and uses constant space.
 // refer to the counting sort
 public class Solution {
     public int firstMissingPositive(int[] nums) {
-        if(nums == null || nums.length==0) {
+        if(nums == null || nums.length == 0) {
             return 1;
         }
         

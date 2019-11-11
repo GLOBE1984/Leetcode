@@ -1,0 +1,62 @@
+Given an array of n positive integers and a positive integer s, find the minimal length of a contiguous subarray of which the sum ¡İ s. If there isn't one, return 0 instead.
+
+For example, given the array [2,3,1,2,4,3] and s = 7,
+the subarray [4,3] has the minimal length under the problem constraint.
+
+click to show more practice.
+
+More practice:
+If you have figured out the O(n) solution, try coding another solution of which the time complexity is O(n log n).
+
+
+
+
+
+class Solution {
+    public int minSubArrayLen(int s, int[] nums) {
+        if(nums != null && nums.length > 0) {
+            int start = 0;
+            int end = 0;
+            int min = Integer.MAX_VALUE;
+            int length = nums.length;
+            int sum = 0;
+            boolean found = false;
+            while(end < length) {
+                sum = sum + nums[end];
+                if(sum >= s) {
+                    found = true;
+                    min = Math.min(min, end-start+1);
+                    if(start == end) {
+                        start++;
+                        end++;
+                    }
+                    else {
+                        sum = sum - nums[start];
+                        start++;
+                        while(start < end && sum >= s) {
+                            min = Math.min(min, end-start+1);
+                            sum = sum - nums[start];
+                            start++;
+                        }
+                        if(sum >= s) {
+                            min = Math.min(min, end-start+1);
+                        }
+                        end++;
+                    }
+                }
+                else {
+                    end++;
+                }
+            }
+            if(found) {
+                return min;
+            }
+            else {
+                return 0;
+            }
+        }
+        else {
+            return 0;
+        }
+    }
+}
