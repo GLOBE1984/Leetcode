@@ -1,0 +1,43 @@
+Given an unsorted array of integers, find the length of longest increasing subsequence.
+
+Example:
+
+Input: [10,9,2,5,3,7,101,18]
+Output: 4 
+Explanation: The longest increasing subsequence is [2,3,7,101], therefore the length is 4. 
+Note:
+
+There may be more than one LIS combination, it is only necessary for you to return the length.
+Your algorithm should run in O(n2) complexity.
+Follow up: Could you improve it to O(n log n) time complexity?
+
+
+
+
+
+// maxLens[i] 代表 nums 中第0个到第 i  个元素最大长度为 i 的最小值是多少（注意最小值是 nums数组中的某个数）：
+class Solution {
+    public int lengthOfLIS(int[] nums) {
+        int[] maxLens = new int[nums.length + 1];
+        int maxLen = 0;
+        for(int num : nums) {
+            int len = binarySearch(num, maxLen, maxLens);
+            maxLen = Math.max(len, maxLen);
+            maxLens[len] = num;
+        }
+        return maxLen;
+    }
+    
+    private int binarySearch(int num, int maxLen, int[] maxLens) {
+        int left = 1, right = maxLen;
+        while(left <= right) {
+            int mid = left + (right-left) / 2;
+            if(maxLens[mid] < num) {
+                left = mid + 1;
+            } else {
+                right = mid - 1;
+            }
+        }
+        return left;
+    }
+}

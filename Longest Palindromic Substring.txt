@@ -23,7 +23,6 @@ public class Solution {
             return null;
         }
         
-        Map<Character, List<Integer>> map = new HashMap<Character, List<Integer>>();
         int length = s.length();
         int max = 0;
         String result = "";

@@ -1,0 +1,133 @@
+In a given grid, each cell can have one of three values:
+
+the value 0 representing an empty cell;
+the value 1 representing a fresh orange;
+the value 2 representing a rotten orange.
+Every minute, any fresh orange that is adjacent (4-directionally) to a rotten orange becomes rotten.
+
+Return the minimum number of minutes that must elapse until no cell has a fresh orange.  If this is impossible, return -1 instead.
+
+ 
+
+Example 1:
+
+
+
+Input: [[2,1,1],[1,1,0],[0,1,1]]
+Output: 4
+Example 2:
+
+Input: [[2,1,1],[0,1,1],[1,0,1]]
+Output: -1
+Explanation:  The orange in the bottom left corner (row 2, column 0) is never rotten, because rotting only happens 4-directionally.
+Example 3:
+
+Input: [[0,2]]
+Output: 0
+Explanation:  Since there are already no fresh oranges at minute 0, the answer is just 0.
+ 
+
+Note:
+
+1 <= grid.length <= 10
+1 <= grid[0].length <= 10
+grid[i][j] is only 0, 1, or 2.
+
+
+
+
+class Solution {
+    public int orangesRotting(int[][] grid) {
+        if(grid != null && grid.length > 0 && grid[0].length > 0) {
+            Queue<Orange> queue = new LinkedList<Orange>();
+            Set<Orange> freshOranges = new HashSet<Orange>();
+            Set<Orange> visitedOranges = new HashSet<Orange>();
+            
+            for(int i = 0; i < grid.length; ++i) {
+                for(int j = 0; j < grid[0].length; ++j) {
+                    if(grid[i][j] == 1) {
+                        freshOranges.add(new Orange(i, j));
+                    } else if(grid[i][j] == 2) {
+                        Orange orange = new Orange(i, j);
+                        queue.offer(orange);
+                        visitedOranges.add(orange);
+                    }
+                }
+            }
+            
+            if(freshOranges.isEmpty()) {
+                return 0;
+            }
+            
+            int step = -1;
+            while(!queue.isEmpty()) {
+                Queue<Orange> newQueue = new LinkedList<Orange>();
+                step++;
+                while(!queue.isEmpty()) {
+                    Orange orange = queue.poll();
+                    freshOranges.remove(orange);
+                    if(orange.row > 0 && grid[orange.row-1][orange.col] == 1) {
+                        Orange newOrange = new Orange(orange.row-1, orange.col);
+                        if(!visitedOranges.contains(newOrange)) {
+                            newQueue.offer(newOrange);
+                            visitedOranges.add(newOrange);
+                        }
+                    }
+                    if(orange.row < grid.length-1 && grid[orange.row+1][orange.col] == 1) {
+                        Orange newOrange = new Orange(orange.row+1, orange.col);
+                        if(!visitedOranges.contains(newOrange)) {
+                            newQueue.offer(newOrange);
+                            visitedOranges.add(newOrange);
+                        }
+                    }
+                    if(orange.col > 0 && grid[orange.row][orange.col-1] == 1) {
+                        Orange newOrange = new Orange(orange.row, orange.col-1);
+                        if(!visitedOranges.contains(newOrange)) {
+                            newQueue.offer(newOrange);
+                            visitedOranges.add(newOrange);
+                        }
+                    }
+                    if(orange.col < grid[0].length-1 && grid[orange.row][orange.col+1] == 1) {
+                        Orange newOrange = new Orange(orange.row, orange.col+1);
+                        if(!visitedOranges.contains(newOrange)) {
+                            newQueue.offer(newOrange);
+                            visitedOranges.add(newOrange);
+                        }
+                    }
+                }
+                queue = newQueue;
+            }
+            
+            if(freshOranges.isEmpty()) {
+                return step;
+            } else {
+                return -1;
+            }
+        } else {
+            return -1;
+        }
+    }
+    
+    class Orange {
+        private int row;
+        private int col;
+        
+        public Orange(int row, int col) {
+            this.row = row;
+            this.col = col;
+        }
+        
+        public int hashCode() {
+            return row * 100 + col;
+        }
+        
+        public boolean equals(Object object) {
+            if(!(object instanceof Orange)) {
+                return false;
+            }
+            
+            Orange orange = (Orange)object;
+            return this.row == orange.row && this.col == orange.col;
+        }
+    }
+}
