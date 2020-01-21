@@ -1,0 +1,58 @@
+Given a list of daily temperatures T, return a list such that, for each day in the input, tells you how many days you would have to wait until a warmer temperature. If there is no future day for which this is possible, put 0 instead.
+
+For example, given the list of temperatures T = [73, 74, 75, 71, 69, 72, 76, 73], your output should be [1, 1, 4, 2, 1, 1, 0, 0].
+
+Note: The length of temperatures will be in the range [1, 30000]. Each temperature will be an integer in the range [30, 100].
+
+
+
+
+
+class Solution {
+    public int[] dailyTemperatures(int[] T) {
+        if(T != null && T.length > 0) {
+            int[] results = new int[T.length];
+            
+            PriorityQueue<Temperature> queue = new PriorityQueue<>(T.length, (Temperature t1, Temperature t2) -> 
+                                                                   t1.temperature - t2.temperature);
+            queue.offer(new Temperature(T[T.length - 1], T.length - 1));
+            results[results.length - 1] = 0;
+            int max = T[T.length - 1];
+            
+            for(int i = T.length - 2; i >= 0; --i) {
+                if(T[i] > max) {
+                    results[i] = 0;
+                    queue.clear();
+                    max = T[i];
+                } else {
+                    while(!queue.isEmpty() && queue.peek().temperature <= T[i]) {
+                        queue.poll();
+                    }
+                    if(!queue.isEmpty()) {
+                        results[i] = queue.peek().index - i;
+                    } else {
+                        results[i] = 0;
+                    }
+                }
+                queue.offer(new Temperature(T[i], i));
+            }
+            
+            return results;
+        } else {
+            return new int[0];
+        }
+    }
+    
+    private class Temperature {
+        
+        private int temperature;
+        
+        private int index;
+        
+        private Temperature(int temperature, int index) {
+            this.temperature = temperature;
+            this.index = index;
+        }
+        
+    }
+}

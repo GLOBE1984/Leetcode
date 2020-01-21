@@ -1,0 +1,106 @@
+Given an integer matrix, find the length of the longest increasing path.
+
+From each cell, you can either move to four directions: left, right, up or down. You may NOT move diagonally or move outside of the boundary (i.e. wrap-around is not allowed).
+
+Example 1:
+
+Input: nums = 
+[
+  [9,9,4],
+  [6,6,8],
+  [2,1,1]
+] 
+Output: 4 
+Explanation: The longest increasing path is [1, 2, 6, 9].
+Example 2:
+
+Input: nums = 
+[
+  [3,4,5],
+  [3,2,6],
+  [2,2,1]
+] 
+Output: 4 
+Explanation: The longest increasing path is [3, 4, 5, 6]. Moving diagonally is not allowed.
+
+
+
+
+class Solution {
+    public int longestIncreasingPath(int[][] matrix) {
+        int result = 0;
+        
+        if(matrix != null && matrix.length > 0 && matrix[0].length > 0) {
+            Map<Point, Integer> longestPathMap = new HashMap<>();
+            for(int i = 0; i < matrix.length; ++i) {
+                for(int j = 0; j < matrix[0].length; ++j) {
+                    Point point = new Point(i, j);
+                    if(!longestPathMap.containsKey(point)) {
+                        result = Math.max(result, findLongest(point, matrix, longestPathMap));
+                    }
+                }
+            }
+        }
+        
+        return result;
+    }
+    
+    private int findLongest(Point point, int[][] matrix, Map<Point, Integer> longestPathMap) {        
+        int depth = 0;
+        
+        if(!longestPathMap.containsKey(point)) {
+            if(point.row > 0 && matrix[point.row][point.col] < matrix[point.row-1][point.col]) {
+                Point nextPoint = new Point(point.row - 1, point.col);
+                depth = Math.max(depth, findLongest(nextPoint, matrix, longestPathMap));
+            }
+            if(point.row < matrix.length - 1 && matrix[point.row][point.col] < matrix[point.row+1][point.col]) {
+                Point nextPoint = new Point(point.row + 1, point.col);
+                depth = Math.max(depth, findLongest(nextPoint, matrix, longestPathMap));
+            }
+            if(point.col > 0 && matrix[point.row][point.col] < matrix[point.row][point.col-1]) {
+                Point nextPoint = new Point(point.row, point.col - 1);
+                depth = Math.max(depth, findLongest(nextPoint, matrix, longestPathMap));
+            }
+            if(point.col < matrix[0].length - 1 && matrix[point.row][point.col] < matrix[point.row][point.col+1]) {
+                Point nextPoint = new Point(point.row, point.col + 1);
+                depth = Math.max(depth, findLongest(nextPoint, matrix, longestPathMap));
+            }
+            longestPathMap.put(point, depth + 1);
+            return depth + 1;
+        } else {
+            return longestPathMap.get(point).intValue();
+        }
+        
+    }
+    
+    private class Point {
+        
+        private final int row;
+        
+        private final int col;
+        
+        private Point(int row, int col) {
+            this.row = row;
+            this.col = col;
+        }
+        
+        public boolean equals(Object object) {
+            if(!(object instanceof Point)) {
+                return false;
+            }
+            
+            Point point = (Point)object;
+            
+            return this.row == point.row && this.col == point.col;
+        }
+        
+        public int hashCode() {
+            return Objects.hash(this.row, this.col);
+        }
+        
+        public String toString() {
+            return "[" + this.row + ", " + this.col + "]";
+        }
+        
+    }
+}
