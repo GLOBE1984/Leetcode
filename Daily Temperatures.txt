@@ -11,33 +11,16 @@ Note: The length of temperatures will be in the range [1, 30000]. Each temperatu
 class Solution {
     public int[] dailyTemperatures(int[] T) {
         if(T != null && T.length > 0) {
-            int[] results = new int[T.length];
-            
-            PriorityQueue<Temperature> queue = new PriorityQueue<>(T.length, (Temperature t1, Temperature t2) -> 
-                                                                   t1.temperature - t2.temperature);
-            queue.offer(new Temperature(T[T.length - 1], T.length - 1));
-            results[results.length - 1] = 0;
-            int max = T[T.length - 1];
-            
-            for(int i = T.length - 2; i >= 0; --i) {
-                if(T[i] > max) {
-                    results[i] = 0;
-                    queue.clear();
-                    max = T[i];
-                } else {
-                    while(!queue.isEmpty() && queue.peek().temperature <= T[i]) {
-                        queue.poll();
-                    }
-                    if(!queue.isEmpty()) {
-                        results[i] = queue.peek().index - i;
-                    } else {
-                        results[i] = 0;
-                    }
+            Deque<Integer> stack = new ArrayDeque<>();
+            int[] rst = new int[T.length];
+            for (int i = 0; i < T.length; i++) {
+                while (!stack.isEmpty() && T[i] > T[stack.peek()]) {
+                    int index = stack.pop();
+                    rst[index] = i - index;
                 }
-                queue.offer(new Temperature(T[i], i));
+                stack.push(i);
             }
-            
-            return results;
+            return rst;
         } else {
             return new int[0];
         }

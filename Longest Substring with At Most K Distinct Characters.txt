@@ -1,0 +1,87 @@
+Given a string, find the length of the longest substring T that contains at most k distinct characters.
+
+Example 1:
+
+Input: s = "eceba", k = 2
+Output: 3
+Explanation: T is "ece" which its length is 3.
+Example 2:
+
+Input: s = "aa", k = 1
+Output: 2
+Explanation: T is "aa" which its length is 2.
+
+
+
+
+
+class Solution {
+    public int lengthOfLongestSubstringKDistinct(String s, int k) {
+        if(s != null && s.length() > 0 && k > 0) {
+            if(s.length() < k) {
+                return s.length();
+            }
+            
+            Map<Character, Integer> recordMap = new HashMap<>();            
+            int start = 0;
+            int end = 0;
+            recordMap.put(s.charAt(start), 1);
+            
+            while(end < s.length()) {
+                if(recordMap.size() <= k) {
+                    if(end < s.length() - 1) {
+                        char c = s.charAt(end + 1);
+                        if(recordMap.containsKey(c) || recordMap.size() < k) {
+                            Integer integer = recordMap.get(c);
+                            if(integer == null) {
+                                integer = Integer.valueOf(0);
+                            }
+                            recordMap.put(c, integer.intValue() + 1);
+                            end++;
+                        } else {
+                            Integer integer = recordMap.get(c);
+                            if(integer == null) {
+                                integer = Integer.valueOf(0);
+                            }
+                            recordMap.put(c, integer.intValue() + 1);
+                            c = s.charAt(start);
+                            integer = recordMap.get(c);
+                            if(integer.intValue() - 1 == 0) {
+                                recordMap.remove(c);
+                            } else {
+                                recordMap.put(c, integer.intValue() - 1);
+                            }
+                            start++;
+                            end++;
+                        }
+                    } else {
+                        start++;
+                        end++;
+                    }
+                } else {
+                    if(end < s.length() - 1) {
+                        char c = s.charAt(start);
+                        Integer integer = recordMap.get(c);
+                        if(integer.intValue() - 1 == 0) {
+                            recordMap.remove(c);
+                        } else {
+                            recordMap.put(c, integer.intValue() - 1);
+                        }
+                        c = s.charAt(end + 1);
+                        integer = recordMap.get(c);
+                        if(integer == null) {
+                            integer = Integer.valueOf(0);
+                        }
+                        recordMap.put(c, integer.intValue() + 1);
+                    }
+                    start++;
+                    end++;
+                }
+            }
+            
+            return end - start + 1;
+        } else {
+            return 0;
+        }
+    }
+}
