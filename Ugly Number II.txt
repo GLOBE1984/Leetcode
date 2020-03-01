@@ -1,0 +1,55 @@
+Write a program to find the n-th ugly number.
+
+Ugly numbers are positive numbers whose prime factors only include 2, 3, 5. 
+
+Example:
+
+Input: n = 10
+Output: 12
+Explanation: 1, 2, 3, 4, 5, 6, 8, 9, 10, 12 is the sequence of the first 10 ugly numbers.
+Note:  
+
+1 is typically treated as an ugly number.
+n does not exceed 1690.
+
+
+
+
+
+class Solution {
+    public int nthUglyNumber(int n) {
+        if(n > 0) {
+            int[] uglys = new int[n];
+            uglys[0] = 1;
+            
+            int lastTwo = 0;
+            int lastThree = 0;
+            int lastFive = 0;
+            
+            int index = 1;
+            while(index < n) {
+                int two = uglys[lastTwo] * 2;
+                int three = uglys[lastThree] * 3;
+                int five = uglys[lastFive] * 5;
+                
+                int min = Math.min(two, Math.min(three, five));
+                uglys[index] = min;
+                index++;
+                
+                if(min == two) {
+                    lastTwo++;
+                }
+                if(min == three) {
+                    lastThree++;
+                }
+                if(min == five) {
+                    lastFive++;
+                }
+            }
+            
+            return uglys[n-1];
+        } else {
+            return 0;
+        }
+    }
+}

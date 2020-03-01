@@ -1,0 +1,115 @@
+Given a non-empty array containing only positive integers, find if the array can be partitioned into two subsets such that the sum of elements in both subsets is equal.
+
+Note:
+
+Each of the array element will not exceed 100.
+The array size will not exceed 200.
+ 
+
+Example 1:
+
+Input: [1, 5, 11, 5]
+
+Output: true
+
+Explanation: The array can be partitioned as [1, 5, 5] and [11].
+ 
+
+Example 2:
+
+Input: [1, 2, 3, 5]
+
+Output: false
+
+Explanation: The array cannot be partitioned into equal sum subsets.
+
+
+
+
+
+class Solution {
+    public boolean canPartition(int[] nums) {
+        if(nums != null && nums.length > 0) {
+            int sum = 0;
+            Map<Integer, Integer> map = new HashMap<>();
+            for(int num : nums) {
+                sum += num;
+                Integer integer = map.get(num);
+                if(integer == null) {
+                    integer = Integer.valueOf(0);
+                }
+                map.put(num, integer.intValue()+1);
+            }            
+            
+            if(sum%2 == 0) {
+                Set<Node> visited = new HashSet<>();
+                
+                Node root = new Node(sum/2, map);
+                visited.add(root);
+                
+                return validate(root, visited);
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+    
+    private boolean validate(Node node, Set<Node> visited) {
+        if(node.map.containsKey(node.target)) {
+            return true;
+        }
+        
+        Set<Map.Entry<Integer, Integer>> entries = node.map.entrySet();
+        for(Map.Entry<Integer, Integer> entry : entries) {
+            if(entry.getKey() < node.target) {
+                int newTarget = node.target - entry.getKey().intValue();
+                Node newNode = new Node(newTarget, node.map);
+                int tmp = newNode.map.get(entry.getKey()).intValue() - 1;
+                if(tmp == 0) {
+                    newNode.map.remove(entry.getKey());
+                } else {
+                    newNode.map.put(entry.getKey(), tmp);
+                }
+                if(visited.contains(newNode)) {
+                    return false;
+                } else {
+                    boolean result = validate(newNode, visited);
+                    if(result) {
+                        return true;
+                    } else {
+                        visited.add(newNode);
+                    }
+                }
+            }
+        }
+        
+        return false;
+    }
+    
+    private class Node {
+        private int target;
+        
+        private Map<Integer, Integer> map;
+        
+        private Node(int target, Map<Integer, Integer> map) {
+            this.target = target;
+            this.map = new HashMap(map);
+        }
+        
+        public boolean equals(Object object) {
+            if(!(object instanceof Node)) {
+                return false;
+            }
+            
+            Node node = (Node)object;
+            
+            return this.target == node.target && this.map.equals(node.map);
+        }
+        
+        public int hashCode() {
+            return Objects.hash(this.target, this.map);
+        }
+    }
+}

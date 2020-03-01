@@ -1,0 +1,145 @@
+Given an integer array nums, find the sum of the elements between indices i and j (i ≤ j), inclusive.
+
+The update(i, val) function modifies nums by updating the element at index i to val.
+
+Example:
+
+Given nums = [1, 3, 5]
+
+sumRange(0, 2) -> 9
+update(1, 2)
+sumRange(0, 2) -> 8
+Note:
+
+The array is only modifiable by the update function.
+You may assume the number of calls to update and sumRange function is distributed evenly.
+
+
+
+
+
+class NumArray {
+    
+    private int[] nums;
+    
+    private SegmentTree segmentTree;
+    
+    public NumArray(int[] nums) {
+        this.nums = nums;
+        if(nums.length > 0) {
+            this.segmentTree = new SegmentTree(nums);
+        }
+    }
+    
+    public void update(int i, int val) {
+        if(this.nums.length > 0) {
+            this.segmentTree.update(i, val);
+        }
+    }
+    
+    public int sumRange(int i, int j) {
+        if(this.nums.length > 0) {
+            return this.segmentTree.search(i, j);
+        } else {
+            return 0;
+        }
+    }
+    
+    private class SegmentTree {
+        
+        private SegmentTreeNode root;
+        
+        private int length;
+        
+        private SegmentTree(int[] nums) {
+            this.root = this.initialize(nums, 0, nums.length-1);
+            this.length = nums.length;
+        }
+        
+        private SegmentTreeNode initialize(int[] nums, int start, int end) {
+            if(start == end) {
+                return new SegmentTreeNode(nums[start], start, end);
+            }
+            
+            int mid = (start + end)/2;
+            
+            SegmentTreeNode leftChild = initialize(nums, start, mid);
+            SegmentTreeNode rightChild = initialize(nums, mid+1, end);
+            
+            SegmentTreeNode root = new SegmentTreeNode(leftChild.sum+rightChild.sum, start, end);
+            root.leftChild = leftChild;
+            root.rightChild = rightChild;
+            
+            return root;
+        }
+        
+        private void update(int i, int val) {
+            update(this.root, i, val);
+        }
+        
+        private void update(SegmentTreeNode node, int i, int val) {
+            if(node.start == i && node.end == i) {
+                node.sum = val;
+                return;
+            }
+            
+            int mid = (node.start + node.end)/2;
+            if (i <= mid) {
+                update(node.leftChild, i, val);
+            } else {
+                update(node.rightChild, i, val);
+            }
+            
+            node.sum = node.leftChild.sum + node.rightChild.sum;
+        }
+        
+        private int search(int i, int j) {
+            return search(this.root, i, j);
+        }
+        
+        private int search(SegmentTreeNode node, int i, int j) {
+            if (node == null || i > j) {
+                return 0;
+            }
+            
+            if(node.start == i && node.end == j) {
+                return node.sum;
+            }
+            
+            if(node.start == node.end) {
+                return node.sum;
+            }
+            
+            int mid = (node.start + node.end)/2;
+            int left = search(node.leftChild, Math.max(node.start, i), Math.min(mid, j));
+            int right = search(node.rightChild, Math.max(i, mid+1), Math.min(node.end, j));
+            
+            return left + right;
+        }
+        
+    }
+    
+    private class SegmentTreeNode {
+        
+        private int sum;
+        private int start;
+        private int end;
+        private SegmentTreeNode leftChild;
+        private SegmentTreeNode rightChild;
+        
+        private SegmentTreeNode(int sum, int start, int end) {
+            this.sum = sum;
+            this.start = start;
+            this.end = end;
+        }
+        
+    }
+    
+}
+
+/**
+ * Your NumArray object will be instantiated and called as such:
+ * NumArray obj = new NumArray(nums);
+ * obj.update(i,val);
+ * int param_2 = obj.sumRange(i,j);
+ */

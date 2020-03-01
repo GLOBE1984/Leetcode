@@ -24,63 +24,55 @@ There exist two distinct solutions to the 4-queens puzzle:
 
 
 
-
 class Solution {
     public List<List<String>> solveNQueens(int n) {
-        List<List<String>> results = new ArrayList<List<String>>();
+        List<List<String>> results = new ArrayList<>();
         
         if(n > 0) {
-            int[] records = new int[n];
-            solveNQueens(records, 0, results);
+            int[] rows = new int[n];
+            for(int i = 0; i < rows.length; ++i) {
+                rows[i] = -1;
+            }
+            findSolution(rows, 0, results);
         }
         
         return results;
     }
     
-    private void solveNQueens(int[] records, int row, List<List<String>> results) {
-        if(row == records.length) {
-            results.add(boardToStringList(records));
+    private void findSolution(int[] rows, int row, List<List<String>> results) {
+        if(row == rows.length) {
+            List<String> result = new ArrayList<>();
+            for(int k : rows) {
+                StringBuilder builder = new StringBuilder();
+                for(int i = 0; i < rows.length; ++i) {
+                    if(i != k) {
+                        builder.append(".");
+                    } else {
+                        builder.append("Q");
+                    }
+                }
+                result.add(builder.toString());
+            }
+            results.add(result);
             return;
         }
         
-        for(int col = 0; col < records.length; ++col) {
-            records[row] = col;
-            if(isValid(records, row)) {
-                solveNQueens(records, row+1, results);
+        for(int col = 0; col < rows.length; ++col) {
+            if(isValid(rows, row, col)) {
+                rows[row] = col;
+                findSolution(rows, row + 1, results);
+                rows[row] = -1;
             }
         }
     }
     
-    private boolean isValid(int[] records, int row) {
+    private boolean isValid(int[] rows, int row, int col) {
         for(int i = 0; i < row; ++i) {
-            int index = 1;
-            if(records[row] == records[i] || Math.abs(records[row]-records[i]) == row-i) {
+            if(rows[i] == col || Math.abs(i - row) == Math.abs(rows[i] - col)) {
                 return false;
             }
         }
         
         return true;
-    }
-    
-    private List<String> boardToStringList(int[] records) {
-        StringBuilder builder = new StringBuilder();
-        List<String> list = new ArrayList<String>();
-        int index = 0;
-        for(int i = 0; i < records.length; ++i) {
-            while(index < records[i]) {
-                builder.append(".");
-                index++;
-            }
-            builder.append("Q");
-            index++;
-            while(index < records.length) {
-                builder.append(".");
-                index++;
-            }
-            list.add(builder.toString());
-            builder = new StringBuilder();
-            index = 0;
-        }
-        return list;
     }
 }

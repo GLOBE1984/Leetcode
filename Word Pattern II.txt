@@ -1,0 +1,72 @@
+Given a pattern and a string str, find if str follows the same pattern.
+
+Here follow means a full match, such that there is a bijection between a letter in pattern and a non-empty substring in str.
+
+Example 1:
+
+Input: pattern = "abab", str = "redblueredblue"
+Output: true
+Example 2:
+
+Input: pattern = pattern = "aaaa", str = "asdasdasdasd"
+Output: true
+Example 3:
+
+Input: pattern = "aabb", str = "xyzabcxzyabc"
+Output: false
+Notes:
+You may assume both pattern and str contains only lowercase letters.
+
+
+
+
+
+class Solution {
+    public boolean wordPatternMatch(String pattern, String str) {
+        if(pattern != null && pattern.length() > 0 && str != null && str.length() > 0) {
+            Map<Character, String> charToStr = new HashMap<>();
+            Map<String, Character> strToChar = new HashMap<>();
+            
+            return wordPatternMatch(pattern, 0, str, 0, charToStr, strToChar);
+        } else if(pattern != null && pattern.length() == 0 && str != null && str.length() == 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
+    private boolean wordPatternMatch(String pattern, int patternIndex, String str, int strIndex, 
+                                     Map<Character, String> charToStr, Map<String, Character> strToChar) {
+        if(patternIndex == pattern.length() && strIndex == str.length()) {
+            return true;
+        } else if(patternIndex == pattern.length() || strIndex == str.length()) {
+            return false;
+        }
+        
+        char c = pattern.charAt(patternIndex);
+        if(!charToStr.containsKey(c)) {
+            for(int i = 1; (strIndex+i) <= str.length(); ++i) {
+                String tmp = str.substring(strIndex, strIndex+i);
+                if(!strToChar.containsKey(tmp)) {
+                    charToStr.put(c, tmp);
+                    strToChar.put(tmp, c);
+                    boolean result = wordPatternMatch(pattern, patternIndex+1, str, strIndex+tmp.length(), charToStr, strToChar);
+                    if(result) {
+                        return result;
+                    } else {
+                        charToStr.remove(c);
+                        strToChar.remove(tmp);
+                    }
+                }
+            }
+            return false;
+        } else {
+            String tmp = charToStr.get(c);
+            if(str.startsWith(tmp, strIndex)) {
+                return wordPatternMatch(pattern, patternIndex+1, str, strIndex+tmp.length(), charToStr, strToChar);
+            } else {
+                return false;
+            }
+        }
+    }
+}

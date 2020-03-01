@@ -1,0 +1,142 @@
+A Tic-Tac-Toe board is given as a string array board. Return True if and only if it is possible to reach this board position during the course of a valid tic-tac-toe game.
+
+The board is a 3 x 3 array, and consists of characters " ", "X", and "O".  The " " character represents an empty square.
+
+Here are the rules of Tic-Tac-Toe:
+
+Players take turns placing characters into empty squares (" ").
+The first player always places "X" characters, while the second player always places "O" characters.
+"X" and "O" characters are always placed into empty squares, never filled ones.
+The game ends when there are 3 of the same (non-empty) character filling any row, column, or diagonal.
+The game also ends if all squares are non-empty.
+No more moves can be played if the game is over.
+Example 1:
+Input: board = ["O  ", "   ", "   "]
+Output: false
+Explanation: The first player always plays "X".
+
+Example 2:
+Input: board = ["XOX", " X ", "   "]
+Output: false
+Explanation: Players take turns making moves.
+
+Example 3:
+Input: board = ["XXX", "   ", "OOO"]
+Output: false
+
+Example 4:
+Input: board = ["XOX", "O O", "XOX"]
+Output: true
+Note:
+
+board is a length-3 array of strings, where each string board[i] has length 3.
+Each board[i][j] is a character in the set {" ", "X", "O"}.
+
+
+
+class Solution {
+    public boolean validTicTacToe(String[] board) {
+        if(board != null && board.length == 3 && board[0] != null && board[0].length() == 3 
+           && board[1] != null && board[1].length() == 3 && board[2] != null && board[2].length() == 3) {
+            
+            if(!isCharacterCountValid(board)) {
+                return false;
+            }            
+            
+            if(!isOnlyOneSideWins(board)) {
+                return false;
+            }
+            
+            return isWinCharacterCountValid(board);    
+        } else {
+            return false;
+        }
+    }
+    
+    private boolean isCharacterCountValid(String[] board) {
+        int xCount = 0;
+        int oCount = 0;
+        
+        for(String str : board) {
+            for(int i = 0; i < 3; ++i) {
+                char c = str.charAt(i);
+                if(c == 'X') {
+                    xCount++;
+                } else if(c == 'O') {
+                    oCount++;
+                }
+            }
+        }
+        
+        return xCount == oCount || xCount == oCount + 1;
+    }
+    
+    private boolean isOnlyOneSideWins(String[] board) {
+        return judge(board) != 3;       
+    }
+    
+    private boolean isWinCharacterCountValid(String[] board) {
+        int xCount = 0;
+        int oCount = 0;
+        
+        for(String str : board) {
+            for(int i = 0; i < 3; ++i) {
+                char c = str.charAt(i);
+                if(c == 'X') {
+                    xCount++;
+                } else if(c == 'O') {
+                    oCount++;
+                }
+            }
+        }
+        
+        int result = judge(board);
+        if(result == 1 && xCount != oCount + 1) {
+            return false;
+        }
+        if(result == 2 && xCount != oCount) {
+            return false;
+        }
+        return true;
+    }
+    
+    // 0 means none of them wins, 1 means X wins, 2 means O wins, 3 means both wins;
+    private int judge(String[] board) {
+        int[] rows = new int[3];
+        int[] cols = new int[3];
+        // diag[0] represents [0,0], [1,1], [2,2] and diag[1] represents [0,2], [1,1], [2,0]
+        int[] diags = new int[2];
+        
+        for(int i = 0; i < 3; ++i) {
+            for(int j = 0; j < 3; ++j) {
+                char c = board[i].charAt(j);
+                if(c == 'X') {
+                    rows[i]++;
+                    cols[j]++;
+                    if(i == j) {
+                        diags[0]++;
+                    } 
+                    if(i + j == 2) {
+                        diags[1]++;
+                    }
+                } else if(c == 'O') {
+                    rows[i]--;
+                    cols[j]--;
+                    if(i == j) {
+                        diags[0]--;
+                    } 
+                    if(i + j == 2) {
+                        diags[1]--;
+                    }
+                }
+            }
+        }
+        
+        int xWin = rows[0] == 3 || rows[1] == 3 || rows[2] == 3 
+            || cols[0] == 3 || cols[1] == 3 || cols[2] == 3 || diags[0] == 3 || diags[1] == 3 ? 1 : 0;
+        int yWin = rows[0] == -3 || rows[1] == -3 || rows[2] == -3 
+            || cols[0] == -3 || cols[1] == -3 || cols[2] == -3 || diags[0] == -3 || diags[1] == -3 ? 2 : 0;
+        return xWin + yWin;
+    }
+}
+

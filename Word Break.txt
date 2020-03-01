@@ -13,13 +13,15 @@ The wordDict parameter had been changed to a list of strings (instead of a set o
 
 
 
-public class Solution {
+class Solution {
     public boolean wordBreak(String s, List<String> wordDict) {
         if(s == null || wordDict == null || s.isEmpty() | wordDict.isEmpty()) {
 			return false;
 		}
 		
 		int length = s.length();
+        // record[i] means whether sub string from index i can be generated from the words in the list
+        // record[i] == 1, no; record[i] == 2, yes;
 		int[] records = new int[length];
 		
 		return wordBreak(s, 0, wordDict, records);

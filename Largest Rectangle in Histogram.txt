@@ -83,3 +83,30 @@ class Solution {
         public int val;
     }
 }
+
+
+// using monotone increasing stack
+class Solution {
+    public int largestRectangleArea(int[] heights) {
+        if(heights != null && heights.length > 1) {
+            int[] newHeights = Arrays.copyOf(heights, heights.length+1);
+            
+            int max = 0;
+            // create a monotone increasing stack
+            Stack<Integer> stack = new Stack<>();
+            for(int i = 0; i < newHeights.length; ++i) {
+                while(!stack.isEmpty() && newHeights[stack.peek().intValue()] >= newHeights[i]) {
+                    int index = stack.pop().intValue();
+                    max = Math.max(max, newHeights[index] * (stack.isEmpty() ? i : (i-stack.peek().intValue()-1)));
+                }
+                stack.push(i);
+            }
+            
+            return max;
+        } else if(heights != null && heights.length == 1) {
+            return heights[0];
+        } else {
+            return 0;
+        }
+    }
+}

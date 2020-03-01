@@ -1,5 +1,15 @@
 Merge k sorted linked lists and return it as one sorted list. Analyze and describe its complexity.
 
+Example:
+
+Input:
+[
+  1->4->5,
+  1->3->4,
+  2->6
+]
+Output: 1->1->2->3->4->4->5->6
+
 
 
 
@@ -12,58 +22,32 @@ Merge k sorted linked lists and return it as one sorted list. Analyze and descri
  *     ListNode(int x) { val = x; }
  * }
  */
-public class Solution {
+class Solution {
     public ListNode mergeKLists(ListNode[] lists) {
-        if(lists == null || lists.length == 0) {
+        if(lists != null && lists.length > 0) {
+            ListNode head = new ListNode(-1);
+            ListNode current = head;
+            
+            PriorityQueue<ListNode> queue = new PriorityQueue<>(lists.length, (l1, l2) -> l1.val - l2.val);
+            for(ListNode listNode : lists) {
+                if(listNode != null) {
+                    queue.offer(listNode);
+                }
+            }
+            
+            while(!queue.isEmpty()) {
+                ListNode node = queue.poll();
+                current.next = node;                
+                if(node.next != null) {
+                    queue.offer(node.next);
+                }
+                current = node;
+                current.next = null;
+            }
+            
+            return head.next;
+        } else {
             return null;
         }
-        
-        ListNode head = new ListNode(-1);
-        Map<Integer, Queue<ListNode>> map = new HashMap<Integer, Queue<ListNode>>();
-        PriorityQueue<Integer> queue = new PriorityQueue<Integer>();
-        int length = lists.length;
-        for(int i = 0; i < length; ++i) {
-            ListNode node = lists[i];
-            if(node != null) {
-                queue.offer(node.val);
-                Queue<ListNode> tmp = map.get(node.val);
-                if(tmp == null) {
-                    tmp = new LinkedList<ListNode>();
-                }
-                tmp.add(node);
-                map.put(node.val, tmp);
-            }
-        }
-        
-        ListNode current = head;
-        while(map.size() > 0) {
-            int tmp = queue.poll().intValue();
-            Queue<ListNode> queue_tmp = map.get(tmp);
-            ListNode node = queue_tmp.poll();
-            current.next = node;
-            if(node.next != null) {
-                queue.offer(node.next.val);
-                if(tmp != node.next.val) {
-                    if(queue_tmp.isEmpty()) {
-                        map.remove(tmp);
-                    }
-                    queue_tmp = map.get(node.next.val);
-                    if(queue_tmp == null) {
-                        queue_tmp = new LinkedList<ListNode>();
-                    }
-                }
-                queue_tmp.offer(node.next);
-                map.put(node.next.val, queue_tmp);
-            }
-            else {
-                if(queue_tmp.isEmpty()) {
-                    map.remove(tmp);
-                }
-            }
-            node.next = null;
-            current = node;
-        }
-        
-        return head.next;
     }
 }
