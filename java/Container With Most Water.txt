@@ -28,17 +28,12 @@ class Solution {
                     while (i < j && height[i] <= lh) {
                         i++;
                     }
-                    if (i < j) {
-                        lh = height[i];
-                    }
-                } 
-                else {
+                    lh = height[i];
+                } else {
                     while (i < j && height[j] <= rh) {
-                        j --;
+                        j--;
                     }
-                    if (i < j) {
-                        rh = height[j];
-                    }
+                    rh = height[j];
                 }
             }
 

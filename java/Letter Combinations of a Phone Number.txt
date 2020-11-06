@@ -12,52 +12,43 @@ Although the above answer is in lexicographical order, your answer could be in a
 
 
 
-
 class Solution {
     public List<String> letterCombinations(String digits) {
-        LinkedList<String> strs = new LinkedList<String>();
+        LinkedList<String> results = new LinkedList<>();
         
         if(digits != null && digits.length() > 0) {
-            Map<Character, String> map = new HashMap<Character, String>();
-            generateMap(map);
+            String[] strs = new String[9];
+            strs[1] = "abc";
+            strs[2] = "def";
+            strs[3] = "ghi";
+            strs[4] = "jkl";
+            strs[5] = "mno";
+            strs[6] = "pqrs";
+            strs[7] = "tuv";
+            strs[8] = "wxyz";
             
-            int length = digits.length();
-            boolean found = false;
-            for(int i = 0; i < length; ++i) {
-                char c = digits.charAt(i);
-                if(map.containsKey(c)) {
-                    if(!found) {
-                        strs.add("");
-                        found = true;
+            String str = strs[digits.charAt(0)-'1'];
+            for(int i = 0; i < str.length(); ++i) {
+                results.offer(str.charAt(i)+"");
+            }
+            
+            for(int i = 1; i < digits.length(); ++i) {
+                str = strs[digits.charAt(i)-'1'];
+                int size = results.size();
+                LinkedList<String> tmp = new LinkedList<>();
+                for(int j = 0; j < str.length(); ++j) {
+                    int times = 0;
+                    while(times < size) {
+                        String old = results.poll();
+                        tmp.offer(old+str.charAt(j));
+                        results.offer(old);
+                        times++;
                     }
-                    String bottonString = map.get(c);
-                    int bottonStringLength = bottonString.length();
-                    LinkedList<String> tmpList = new LinkedList<String>();
-                    while(!strs.isEmpty()) {
-                        String tmp = strs.poll();
-                        for(int j = 0; j < bottonStringLength; ++j) {
-                            char tmpChar = bottonString.charAt(j);
-                            tmpList.add(new String(tmp + tmpChar));
-                        }
-                    }
-                    strs = tmpList;
                 }
+                results = tmp;
             }
         }
         
-        return strs;
-    }
-    
-    private void generateMap(Map<Character, String> map) {
-        map.put('1', "");
-        map.put('2', "abc");
-        map.put('3', "def");
-        map.put('4', "ghi");
-        map.put('5', "jkl");
-        map.put('6', "mno");
-        map.put('7', "pqrs");
-        map.put('8', "tuv");
-        map.put('9', "wxyz");
-        map.put('0', " ");
+        return results;
     }
 }

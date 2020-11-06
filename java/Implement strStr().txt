@@ -1,15 +1,104 @@
 Implement strStr().
 
-Returns the index of the first occurrence of needle in haystack, or -1 if needle is not part of haystack.
+Return the index of the first occurrence of needle in haystack, or -1 if needle is not part of haystack.
+
+Clarification:
+
+What should we return when needle is an empty string? This is a great question to ask during an interview.
+
+For the purpose of this problem, we will return 0 when needle is an empty string. This is consistent to C's strstr() and Java's indexOf().
+
+ 
+
+Example 1:
+
+Input: haystack = "hello", needle = "ll"
+Output: 2
+Example 2:
+
+Input: haystack = "aaaaa", needle = "bba"
+Output: -1
+Example 3:
+
+Input: haystack = "", needle = ""
+Output: 0
+ 
+
+Constraints:
+
+0 <= haystack.length, needle.length <= 5 * 104
+haystack and needle consist of only lower-case English characters.
 
 
 
 
-class Solution(object):
-    def strStr(self, haystack, needle):
-        """
-        :type haystack: str
-        :type needle: str
-        :rtype: int
-        """
-        return haystack.find(needle)
+
+class Solution {
+   public int strStr(final String haystack, final String needle) {
+        return kmp(haystack, needle);
+    }
+
+    /*
+     * 计算部分匹配表，即table数组.
+     *
+     * @param[in] pattern 模式串
+     * @return table数组
+     */
+    private int[] createPartialMatchTable(final String pattern) {
+        int i;
+        int j = -1;
+
+        int[] table = new int[pattern.length()];
+        
+        table[0] = j;
+        for (i = 1; i < pattern.length(); ++i) {
+            while (j > -1 && pattern.charAt(j+1) != pattern.charAt(i)) {
+                j = table[j];
+            }
+
+            if (pattern.charAt(i) == pattern.charAt(j+1)) {
+                j++;
+            }
+            table[i] = j;
+        }
+        
+        return table;
+    }
+
+    /*
+     * @brief KMP算法.
+     *
+     * @param[in] text 文本
+     * @param[in] pattern 模式串
+     * @return 成功则返回第一次匹配的位置，失败则返回-1
+     */
+    private int kmp(final String text, final String pattern) {
+        int i;
+        int j = -1;
+        int n = text.length();
+        int m = pattern.length();
+        if (text.length() == 0 && pattern.length() == 0) {
+            return 0; 
+        }
+        if (pattern.length() == 0) {
+            return 0; 
+        }
+        
+        int[] table = this.createPartialMatchTable(pattern);
+
+        for (i = 0; i < n; i++) {
+            while (j > -1 && pattern.charAt(j+1) != text.charAt(i)) {
+                j = table[j];
+            }
+
+            if (text.charAt(i) == pattern.charAt(j+1)) {
+                j++;
+            }
+            if (j == m-1) {
+                return i-j;
+            }
+        }
+
+        return -1;
+    }
+}

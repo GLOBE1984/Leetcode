@@ -63,14 +63,14 @@ class Solution {
             
             return isMatched(str.substring(1), regex.substring(1));
         } else {
-            // case 2: when the second char of regex is not '*'
-            if(isMatch(str, regex.substring(2))) {
+            // case 2: when the second char of regex is '*'
+            if(isMatched(str, regex.substring(2))) {
                 return true;
             }
             
             int index = 0;
             while(index < str.length() && (str.charAt(index) == regex.charAt(0) || regex.charAt(0) == '.')) {
-                if(isMatch(str.substring(index+1), regex.substring(2))) {
+                if(isMatched(str.substring(index+1), regex.substring(2))) {
                     return true;
                 }
                 index++;

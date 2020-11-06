@@ -33,16 +33,14 @@ public class Solution {
                 if(count > max) {
                     max = count;
                 }
-            }
-            else {
+            } else {
                 int tmp = index.intValue();
                 indexes.put(c, end);
                 if(tmp >= start) {
                     count = count - (tmp - start) - 1;
                     count++;
                     start = tmp + 1;
-                }
-                else {
+                } else {
                     count++;
                     if(count > max) {
                         max = count;

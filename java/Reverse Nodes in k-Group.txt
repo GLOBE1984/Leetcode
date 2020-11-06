@@ -22,58 +22,59 @@ For k = 3, you should return: 3->2->1->4->5
  * public class ListNode {
  *     int val;
  *     ListNode next;
- *     ListNode(int x) { val = x; }
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
  * }
  */
 class Solution {
     public ListNode reverseKGroup(ListNode head, int k) {
-        if(head != null && k >= 2) {
-            int length = 0;
-            ListNode current = head;
-            while(current != null) {
-                current = current.next;
-                length++;
-            }
-            int groups = length/k;
-            
-            ListNode virtualHead = new ListNode(-1);
-            virtualHead.next = head;
-            ListNode previousTail = virtualHead;
-            int countGroups = 0;
-            int count = 0;
-            current = head;
-            ListNode currentHead = head;
-            ListNode currentTail = currentHead;
-            while(current != null) {
-                ListNode next = current.next;
-                if(countGroups < groups) {
-                    if(current != currentHead) {
-                        currentTail.next = next;
-                        current.next = currentHead;
-                        previousTail.next = current;
-                        count++;
-                        if(count < k) {
-                            currentHead = current;
-                        }
-                        else {
-                            previousTail = currentTail;
-                            currentHead = next;
-                            currentTail = currentHead;
-                            count = 0;
-                            countGroups++;
-                        }
-                    }
-                    else {
-                        count++;
-                    }
-                }
-                current = next;
-            }
-            
-            return virtualHead.next;
-        }
-        else {
+        if(k == 1 || head == null) {
             return head;
         }
+        
+        ListNode virtual = new ListNode();
+        virtual.next = head;
+        ListNode prev = virtual;
+        ListNode first = head;
+        ListNode anchor = findAnchor(head, k);
+        
+        while(anchor != null) {
+            ListNode tmp = anchor.next;
+            reverseList(first, anchor);
+            prev.next = anchor;
+            prev = first;
+            first.next = tmp;
+            first = tmp;
+            anchor = findAnchor(first, k);
+        }
+        
+        return virtual.next;
+    }
+    
+    private void reverseList(ListNode head, ListNode tail) {        
+        if(head == tail) {
+            return;
+        }
+        
+        ListNode prev = head;
+        ListNode current = head.next;
+        
+        while(prev != tail) {
+            ListNode tmp = current.next;
+            current.next = prev;
+            prev = current;
+            current = tmp;
+        }
+    }
+    
+    private ListNode findAnchor(ListNode head, int k) {
+        ListNode anchor = head;
+        int i = 1;
+        while(anchor != null && i < k) {
+            anchor = anchor.next;
+            i++;
+        }
+        return anchor;
     }
 }
