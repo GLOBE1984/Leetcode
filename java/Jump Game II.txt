@@ -31,8 +31,7 @@ class Solution {
                 curr = Math.max(curr, i+nums[i]);
             }
             return ret;
-            }
-        else {
+        } else {
             return 0;
         }
     }

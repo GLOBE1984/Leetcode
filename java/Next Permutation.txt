@@ -22,7 +22,7 @@ class Solution {
     */
     public void nextPermutation(int[] num) {  
         if(num != null && num.length > 0) {
-            int i = num.length-2;  
+            int i = num.length - 2;  
             while(i >= 0 && num[i] >= num[i+1]) {
                 i--;
             }

@@ -64,6 +64,7 @@ class Solution {
                         }
                         if(count <= counts.get(subStr).intValue()) {
                             matchedWord++;
+                            tmp.put(subStr, count);
                             if(matchedWord == words.length) {
                                 results.add(anchor);
                                 String firstWord = s.substring(anchor, anchor+wordLength);
@@ -72,16 +73,17 @@ class Solution {
                                 int tmpCount = tmp.get(firstWord).intValue();
                                 tmp.put(firstWord, --tmpCount);
                             }
-                            tmp.put(subStr, count);
                         } else {
                             int index = anchor;
                             while(index+wordLength <= j) {
                                 String indexWord = s.substring(index, index+wordLength);
-                                matchedWord--;
-                                int tmpCount = tmp.get(indexWord).intValue();
-                                tmp.put(indexWord, --tmpCount);
+                                
                                 if(subStr.equals(indexWord)) {
                                    break; 
+                                } else {
+                                    matchedWord--;
+                                    int tmpCount = tmp.get(indexWord).intValue();
+                                    tmp.put(indexWord, --tmpCount);
                                 }
                                 
                                 index += wordLength;

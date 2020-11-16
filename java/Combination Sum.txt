@@ -14,40 +14,64 @@ A solution set is:
 
 
 
-public class Solution {
+class Solution {
     public List<List<Integer>> combinationSum(int[] candidates, int target) {
-        List<List<Integer>> results = new ArrayList<List<Integer>>();
+        List<List<Integer>> results = new ArrayList<>();
         
-        if(candidates != null && candidates.length != 0) {
+        if(candidates != null && candidates.length > 0) {
             Arrays.sort(candidates);
-            
-            Stack<Integer> path = new Stack<Integer>();
-            
-            subtract(results, path, candidates, target);
+                        
+            Node node = new Node(0, 0);
+            dfs(node, candidates, target, results);
         }
         
         return results;
     }
     
-    private void subtract(List<List<Integer>> results, Stack<Integer> path, int[] candidates, int target) {
-        if(target > 0) {
-            for(int i = 0; i < candidates.length; ++i) {
-                try {
-                    path.push(Integer.valueOf(candidates[i]));
-                    int[] newCandidates = Arrays.copyOfRange(candidates, i, candidates.length);
-                    subtract(results, path, newCandidates, target-candidates[i]);
-                    path.pop();
-                } catch(Exception e) {
-                    e.printStackTrace();
-                }
+    private void dfs(Node node, int[] candidates, int target, List<List<Integer>> results) {
+        if(node.getSum() == target) {
+            results.add(node.getPath());
+            return;
+        }
+        
+        for(int candidate : candidates) {
+            if(candidate >= node.getMin() && candidate+node.getSum() <= target) {
+                Node next = new Node(candidate+node.getSum(), candidate, node.getPath());
+                next.getPath().add(candidate);
+                dfs(next, candidates, target, results);
             }
         }
-        else {
-            if(target == 0) {
-                List<Integer> tmp = new ArrayList<Integer>();
-                tmp.addAll(path);
-                results.add(tmp);
-            }
+    }
+    
+    private class Node {
+        
+        private final List<Integer> path;
+        
+        private final int sum;
+        
+        private final int min;
+                
+        public Node(int sum, int min) {
+            this(sum, min, new ArrayList<>());
         }
+        
+        public Node(int sum, int min, List<Integer> path) {
+            this.sum = sum;
+            this.min = min;
+            this.path = new ArrayList<>(path);
+        }
+        
+        public List<Integer> getPath() {
+            return this.path;
+        }
+        
+        public int getSum() {
+            return this.sum;
+        }
+        
+        public int getMin() {
+            return this.min;
+        }
+        
     }
 }

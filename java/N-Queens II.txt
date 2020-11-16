@@ -44,10 +44,7 @@ class Solution {
         
         return true;
     }
-    
-    private class Wrapper {
-        public int count;
-    }
+
 }
 
 
