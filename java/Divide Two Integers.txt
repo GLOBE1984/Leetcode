@@ -5,41 +5,100 @@ If it is overflow, return MAX_INT.
 
 
 
-public class Solution {
+Overview
+Before we get started on the actual approaches, let's cover a few other important things.
+
+Doing this question "properly", following all the rules given, makes this one of our most difficult medium-level questions.
+
+Don't panic, you don't need to know all the approaches
+
+We have provided a lot of different approaches to show how many different ways there are of solving this question. Approach 1 is a brute-force, and then Approaches 2 to 4 build on each other, and Approach 5 is similar, but approaches the thinking from a very different angle. If you only want to study the first 2 approaches, then that's fine. Approach 2 should be sufficient for an interview. However, we hope you enjoy learning about this question enough that you'll keep reading! :-)
+
+Make sure you read the question carefully
+
+This question was designed with fixed-sized integers in mind. Some languages, such as Python and JavaScript, only have arbitrary-precision integers (meaning they can go huge, probably as big as you'll ever need!). Depending on which programming languages you're familiar with, the requirements of this question might seem a little tedious and silly to you. We recommend using a language such as C, C++, or Java for it if you're familiar with them. Otherwise, you'll just need to be really careful and think very carefully about whether or not your algorithm would work in a 32-bit-signed-integer environment. Unfortunately, Leetcode doesn't currently enforce these requirements in languages such as Python, so it's up to you to determine whether or not your solution really is a "correct" one. Hint: Throw heaps of assert statements into your code.
+
+Most of the upvoted posts on the discussion forum aren't following the rules specified in the question. Here are some of the problems I've seen:
+
+The use of long in Java or long long in C++ is not allowed, because the question states that we're working in an environment where we only have integers within the range [?2^{31}, 2^{31} ? 1].
+The use of abs in Python (and other arbitrary-precision integer languages) needs to be considered carefully, because abs(-2^{31}) = 2^{31}, which is outside the allowed range by 1.
+While you might be tempted to use multiplication and division for a few "simple" tasks, this is unnecessary. Here are some alternatives:
+Instead of a = a * -1 for making numbers negative, use a = -a.
+Instead of using a / 2 for dividing by 2, use the right shift operator; a >> 1.
+Instead of using a * 2 for doubling, use a = a + a, a += a, or even the left shift operator; a << 1.
+Additionally, we strongly advise against allowing overflows to happen at all. For some compilers/interpreters/languages, INT_MAX + 1 ≡ INT_MIN. For others, INT_MAX + 1 ≡ INT_MAX. And for others again, it is undefined or crash. Some people on the discussion forum have written code that actually relies on specific overflow behaviour for correctness. While this can be quite "clever", it's not portable at all. For code like that to be shippable, you'd need to be certain of the behaviour of the specific system it is to run on, and that no future system upgrade would change the behaviour. If it works on your machine, but not on Leetcode's machine, it's incorrect code.
+
+In this article, we'll be looking at a few techniques that can solve the problem elegantly and are portable.
+
+In what cases will the final result be out of range?
+
+We're told the following about overflow in the problem description:
+
+For the purpose of this problem, assume that your function returns 31 ? 131?1 when the division result overflows.
+
+So, keeping in mind that our integer range is [?2^{31}, 2^{31} ? 1], in what cases could we have an end result outside of this range?
+
+Well, when we do a / b = c, where a and b are both positive integers, we know that c ≤ a. In other words, the answer (c) cannot end up bigger than the thing we divided (the dividend, a).
+
+Something similar happens even when one or both of them are negative. In that case, abs(a) ≤ abs(c). Another way of thinking about it is that c will always be closer to zero than a is (or, they could also be equal).
+
+Therefore, for a and b within the range [?2^{31} + 1, 2^{31} ? 1], the result a / b will be closer to zero, so has to be fine.
+
+However, notice we left -2^{31} out of the above range. This is because there's a special case of -2^{31} / -1, which has an answer of 2^{31}. But 2^{31} is outside of the integer range! So instead we return 2^{31}-1 for this case (which is in range).
+
+Most algorithms for this question simply check for the case -2^{31} / -1 at the start, returning 2^{31} - 1 if they detect it. This is a sensible approach.
+
+
+
+class Solution {
+    private static int HALF_INT_MIN = -1073741824;
+
     public int divide(int dividend, int divisor) {
-        if(divisor == 0) {
+
+        // Special case: overflow.
+        if (dividend == Integer.MIN_VALUE && divisor == -1) {
             return Integer.MAX_VALUE;
         }
-        if(dividend == Integer.MIN_VALUE && (divisor == 1 || divisor == -1)){
-            return divisor == 1 ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+
+        /* We need to convert both numbers to negatives.
+         * Also, we count the number of negatives signs. */
+        int negatives = 2;
+        if (dividend > 0) {
+            negatives--;
+            dividend = -dividend;
         }
-        return (int)divideLong(dividend, divisor);
-    }
-    
-    public long divideLong(long dd, long dv){
-        boolean isPos = (dd > 0 && dv > 0) || (dd < 0 && dv < 0); 
-        dd = Math.abs(dd);
-        dv = Math.abs(dv);
-        int digits = 0;
-        // 通过将除数乘2，乘4，乘8，一直乘下去，找到商的最高的次方
-        // 比如87/4=21，商的最高次方是4，即2^4=16，即4 * 16 < 87
-        while(dv <= dd){
-            dv <<= 1;
-            digits++;
+        if (divisor > 0) {
+            negatives--;
+            divisor = -divisor;
         }
-        // 重置除数，把最高次方减1得到实际最高位，刚才循环中多加了一次
-        long res = 0;
-        dv >>= digits;
-        digits--;
-        // 看商的每一位是否应该为1
-        while(digits >= 0){
-            if(dd >= (dv << digits)){
-                dd -= dv << digits;
-                res += 1 << digits;
+
+        int quotient = 0;
+        /* Once the divisor is bigger than the current dividend,
+         * we can't fit any more copies of the divisor into it. */
+        while (divisor >= dividend) {
+            /* We know it'll fit at least once as divivend >= divisor.
+             * Note: We use a negative powerOfTwo as it's possible we might have
+             * the case divide(INT_MIN, -1). */
+            int powerOfTwo = -1;
+            int value = divisor;
+            /* Check if double the current value is too big. If not, continue doubling.
+             * If it is too big, stop doubling and continue with the next step */
+            while (value >= HALF_INT_MIN && value + value >= dividend) {
+                value += value;
+                powerOfTwo += powerOfTwo;
             }
-            digits--;
-            System.out.println(res);
+            // We have been able to subtract divisor another powerOfTwo times.
+            quotient += powerOfTwo;
+            // Remove value so far so that we can continue the process with remainder.
+            dividend -= value;
         }
-        return isPos ? res : - res;
+
+        /* If there was originally one negative sign, then
+         * the quotient remains negative. Otherwise, switch
+         * it to positive. */
+        if (negatives != 1) {
+            return -quotient;
+        }
+        return quotient;
     }
 }

@@ -1,0 +1,74 @@
+Given an m x n matrix, return all elements of the matrix in spiral order.
+
+ 
+
+Example 1:
+
+
+Input: matrix = [[1,2,3],[4,5,6],[7,8,9]]
+Output: [1,2,3,6,9,8,7,4,5]
+Example 2:
+
+
+Input: matrix = [[1,2,3,4],[5,6,7,8],[9,10,11,12]]
+Output: [1,2,3,4,8,12,11,10,9,5,6,7]
+ 
+
+Constraints:
+
+m == matrix.length
+n == matrix[i].length
+1 <= m, n <= 10
+-100 <= matrix[i][j] <= 100
+
+
+
+
+
+class Solution {
+    public List<Integer> spiralOrder(int[][] matrix) {
+        List<Integer> result = new ArrayList<>();
+        
+        if(matrix.length > 0 && matrix[0].length > 0) {
+            int firstRow = 0;
+            int lastRow = matrix.length - 1;
+            int firstCol = 0;
+            int lastCol = matrix[0].length - 1;
+            
+            int row = 0;
+            int col = 0;
+            while(firstRow < lastRow && firstCol < lastCol) {
+                for(int i = firstCol; i <= lastCol; ++i) {
+                    result.add(matrix[firstRow][i]);
+                }
+                for(int i = firstRow+1; i <= lastRow; ++i) {
+                    result.add(matrix[i][lastCol]);
+                }
+                for(int i = lastCol-1; i >= firstCol; --i) {
+                    result.add(matrix[lastRow][i]);
+                }
+                for(int i = lastRow-1; i > firstRow; --i) {
+                    result.add(matrix[i][firstCol]);
+                }
+                firstRow++;
+                lastRow--;
+                firstCol++;
+                lastCol--;
+            }
+            
+            if(firstRow == lastRow && firstCol == lastCol) {
+                result.add(matrix[firstRow][firstCol]);
+            } else if(firstRow == lastRow) {
+                for(int i = firstCol; i <= lastCol; ++i) {
+                    result.add(matrix[firstRow][i]);
+                }
+            } else if(firstCol == lastCol) {
+                for(int i = firstRow; i <= lastRow; ++i) {
+                    result.add(matrix[i][firstCol]);
+                }
+            }
+        }
+        
+        return result;
+    }
+}

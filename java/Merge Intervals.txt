@@ -8,60 +8,38 @@ return [1,6],[8,10],[15,18].
 
 
 
-/**
- * Definition for an interval.
- * public class Interval {
- *     int start;
- *     int end;
- *     Interval() { start = 0; end = 0; }
- *     Interval(int s, int e) { start = s; end = e; }
- * }
- */
 class Solution {
-    public List<Interval> merge(List<Interval> intervals) {
-        List<Interval> list = new ArrayList<Interval>();
-        
-        if(intervals != null && intervals.size() > 0) {
-            Collections.sort(intervals, new Comparator<Interval>() {
-                @Override
-				public int compare(Interval interval1, Interval interval2) {
-					// TODO Auto-generated method stub
-                    if(interval1.start < interval2.start) {
-                        return -1;
-                    }
-                    else if(interval1.start > interval2.start) {
-                        return 1;
-                    }
-                    else if(interval1.end < interval2.end) {
-                        return -1;
-                    }
-                    else if(interval1.end > interval2.end) {
-                        return 1;
-                    }
-                    else {
-                        return 0;
-                    }
-				}
-            });
-            
-            Interval current = null;
-            for(Interval interval : intervals) {
-                if(current != null) {
-                    if(current.end >= interval.start) {
-                        current = new Interval(current.start, Math.max(current.end, interval.end));
-                    }
-                    else {
-                        list.add(current);
-                        current = interval;
-                    }
-                }
-                else {
-                    current = interval;
+    public int[][] merge(int[][] intervals) {
+        Arrays.sort(intervals, new Comparator<int[]>() {
+            public int compare(int[] a1, int[] a2) {
+                if(a1[0] != a2[0]) {
+                    return a1[0] - a2[0];
+                } else {
+                    return a1[1] - a2[1];
                 }
             }
-            list.add(current);
+        });
+        
+        List<int[]> list = new ArrayList<>();
+        int start = intervals[0][0];
+        int end = intervals[0][1];
+        
+        for(int[] interval : intervals) {
+            if(interval[0] <= end) {
+                end = Math.max(end, interval[1]);
+            } else {
+                list.add(new int[]{start, end});
+                start = interval[0];
+                end = interval[1];
+            }
+        }
+        list.add(new int[]{start, end});
+        
+        int[][] result = new int[list.size()][2];
+        for(int i = 0; i < list.size(); ++i) {
+            result[i] = list.get(i);
         }
         
-        return list;
+        return result;
     }
 }

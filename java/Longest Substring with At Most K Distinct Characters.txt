@@ -18,70 +18,52 @@ Explanation: T is "aa" which its length is 2.
 class Solution {
     public int lengthOfLongestSubstringKDistinct(String s, int k) {
         if(s != null && s.length() > 0 && k > 0) {
-            if(s.length() < k) {
-                return s.length();
-            }
+            int left = 0;
+            int right = 0;
             
-            Map<Character, Integer> recordMap = new HashMap<>();            
-            int start = 0;
-            int end = 0;
-            recordMap.put(s.charAt(start), 1);
+            Window window = new Window();
+            int max = 0;
             
-            while(end < s.length()) {
-                if(recordMap.size() <= k) {
-                    if(end < s.length() - 1) {
-                        char c = s.charAt(end + 1);
-                        if(recordMap.containsKey(c) || recordMap.size() < k) {
-                            Integer integer = recordMap.get(c);
-                            if(integer == null) {
-                                integer = Integer.valueOf(0);
-                            }
-                            recordMap.put(c, integer.intValue() + 1);
-                            end++;
-                        } else {
-                            Integer integer = recordMap.get(c);
-                            if(integer == null) {
-                                integer = Integer.valueOf(0);
-                            }
-                            recordMap.put(c, integer.intValue() + 1);
-                            c = s.charAt(start);
-                            integer = recordMap.get(c);
-                            if(integer.intValue() - 1 == 0) {
-                                recordMap.remove(c);
-                            } else {
-                                recordMap.put(c, integer.intValue() - 1);
-                            }
-                            start++;
-                            end++;
-                        }
-                    } else {
-                        start++;
-                        end++;
-                    }
-                } else {
-                    if(end < s.length() - 1) {
-                        char c = s.charAt(start);
-                        Integer integer = recordMap.get(c);
-                        if(integer.intValue() - 1 == 0) {
-                            recordMap.remove(c);
-                        } else {
-                            recordMap.put(c, integer.intValue() - 1);
-                        }
-                        c = s.charAt(end + 1);
-                        integer = recordMap.get(c);
-                        if(integer == null) {
-                            integer = Integer.valueOf(0);
-                        }
-                        recordMap.put(c, integer.intValue() + 1);
-                    }
-                    start++;
-                    end++;
+            while(right < s.length()) {
+                window.add(s.charAt(right));
+                
+                while(window.getDiffCharCount() > k) {
+                    window.remove(s.charAt(left));
+                    left++;
                 }
+                
+                if(window.getDiffCharCount() <= k) {
+                    max = Math.max(max, right-left+1);
+                }
+                
+                right++;
             }
             
-            return end - start + 1;
+            return max;
         } else {
             return 0;
+        }
+    }
+    
+    private class Window {
+        private Map<Character, Integer> map = new HashMap<>();
+                
+        private void add(char c) {
+            int tmp = map.getOrDefault(c, 0) + 1;
+            map.put(c, map.getOrDefault(c, 0)+1);
+        }
+        
+        private void remove(char c) {
+            int tmp = map.getOrDefault(c, 0) - 1;
+            if(tmp > 0) {
+                map.put(c, tmp);
+            } else {
+                map.remove(c);
+            }
+        }
+        
+        private int getDiffCharCount() {
+            return map.size();
         }
     }
 }

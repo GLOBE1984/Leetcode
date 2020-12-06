@@ -1,0 +1,85 @@
+Given an array A of integers, return the number of (contiguous, non-empty) subarrays that have a sum divisible by K.
+
+ 
+
+Example 1:
+
+Input: A = [4,5,0,-2,-3,1], K = 5
+Output: 7
+Explanation: There are 7 subarrays with a sum divisible by K = 5:
+[4, 5, 0, -2, -3, 1], [5], [5, 0], [5, 0, -2, -3], [0], [0, -2, -3], [-2, -3]
+ 
+
+Note:
+
+1 <= A.length <= 30000
+-10000 <= A[i] <= 10000
+2 <= K <= 10000
+
+
+
+
+
+class Solution {
+    public int subarraysDivByK(int[] A, int K) {
+        if(A != null && A.length > 0 && (K >= 2 || K <= -2)) {
+            Map<Integer, Integer> remainderCounts = new HashMap<>();
+            int sum = 0;
+            int count = 0;
+            for(int i = 0; i < A.length-1; ++i) {
+                sum += A[i];
+                int remainder = sum % K;
+                if(remainder == 0) {
+                    count++;
+                }
+                if(remainder < 0) {
+                    remainder += K;
+                }
+                int tmp = remainderCounts.getOrDefault(remainder, 0).intValue();
+                tmp++;
+                remainderCounts.put(remainder, tmp);
+            }
+            
+            sum += A[A.length-1];
+            int sumRemainder = sum % K;
+            if(sumRemainder == 0) {
+                count++;
+            }
+            
+            int rightSum = 0;
+            for(int i = A.length-1; i >= 2; --i) {
+                rightSum += A[i];
+                int rightRemainder = rightSum % K;
+                if(rightRemainder == 0) {
+                    count++;
+                }
+                int leftRemainder = (sumRemainder - rightRemainder) % K;
+                if(leftRemainder < 0) {
+                    leftRemainder += K;
+                }
+                int remainderCount = remainderCounts.getOrDefault(leftRemainder, 0).intValue();
+                if(remainderCount > 0) {
+                    count += remainderCount - 1;
+                }
+                if(remainderCount-1 > 0) {
+                    remainderCounts.put(leftRemainder, remainderCount-1);
+                } else {
+                    remainderCounts.remove(leftRemainder);
+                }
+            }
+            
+            if(A.length > 1) {
+                rightSum += A[1];
+                if(rightSum%K == 0) {
+                    count++;
+                }
+            }
+            
+            return count;
+        } else if(K == 1 || K == -1) {
+            return A.length * (A.length - 1) / 2;
+        } else {
+            return 0;
+        }
+    }
+}

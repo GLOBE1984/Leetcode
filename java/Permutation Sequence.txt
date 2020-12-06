@@ -16,48 +16,45 @@ Note: Given n will be between 1 and 9 inclusive.
 
 
 
-
 class Solution {
     public String getPermutation(int n, int k) {
-        if(n > 0 && k > 0) {
-            Set<Integer> nums = new HashSet<Integer>();
+        if(n > 1) {
+            List<String> nonUsedNums = new ArrayList<>();
             Map<Integer, Integer> factorials = new HashMap<Integer, Integer>();
             factorials.put(0, 1);
             int factorial = 1;
             for(int i = 1; i <= n; ++i) {
-                nums.add(i);
+                nonUsedNums.add(i+"");
                 factorial = factorial * i;
                 factorials.put(i, factorial);
             }
             
-            StringBuilder builder = new StringBuilder();
-            int i = 1;
-            int newK = k;
-            while(i <= n) {
-                int divider = factorials.get(n - i);
-                int quotient = (newK-1)/divider;
-                int remainder = (newK-1)%divider;
-                
-                Iterator<Integer> iterator = nums.iterator();
-                int count = 0;
-                while(iterator.hasNext() && count < quotient) {
-                    iterator.next();
-                    count++;
-                }
-                
-                Integer integer = iterator.next();
-                nums.remove(integer);
-                builder.append(integer);
-                
-                newK = remainder + 1;
-                
-                i++;
-            }
-            
-            return builder.toString();
-        }
-        else {
-            return "";
+            return getPermutation(nonUsedNums, k-1, factorials);
+        } else {
+            return "1";
         }
     }
+    
+    private String getPermutation(List<String> nonUsedNums, int k, Map<Integer, Integer> factorials) {
+        if(k == 0) {
+            StringBuilder builder = new StringBuilder();
+            for(String num : nonUsedNums) {
+                builder.append(num);
+            }
+            return builder.toString();
+        }
+        if(nonUsedNums.size() == 1) {
+            return nonUsedNums.get(0);
+        }
+        
+        int totalSubCombination = factorials.get(nonUsedNums.size()-1).intValue();
+        int division = k / totalSubCombination;
+        int remainder = k % totalSubCombination;
+        
+        String num = nonUsedNums.get(division);
+        nonUsedNums.remove(num);
+        
+        return num + getPermutation(nonUsedNums, remainder, factorials);
+    }
+    
 }

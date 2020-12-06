@@ -16,21 +16,18 @@ A = [3,2,1,0,4], return false.
 class Solution {
     public boolean canJump(int[] nums) {
         if(nums != null && nums.length > 0) {
-            int length = nums.length;
+            // curr represents the max index currently we can reach
+            int curr = 0;
             
-            int minReachableIndex = length-1;
-            for(int i = length-2; i >= 0; --i) {
-                if((i+nums[i]) >= length-1) {
-                    minReachableIndex = i;
+            for(int i = 0; i < nums.length; ++i) {
+                if(i > curr) {
+                    return false;
                 }
-                else if((i+nums[i]) >= minReachableIndex) {
-                    minReachableIndex = i;
-                }
+                curr = Math.max(curr, i+nums[i]);
             }
             
-            return minReachableIndex == 0;
-        }
-        else {
+            return curr >= nums.length - 1;
+        } else {
             return true;
         }
     }

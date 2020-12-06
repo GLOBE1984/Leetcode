@@ -31,65 +31,32 @@ The substring with start index = 2 is "ab", which is an anagram of "ab".
 
 
 
-public class Solution {
+
+
+class Solution {
     public List<Integer> findAnagrams(String s, String p) {
-        List<Integer> results = new ArrayList<Integer>();
+        List<Integer> results = new ArrayList<>();
         
-        if(s == null || p == null) {
-            return results;
-        }
-        
-        int length_s = s.length();
-        int length_p = p.length();
-        
-        if(length_s <length_p) {
-            return results;
-        }
-        
-        Map<Character, Integer> map = new HashMap<Character, Integer>();
-        int count = 0;
-        for(int i = 0; i < length_p; ++i) {
-            int tmp = 0;
-            char c = p.charAt(i);
-            if(map.get(c) != null) {
-                tmp = map.get(c).intValue();
+        if(s != null && s.length() > 0 && p != null && p.length() > 0) {
+            int[] pchars = new int[26];
+            for(int i = 0; i < p.length(); ++i) {
+                pchars[p.charAt(i)-'a']++;
             }
-            else{
-                count++;
-            }
-            tmp++;
-            map.put(c, Integer.valueOf(tmp));
-        }
-        
-        for(int i = 0; i < length_s; ++i) {
-            char c = s.charAt(i);
-            if(i >= length_p) {
-                char prev = s.charAt(i-length_p);
-                if(map.get(prev) != null) {
-                    int tmp = map.get(prev).intValue();
-                    if(tmp == 0) {
-                        count++;
+            int hash = Arrays.hashCode(pchars);
+            
+            int[] counts = new int[26];
+            int start = 0;
+            int end = 0;
+            while(end < s.length()) {
+                counts[s.charAt(end)-'a']++;
+                if(end-start+1 == p.length()) {
+                    if(hash == Arrays.hashCode(counts)) {
+                        results.add(start);
                     }
-                    tmp++;
-                    if(tmp == 0) {
-                        count--;
-                    }
-                    map.put(prev, Integer.valueOf(tmp));
+                    counts[s.charAt(start)-'a']--;
+                    start++;
                 }
-            }
-            if(map.get(c) != null) {
-                int tmp = map.get(c).intValue();
-                if(tmp == 0) {
-                    count++;
-                }
-                tmp--;
-                if(tmp == 0) {
-                    count--;
-                    if(count == 0) {
-                        results.add(i-length_p+1);
-                    }
-                }
-                map.put(c, Integer.valueOf(tmp));
+                end++;
             }
         }
         

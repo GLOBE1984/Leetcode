@@ -64,71 +64,60 @@ return its vertical order traversal as:
  *     int val;
  *     TreeNode left;
  *     TreeNode right;
- *     TreeNode(int x) { val = x; }
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
  * }
  */
-public class Solution {
+class Solution {
     public List<List<Integer>> verticalOrder(TreeNode root) {
-        List<List<Integer>> results = new ArrayList<List<Integer>>();
+        List<List<Integer>> results = new ArrayList<>();
         
         if(root != null) {
-            int left_most = 0;
-            int right_most = 0;
-            results.add(new ArrayList<Integer>());
+            TreeMap<Integer, List<Integer>> columns = new TreeMap<>();
             
-            Node root_node = new Node(root, 0);
-            Queue<Node> queue = new LinkedList<Node>();
-            queue.offer(root_node);
-            
+            Queue<TreeNodeWrapper> queue = new LinkedList<>();
+            queue.offer(new TreeNodeWrapper(root, 0));
             while(!queue.isEmpty()) {
-                Queue<Node> queue_level = new LinkedList<Node>();
-                while(!queue.isEmpty()) {
-                    Node current = queue.poll();
-                    int index = current.getPosition();
-                    if(index < left_most) {
-                        List<Integer> list_new = new ArrayList<Integer>();
-                        list_new.add(current.getTreeNode().val);
-                        results.add(0, list_new);
-                        left_most = index;
-                    }
-                    else if(index > right_most) {
-                        List<Integer> list_new = new ArrayList<Integer>();
-                        list_new.add(current.getTreeNode().val);
-                        results.add(list_new);
-                        right_most = index;
-                    }
-                    else {
-                        results.get(index-left_most).add(current.getTreeNode().val);
-                    }
-                    if(current.getTreeNode().left != null) {
-                        queue_level.offer(new Node(current.getTreeNode().left, current.getPosition()-1));
-                    }
-                    if(current.getTreeNode().right != null) {
-                        queue_level.offer(new Node(current.getTreeNode().right, current.getPosition()+1));
-                    }
+                
+                TreeNodeWrapper treeNodeWrapper = queue.poll();
+                List<Integer> vals = columns.getOrDefault(treeNodeWrapper.column, new LinkedList<>());
+                vals.add(treeNodeWrapper.node.val);
+                columns.put(treeNodeWrapper.column, vals);
+                                
+                if(treeNodeWrapper.node.left != null) {
+                    queue.offer(new TreeNodeWrapper(treeNodeWrapper.node.left, treeNodeWrapper.column-1));
                 }
-                queue = queue_level;
+                
+                if(treeNodeWrapper.node.right != null) {
+                    queue.offer(new TreeNodeWrapper(treeNodeWrapper.node.right, treeNodeWrapper.column+1));
+                }
+            }
+            
+            Set<Map.Entry<Integer, List<Integer>>> entries = columns.entrySet();
+            
+            for(Map.Entry<Integer, List<Integer>> entry : entries) {
+                results.add(entry.getValue());
             }
         }
         
         return results;
     }
     
-    private class Node {
-        private final TreeNode treenode;
-        private final int position;
+    private class TreeNodeWrapper {
         
-        public Node(TreeNode treenode, int position) {
-            this.treenode = treenode;
-            this.position = position;
+        private TreeNode node;
+        
+        private int column;
+        
+        private TreeNodeWrapper(TreeNode node, int column) {
+            this.node = node;
+            this.column = column;
         }
         
-        public TreeNode getTreeNode() {
-            return this.treenode;
-        }
-        
-        public int getPosition() {
-            return this.position;
-        }
     }
 }

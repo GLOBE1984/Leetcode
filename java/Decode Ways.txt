@@ -15,109 +15,54 @@ The number of ways decoding "12" is 2.
 
 
 
-public class Solution {
+class Solution {
     public int numDecodings(String s) {
-        if(s == null || s.length() == 0 || s.charAt(0) == '0') {
+        if(s != null && s.length() > 0) {
+            
+            int[] counts = new int[s.length()];
+            for(int i = 0; i < s.length(); ++i) {
+                counts[i] = -1;
+            }
+            
+            return numDecodings(s, 0, counts);
+            
+        } else {
+            return 0;
+        }
+    }
+    
+    private int numDecodings(String s, int index, int[] counts) {
+        if(index == s.length()) {
+            return 1;
+        }
+        
+        if(s.charAt(index) == '0') {
             return 0;
         }
         
-        
-        int length = s.length();
-        int[] results = new int[length];
-        for(int i = 0; i < length; ++i) {
-            results[i] = 0;
+        if(index == s.length()-1) {
+            return 1;
         }
         
-        for(int i = length-1; i >= 0; --i) {
-            boolean result = numDecodings(s, i, length, results);
-            if(!result) {
-                break;
-            }
+        if(counts[index] > -1) {
+            return counts[index];
         }
         
-        return results[0];
-    }
-    
-    private boolean numDecodings(String s, int start, int length, int[] results) {
-        if(start == length - 1) {
-            if(s.charAt(start) != '0') {
-                results[start] = 1;
+        if(s.charAt(index) >= '3') {
+            int count = numDecodings(s, index+1, counts);
+            counts[index] = count;
+            return count;
+        } else if(s.charAt(index) == '1') {
+            int count = numDecodings(s, index+1, counts) + numDecodings(s, index+2, counts);
+            counts[index] = count;
+            return count;
+        } else {
+            int count = numDecodings(s, index+1, counts);
+            if(s.charAt(index+1) >= '0' && s.charAt(index+1) <= '6') {
+                count += numDecodings(s, index+2, counts);
             }
-            return true;
-        }
-        
-        if(start == length - 2) {
-            if(s.charAt(start) != '0') {
-                String sub = s.substring(start, length);
-                int num = Integer.valueOf(sub).intValue();
-                if(num <= 26) {
-                    results[start] = results[length-1] + 1;
-                }
-                else {
-                    if(num % 10 == 0) {
-                        results[start] = 0;
-                    }
-                    else {
-                        results[start] = results[length-1];
-                    }
-                }
-                if(results[start] == 0) {
-                    return false;
-                }
-                else {
-                   return true; 
-                }
-            }
-            else {
-                results[start] = results[length-1];
-                if(results[start] == 0) {
-                    return false;
-                }
-                else {
-                    return true;
-                }
-            }
-        }
-        
-        if(s.charAt(start) != '0') {
-            String sub = s.substring(start, start+2);
-            int num = Integer.valueOf(sub).intValue();
-            if(num <= 26) {
-                if(num % 10 == 0) {
-                    results[start] = results[start + 2];
-                }
-                else {
-                    results[start] = results[start + 1] + results[start + 2];
-                }
-            }
-            else {
-                if(num % 10 == 0) {
-                    results[start] = 0;
-                }
-                else {
-                    results[start] = results[start + 1];
-                }
-            }
-            if(results[start] == 0) {
-                return false;
-            }
-            else {
-                return true; 
-            }
-        }
-        else {
-            if(s.charAt(start + 1) != '0') {
-                results[start] = results[start + 1];
-            }
-            else {
-                results[start] = 0;
-            }
-            if(results[start] == 0) {
-                return false;
-            }
-            else {
-                return true;
-            }
+            counts[index] = count;
+            return count;
         }
     }
 }

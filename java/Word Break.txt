@@ -15,42 +15,37 @@ The wordDict parameter had been changed to a list of strings (instead of a set o
 
 class Solution {
     public boolean wordBreak(String s, List<String> wordDict) {
-        if(s == null || wordDict == null || s.isEmpty() | wordDict.isEmpty()) {
-			return false;
-		}
-		
-		int length = s.length();
-        // record[i] means whether sub string from index i can be generated from the words in the list
-        // record[i] == 1, no; record[i] == 2, yes;
-		int[] records = new int[length];
-		
-		return wordBreak(s, 0, wordDict, records);
+        if(s != null && !s.isEmpty() && wordDict != null && !wordDict.isEmpty()) {
+            int[] records = new int[s.length()];
+            Arrays.fill(records, -1);
+            
+            return wordBreak(s, wordDict, records, 0);
+        } else {
+            return false;
+        }
     }
-	
-	private boolean wordBreak(String s, int start, List<String> wordDict, int[] records) {
-		if(start == s.length()) {
-			return true;
-		}
-	
-		if(records[start] == 1) {
-			return false;
-		}
-		
-		int size = wordDict.size();
-		for(int i = 0; i < size; ++i) {
-			String word = wordDict.get(i);
-			int index = s.indexOf(word, start);
-			if(index != -1 && index == start) {
-				boolean tmp = wordBreak(s, start+word.length(), wordDict, records);
-				if(tmp) {
-					records[start] = 2;
-					return true;
-				}
-			}
-		}
-		
-		records[start] = 1;
-		
-		return false;
-	}
+    
+    private boolean wordBreak(String s, List<String> wordDict, int[] records, int index) {
+        if(index == s.length()) {
+            return true;
+        }
+        
+        if(records[index] == 0) {
+            return false;
+        } else if(records[index] == 1) {
+            return true;
+        }
+        
+        for(String word : wordDict) {
+            if(s.startsWith(word, index)) {
+                if(wordBreak(s, wordDict, records, index+word.length())) {
+                    records[index] = 1;
+                    return true;
+                }
+            }
+        }
+        
+        records[index] = 0;
+        return false;        
+    }
 }

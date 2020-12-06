@@ -1,0 +1,112 @@
+Given an array consists of non-negative integers, your task is to count the number of triplets chosen from the array that can make triangles if we take them as side lengths of a triangle.
+Example 1:
+Input: [2,2,3,4]
+Output: 3
+Explanation:
+Valid combinations are: 
+2,3,4 (using the first 2)
+2,3,4 (using the second 2)
+2,2,3
+Note:
+The length of the given array won't exceed 1000.
+The integers in the given array are in the range of [0, 1000].
+
+
+
+
+// Time O(n^2), Space O(n)
+public class Solution {
+    public int triangleNumber(int[] nums) {
+        int count = 0;
+        Arrays.sort(nums);
+        for (int i = 0; i < nums.length - 2; i++) {
+            int k = i + 2;
+            for (int j = i + 1; j < nums.length - 1 && nums[i] != 0; j++) {
+                while (k < nums.length && nums[i] + nums[j] > nums[k]) {
+                    k++;
+                }
+                count += k - j - 1;
+            }
+        }
+        return count;
+    }
+}
+
+// Time O(n^3), Space O(1)
+class Solution {
+    public int triangleNumber(int[] nums) {
+        if(nums != null && nums.length > 0) {
+            int[] counts = new int[1001];
+            for(int num : nums) {
+                counts[num]++;
+            }
+            
+            int count = 0;
+            int anchor = 1;
+            while(anchor <= 1000) {
+                if(counts[anchor] >= 3) {
+                    count += getCombinationNumber(counts[anchor], 3);
+                }
+                
+                if(counts[anchor] >= 2) {
+                    int index = 1;
+                    while(index < anchor+anchor) {
+                        if(counts[index] > 0 && index != anchor) {
+                            count += getCombinationNumber(counts[anchor], 2) * getCombinationNumber(counts[index], 1);
+                        }
+                        index++;
+                    }
+                } 
+                
+                if(counts[anchor] >= 1) {
+                    int first = anchor1;
+                    
+                    while(first <= 1000) {
+                        if(first != anchor && counts[first] > 0) {
+                            int lower = Math.abs(anchor-first);
+                            int upper = anchor + first;
+                            int second = Math.max(lower+1, first+1);                            
+                            
+                            while(second < upper) {
+                                if(second != anchor && counts[second] > 0) {
+                                    count += getCombinationNumber(counts[anchor], 1) * getCombinationNumber(counts[first], 1) * getCombinationNumber(counts[second], 1);
+                                }
+                                second++;
+                            }
+                        }
+                        
+                        first++;
+                    }
+                }
+                
+                anchor++;
+            }
+            
+            return count;
+        } else {
+            return 0;
+        }
+    }
+    
+    private int getCombinationNumber(int n, int r) {
+        if(n == 0 || r == 0) {
+            return 1;
+        }
+        
+        long dividend = 1;
+        int current = n;
+        while(current >= n-r+1) {
+            dividend *= current;
+            current--;
+        }
+        
+        long divisor = 1;
+        current = r;
+        while(current >= 1) {
+            divisor *= current;
+            current--;
+        }
+        
+        return (int)(dividend / divisor);
+    }
+}

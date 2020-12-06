@@ -1,0 +1,99 @@
+Given a string s that consists of only uppercase English letters, you can perform at most k operations on that string.
+
+In one operation, you can choose any character of the string and change it to any other uppercase English character.
+
+Find the length of the longest sub-string containing all repeating letters you can get after performing the above operations.
+
+Note:
+Both the string's length and k will not exceed 104.
+
+Example 1:
+
+Input:
+s = "ABAB", k = 2
+
+Output:
+4
+
+Explanation:
+Replace the two 'A's with two 'B's or vice versa.
+ 
+
+Example 2:
+
+Input:
+s = "AABABBA", k = 1
+
+Output:
+4
+
+Explanation:
+Replace the one 'A' in the middle with 'B' and form "AABBBBA".
+The substring "BBBB" has the longest repeating letters, which is 4.
+
+
+
+
+
+class Solution {
+    public int characterReplacement(String s, int k) {
+        if(s != null && s.length() > 0) {
+            int left = 0;
+            int right = 0;
+            
+            Window window = new Window();
+            int max = 0;
+            
+            while(right < s.length()) {
+                window.add(s.charAt(right));
+                
+                while(right-left+1-window.getMajorityCharCount() > k) {
+                    window.remove(s.charAt(left));
+                    left++;
+                }
+                
+                
+                if(right-left+1-window.getMajorityCharCount() <= k) {
+                    max = Math.max(max, right-left+1);
+                }
+                
+                right++;
+            }
+            
+            return max;
+        } else {
+            return 0;
+        }
+    }
+    
+    private class Window {
+        private char majorityChar = '*';
+        
+        private int[] counts = new int[26];
+        
+        private void add(char c) {
+            counts[c-'A']++;
+            if(majorityChar == '*') {
+                majorityChar = c;
+            } else if(counts[c-'A'] > counts[majorityChar-'A']) {
+                majorityChar = c;
+            }
+        }
+        
+        private void remove(char c) {
+            int max = --counts[c-'A'];
+            if(majorityChar == c) {
+                for(int i = 0; i < 26; ++i) {
+                    if(counts[i] > max) {
+                        majorityChar = (char)((int)'A' + i);
+                        max = counts[i];
+                    }
+                }
+            }
+        }
+        
+        private int getMajorityCharCount() {
+            return counts[majorityChar-'A'];
+        }
+    }
+}
