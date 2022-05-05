@@ -24,9 +24,6 @@ public class Solution {
         }
         
         boolean[] amount_visited = new boolean[amount];
-        for(int i = 0; i < amount; ++i) {
-            amount_visited[i] = false;
-        }
         
         int height = 0;
         int length = coins.length;
@@ -37,31 +34,32 @@ public class Solution {
         
         boolean found = false;
         while(!queue.isEmpty()) {
-            Queue<Integer> level = new LinkedList<Integer>();
+            int size = queue.size();
+            int index = 0;
             
-            while(!queue.isEmpty()) {
+            while(index < size) {
                 int val = queue.poll().intValue();
                 
                 for(int i = length-1; i >= 0; --i) {
                     if(coins[i] == val) {
                         found = true;
                         break;
-                    }
-                    else if(coins[i] < val) {
+                    } else if(coins[i] < val) {
                         int rest = val - coins[i];
                         if(!amount_visited[rest-1]) {
                             amount_visited[rest-1] = true;
-                            level.offer(rest);
+                            queue.offer(rest);
                         }
                     }
                 }
+                
+                index++;
             }
             
             if(found) {
                 break;
             }
             
-            queue = level;
             height++;
         }
         

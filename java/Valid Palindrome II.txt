@@ -17,26 +17,26 @@ The string will only contain lowercase characters a-z. The maximum length of the
 
 class Solution {
     public boolean validPalindrome(String s) {
-        int l = 0; 
-        int r = s.length() - 1;
-        while(l < r){
-            if(s.charAt(l) != s.charAt(r)){
-                return isPalindrome(s, l+1, r) || isPalindrome(s, l, r-1);
-            }
-            l++;
-            r--;
+        if(s != null && s.length() > 0) {            
+            return validPalindrome(s, 0, s.length()-1, 1);
+        } else {
+            return true;
         }
-        return true;
     }
     
-    private boolean isPalindrome(String s, int l, int r){
-        while(l < r){
-            if(s.charAt(l) != s.charAt(r)){
+    private boolean validPalindrome(String s, int left, int right, int times) {
+        if(left >= right) {
+            return true;
+        }
+        
+        if(s.charAt(left) == s.charAt(right)) {
+            return validPalindrome(s, left+1, right-1, times);
+        } else {
+            if(times == 1) {
+                return validPalindrome(s, left+1, right, 0) || validPalindrome(s, left, right-1, 0);
+            } else {
                 return false;
             }
-            l++;
-            r--;
         }
-        return true;
     }
 }

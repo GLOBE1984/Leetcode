@@ -19,43 +19,37 @@ minStack.getMin();   --> Returns -2.
 
 
 class MinStack {
-    private Stack<Integer> stack;
-    private PriorityQueue<Integer> queue;
+
+    private Stack<Integer> stack = new Stack<>();
+    private Stack<Integer> minStack = new Stack<>();
     
-    /** initialize your data structure here. */
-    public MinStack() {
-        this.stack = new Stack<Integer>();
-        this.queue = new PriorityQueue<Integer>();
-    }
+    
+    public MinStack() { }
+    
     
     public void push(int x) {
-        this.stack.push(x);
-        this.queue.offer(x);
+        stack.push(x);
+        if (minStack.isEmpty() || x <= minStack.peek()) {
+            minStack.push(x);
+        }
     }
+    
     
     public void pop() {
-        if(!this.stack.empty()) {
-            int val = this.stack.pop();
-            this.queue.remove(val);
+        if (stack.peek().equals(minStack.peek())) {
+            minStack.pop();
         }
+        stack.pop();
     }
+    
     
     public int top() {
-        if(!this.stack.empty()) {
-            return this.stack.peek();
-        }
-        else {
-            return Integer.MIN_VALUE;
-        }
+        return stack.peek();
     }
+
     
     public int getMin() {
-        if(!this.queue.isEmpty()) {
-            return this.queue.peek();
-        }
-        else {
-            return Integer.MIN_VALUE;
-        }
+        return minStack.peek();
     }
 }
 

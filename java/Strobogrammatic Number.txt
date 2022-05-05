@@ -1,0 +1,58 @@
+A strobogrammatic number is a number that looks the same when rotated 180 degrees (looked at upside down).
+
+Write a function to determine if a number is strobogrammatic. The number is represented as a string.
+
+ 
+
+Example 1:
+
+Input: num = "69"
+Output: true
+Example 2:
+
+Input: num = "88"
+Output: true
+Example 3:
+
+Input: num = "962"
+Output: false
+Example 4:
+
+Input: num = "1"
+Output: true
+
+
+
+
+class Solution {
+    public boolean isStrobogrammatic(String num) {
+        if(num != null && num.length() > 0) {
+            Map<Integer, Integer> pairs = new HashMap<>();
+            pairs.put(0, 0);
+            pairs.put(1, 1);
+            pairs.put(6, 9);
+            pairs.put(8, 8);
+            pairs.put(9, 6);
+            
+            int left = 0;
+            int right = num.length() - 1;
+            while(left <= right) {
+                int l = num.charAt(left) - '0';
+                int r = num.charAt(right) - '0';
+                if(!pairs.containsKey(l) || !pairs.containsKey(r)) {
+                    return false;
+                } else {
+                    if(r != pairs.get(l).intValue()) {
+                        return false;
+                    }
+                }
+                left++;
+                right--;
+            }
+            
+            return true;
+        } else {
+            return true;
+        }
+    }
+}

@@ -19,97 +19,91 @@ You may assume that all words are consist of lowercase letters a-z.
 
 
 
-public class WordDictionary {
-    Node root = new Node(-1);
+class WordDictionary {
+
+    private Trie root;
     
-    // Adds a word into the data structure.
+    /** Initialize your data structure here. */
+    public WordDictionary() {
+        this.root = new Trie();
+    }
+    
     public void addWord(String word) {
         if(word == null || word.length() == 0) {
             return;
         }
         
-        Node current = root;
-        
+        Trie current = this.root;
         for(int i = 0; i < word.length(); ++i) {
             char c = word.charAt(i);
             if(current.children[c-'a'] == null) {
-                current.children[c-'a'] = new Node(i);
+                current.children[c-'a'] = new Trie();
+                current.children[c-'a'].index = i;
             }
             current = current.children[c-'a'];
         }
-        
-        current.end = true;
+        current.isEnd = true;
     }
-
-    // Returns if the word is in the data structure. A word could
-    // contain the dot character '.' to represent any one letter.
+    
     public boolean search(String word) {
         if(word == null || word.length() == 0) {
             return false;
         }
         
-        Queue<Node> queue = new LinkedList<Node>();
-        
-        char head = word.charAt(0);
-        if(head == '.') {
-            for(int i = 0; i < 26; ++i) {
-                if(root.children[i] != null) {
-                    queue.offer(root.children[i]);
+        Queue<Trie> queue = new LinkedList<>();
+        if(word.charAt(0) == '.') {
+            for(Trie trie : this.root.children) {
+                if(trie != null) {
+                    queue.offer(trie);
                 }
             }
-        }
-        else {
-            if(root.children[head-'a'] == null) {
+        } else {
+            if(this.root.children[word.charAt(0)-'a'] != null) {
+                queue.offer(this.root.children[word.charAt(0)-'a']);
+            } else {
                 return false;
             }
-            queue.offer(root.children[head-'a']);
         }
         
         while(!queue.isEmpty()) {
-            Node current = queue.poll();
+            Trie trie = queue.poll();
             
-            int index = current.i;
-            if(index < (word.length()-1)) {
-                char c = word.charAt(index+1);
-                
+            if(trie.index < word.length()-1) {
+                char c = word.charAt(trie.index+1);
                 if(c == '.') {
-                    for(int i = 0; i < 26; ++i) {
-                        if(current.children[i] != null) {
-                            queue.offer(current.children[i]);
+                    for(Trie tmp : trie.children) {
+                        if(tmp != null) {
+                            queue.offer(tmp);
                         }
                     }
-                }
-                else {
-                    if(current.children[c-'a'] != null) {
-                        queue.offer(current.children[c-'a']);
+                } else {
+                    if(trie.children[c-'a'] != null) {
+                        queue.add(trie.children[c-'a']);
                     }
                 }
-            }
-            else {
-                if(current.end) {
+            } else {
+                if(trie.isEnd) {
                     return true;
                 }
             }
         }
         
-        return false;
+        return false;        
     }
     
-    class Node {
-        int i;
-        Node[] children;
-        boolean end;
-        
-        private Node(int i) {
-            this.i = i;
-            children = new Node[26];
-            for(int j = 0; j < 26; ++j) {
-                children[j] = null;
-            }
-            end = false;
-        }
+    private class Trie {
+        private int index;
+        private Trie[] children = new Trie[26];
+        private boolean isEnd;
     }
 }
+
+/**
+ * Your WordDictionary object will be instantiated and called as such:
+ * WordDictionary obj = new WordDictionary();
+ * obj.addWord(word);
+ * boolean param_2 = obj.search(word);
+ */
 
 // Your WordDictionary object will be instantiated and called as such:
 // WordDictionary wordDictionary = new WordDictionary();

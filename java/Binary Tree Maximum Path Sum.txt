@@ -19,40 +19,60 @@ Return 6.
  *     int val;
  *     TreeNode left;
  *     TreeNode right;
- *     TreeNode(int x) { val = x; }
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
  * }
  */
-public class Solution {
-    /* refer to the website http://fisherlei.blogspot.com/2013/01/leetcode-binary-tree-maximum-path-sum.html */
+class Solution {
     public int maxPathSum(TreeNode root) {
-        if(root == null) {
+        if(root != null) {
+            int[] result = dfs(root);
+            
+            return result[1];
+        } else {
             return 0;
         }
-        
-        int[] max = {Integer.MIN_VALUE};
-        rec(root, max);  
-        return max[0];  
     }
     
-    private int rec(TreeNode root, int[] max) {
-        if(root == null){  
-            return 0;  
-        }  
-          
-        int leftSubtreeMaxSum = rec(root.left, max);        // 左子树的最大和  
-        int rightSubtreeMaxSum = rec(root.right, max);      // 右子树的最大和  
-        int arch = leftSubtreeMaxSum + root.val + rightSubtreeMaxSum;       // 从左子树经过root到右子树的最大和  
-          
-        // 表示通过root节点能走到root的parent的最大和，这个值作为返回对象返给调用父函数  
-        // 只有3中情况: 1 从左子树到root再到parent  
-        // 2 从右子树到root再到parent  
-        // 3 直接从root到parent  
-        // 注意arch那条路是不可能走到parent，因为那条路已经经过root了，除非折回来重复走！但这是不允许的  
-        int maxPathAcrossRootToParent = Math.max(root.val, Math.max(leftSubtreeMaxSum, rightSubtreeMaxSum)+root.val);  
-          
-        // max[0] 保存在所有递归过程中的最大值，这时也要考虑arch可能最大  
-        max[0] = Math.max(max[0], Math.max(arch, maxPathAcrossRootToParent));  
-          
-        return maxPathAcrossRootToParent;
+    // return: array[0] represents max value which can go up to parent, array[1] represents max value in all case
+    private int[] dfs(TreeNode root) {
+        if(root.left == null && root.right == null) {
+            return new int[]{root.val, root.val};
+        }
+        
+        int[] leftMax = null;
+        if(root.left != null) {
+            leftMax = dfs(root.left);
+        }
+        int[] rightMax = null;
+        if(root.right != null) {
+            rightMax = dfs(root.right);
+        }
+        
+        int[] result = new int[2];
+        if(leftMax != null && rightMax != null) {
+            result[0] = Math.max(root.val, Math.max(leftMax[0]+root.val, rightMax[0]+root.val));
+            int max = Math.max(leftMax[1], rightMax[1]);
+            max = Math.max(max, result[0]);
+            max = Math.max(max, leftMax[0]+root.val+rightMax[0]);
+            result[1] = max;
+        } else if(leftMax != null) {
+            result[0] = Math.max(root.val, leftMax[0]+root.val);
+            int max = leftMax[1];
+            max = Math.max(max, result[0]);
+            result[1] = max;
+        } else {
+            result[0] = Math.max(root.val, rightMax[0]+root.val);
+            int max = rightMax[1];
+            max = Math.max(max, result[0]);
+            result[1] = max;
+        }
+        
+        return result;
     }
 }

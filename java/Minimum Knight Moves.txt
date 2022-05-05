@@ -1,0 +1,97 @@
+In an infinite chess board with coordinates from -infinity to +infinity, you have a knight at square [0, 0].
+
+A knight has 8 possible moves it can make, as illustrated below. Each move is two squares in a cardinal direction, then one square in an orthogonal direction.
+
+
+
+Return the minimum number of steps needed to move the knight to the square [x, y].  It is guaranteed the answer exists.
+
+ 
+
+Example 1:
+
+Input: x = 2, y = 1
+Output: 1
+Explanation: [0, 0] → [2, 1]
+Example 2:
+
+Input: x = 5, y = 5
+Output: 4
+Explanation: [0, 0] → [2, 1] → [4, 2] → [3, 4] → [5, 5]
+ 
+
+Constraints:
+
+|x| + |y| <= 300
+
+
+
+
+
+class Solution {
+    public int minKnightMoves(int x, int y) {
+        int dx = Math.abs(x) + 2;
+        int dy = Math.abs(y) + 2;
+        
+        
+        boolean[][] visited = new boolean[dx+3][dy+3]; 
+        visited[0][0] = true;
+        
+        Queue<int[]> queue = new LinkedList<>();
+        queue.offer(new int[]{2, 2});
+        
+        int depth = 0;
+        
+        while(!queue.isEmpty()) {
+            int size = queue.size();
+            int index = 0;
+            
+            while(index < size) {
+                int[] pos = queue.poll();
+                if(pos[0] == dx && pos[1] == dy) {
+                    return depth;
+                }
+                
+                if(pos[0] < visited.length-2 && pos[1] < visited[0].length-1 && !visited[pos[0]+2][pos[1]+1]) {
+                    queue.offer(new int[]{pos[0]+2, pos[1]+1});
+                    visited[pos[0]+2][pos[1]+1] = true;
+                }
+                if(pos[0] < visited.length-1 && pos[1] < visited[0].length-2 && !visited[pos[0]+1][pos[1]+2]) {
+                    queue.offer(new int[]{pos[0]+1, pos[1]+2});
+                    visited[pos[0]+1][pos[1]+2] = true;
+                }
+                if(pos[0] >= 2 && pos[1] < visited[0].length-1 && !visited[pos[0]-2][pos[1]+1]) {
+                    queue.offer(new int[]{pos[0]-2, pos[1]+1});
+                    visited[pos[0]-2][pos[1]+1] = true;
+                }
+                if(pos[0] >= 1 && pos[1] < visited[0].length-2 && !visited[pos[0]-1][pos[1]+2]) {
+                    queue.offer(new int[]{pos[0]-1, pos[1]+2});
+                    visited[pos[0]-1][pos[1]+2] = true;
+                }
+                if(pos[0] >= 2 && pos[1] >= 1 && !visited[pos[0]-2][pos[1]-1]) {
+                    queue.offer(new int[]{pos[0]-2, pos[1]-1});
+                    visited[pos[0]-2][pos[1]-1] = true;
+                }
+                if(pos[0] >= 1 && pos[1] >= 2 && !visited[pos[0]-1][pos[1]-2]) {
+                    queue.offer(new int[]{pos[0]-1, pos[1]-2});
+                    visited[pos[0]-1][pos[1]-2] = true;
+                }
+                if(pos[0] < visited.length-2 && pos[1] >= 1 && !visited[pos[0]+2][pos[1]-1]) {
+                    queue.offer(new int[]{pos[0]+2, pos[1]-1});
+                    visited[pos[0]+2][pos[1]-1] = true;
+                }
+                if(pos[0] < visited.length-1 && pos[1] >= 2 && !visited[pos[0]+1][pos[1]-2]) {
+                    queue.offer(new int[]{pos[0]+1, pos[1]-2});
+                    visited[pos[0]+1][pos[1]-2] = true;
+                }
+
+                
+                index++;
+            }
+            
+            depth++;
+        }
+        
+        return Integer.MAX_VALUE;
+    }
+}

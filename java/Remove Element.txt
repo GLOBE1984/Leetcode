@@ -47,32 +47,19 @@ Constraints:
 
 class Solution {
     public int removeElement(int[] nums, int val) {
-        if(nums.length == 0) {
-            return 0;
-        }
-        
-        // find the first element not equals to val
-        int index = 0;
-        while(index < nums.length && nums[index] == val) {
-            index++;
-        }
-        if(index == nums.length) {
-            return 0;
-        }        
-        // make sure the first element is not val;
-        int tmp = nums[0];
-        nums[0] = nums[index];
-        nums[index] = tmp;
-        index++;
-        
-        int lastNotValIndex = 0;
-        while(index < nums.length) {
-            if(nums[index] != val) {
-                nums[++lastNotValIndex] = nums[index];
+        if(nums != null && nums.length > 0) {
+            int count = 0;
+            for(int i = 0; i < nums.length; ++i) {
+                if(nums[i] == val) {
+                    count++;
+                } else {
+                    nums[i-count] = nums[i];
+                }
             }
-            index++;
+            
+            return nums.length - count;
+        } else {
+            return 0;
         }
-        
-        return lastNotValIndex + 1;
     }
 }

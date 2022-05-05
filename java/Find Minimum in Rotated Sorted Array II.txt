@@ -30,8 +30,7 @@ public class Solution {
             else {
                 if(nums[start-1] > nums[start]) {
                     return start;
-                }
-                else {
+                } else {
                     return 0;
                 }
             }

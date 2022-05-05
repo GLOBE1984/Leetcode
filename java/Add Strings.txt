@@ -1,0 +1,73 @@
+Given two non-negative integers num1 and num2 represented as string, return the sum of num1 and num2.
+
+Note:
+
+The length of both num1 and num2 is < 5100.
+Both num1 and num2 contains only digits 0-9.
+Both num1 and num2 does not contain any leading zero.
+You must not use any built-in BigInteger library or convert the inputs to integer directly.
+
+
+
+
+
+class Solution {
+    public String addStrings(String num1, String num2) {
+        if(num1 != null && num1.length() > 0 && num2 != null && num2.length() > 0) {
+            int index1 = num1.length() - 1;
+            int index2 = num2.length() - 1;
+            
+            StringBuilder builder = new StringBuilder();
+            int carry = 0;
+            while(index1 >= 0 && index2 >= 0) {
+                int i1 = num1.charAt(index1) - '0';
+                int i2 = num2.charAt(index2) - '0';
+                
+                int sum = i1 + i2 + carry;
+                carry = sum / 10;
+                sum = sum % 10;
+                
+                builder.insert(0, sum);
+                
+                index1--;
+                index2--;
+            }
+            
+            while(index1 >= 0) {
+                int i = num1.charAt(index1) - '0';
+                
+                int sum = i + carry;
+                carry = sum / 10;
+                sum = sum % 10;
+                
+                builder.insert(0, sum);
+                
+                index1--;
+            }
+            
+            while(index2 >= 0) {
+                int i = num2.charAt(index2) - '0';
+                
+                int sum = i + carry;
+                carry = sum / 10;
+                sum = sum % 10;
+                
+                builder.insert(0, sum);
+                
+                index2--;
+            }
+            
+            if(carry == 1) {
+                builder.insert(0, 1);
+            }
+            
+            return builder.toString();            
+        } else if(num1 != null && num1.length() > 0) {
+            return num1;
+        } else if(num2 != null && num2.length() > 0) {
+            return num2;
+        } else {
+            return null;
+        }
+    }
+}

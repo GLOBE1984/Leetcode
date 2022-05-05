@@ -1,0 +1,266 @@
+Given the head of a linked list, return the list after sorting it in ascending order.
+
+
+Example 1:
+Input: head = [4,2,1,3]
+Output: [1,2,3,4]
+
+Example 2:
+Input: head = [-1,5,3,4,0]
+Output: [-1,0,3,4,5]
+
+Example 3:
+Input: head = []
+Output: []
+ 
+
+Constraints:
+
+The number of nodes in the list is in the range [0, 5 * 10^4].
+-10^5 <= Node.val <= 10^5
+ 
+
+Follow up: Can you sort the linked list in O(n logn) time and O(1) memory (i.e. constant space)?
+
+Solution 1:
+Time: O(nlogn)
+Space: O(n)
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+class Solution {
+    public ListNode sortList(ListNode head) {        
+        if(head != null) {
+            Map<Integer, ListNode> map = getIndexMap(head);
+            
+            ListNode newHead = mergeSort(0, map.size()-1, map);
+            
+            return newHead;
+        } else {
+            return null;
+        }
+    }
+    
+    private Map<Integer, ListNode> getIndexMap(ListNode head) {
+        ListNode current = head;
+        int index = 0;
+        Map<Integer, ListNode> map = new HashMap<>();
+        while(current != null) {
+            map.put(index, current);
+            index++;
+            current = current.next;
+        }
+        return map;
+    }
+    
+    private ListNode mergeSort(int start, int end, Map<Integer, ListNode> map) {
+        if(start == end) {
+            return map.get(start);
+        }
+        
+        ListNode tail = map.get(end).next;
+                
+        int mid = (start + end)/2;
+        ListNode current1 = mergeSort(start, mid, map);
+        ListNode current2 = mergeSort(mid+1, end, map);
+        
+        int index1 = start;
+        int index2 = mid + 1;
+        
+        ListNode virtualNode = new ListNode(-1);
+        ListNode current = virtualNode;
+        
+        while(index1 <= mid && index2 <= end) {
+            if(current1.val <= current2.val) {
+                current.next = current1;
+                current1 = current1.next;
+                index1++;
+            } else {
+                current.next = current2;
+                current2 = current2.next;
+                index2++;
+            }
+            current = current.next;
+        }
+        
+        if(index1 > mid) {
+            while(index2 <= end) {
+                current.next = current2;
+                current2 = current2.next;
+                current = current.next;
+                index2++;
+            }
+        } else {
+            while(index1 <= mid) {
+                current.next = current1;
+                current1 = current1.next;
+                current = current.next;
+                index1++;
+            }
+        }
+        
+        current.next = tail;
+        
+        return virtualNode.next;
+    }
+}
+
+
+Solution 2:
+Time: O(nlogn)
+Space: O(1)
+Comment: Bottom to top merge sort, which merges 2 sorted list next to each other, and end when the sorted list length is larger than the list length
+e.g. List 2 -> 1 -> 5 -> 3 -> 4
+Currently treat each individual element as a sorted list with length 1
+1st round: generate sorted list with length 2 based on sorted list with length 1: [(2) -> (1)] -> [(5) -> (3)] -> 4
+result: 1 -> 2 -> 3 -> 5 -> 4
+2nd round: generate sorted list with length 4 based on sorted list with length 2: [(1 -> 2) -> (3 -> 5)] -> 4
+result: 1 -> 2 -> 3 -> 5 -> 4
+3nd round: generate sorted list with length 8 (actually is 5) based on sorted list with length 4, in which one sorted list with length 1: [(1 -> 2 -> 3 -> 5) -> (4)]
+result: 1 -> 2 -> 3 -> 4 -> 5
+
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+class Solution {
+    public ListNode sortList(ListNode head) {
+        if(head != null && head.next != null) {
+            int length = getLength(head);
+            
+            ListNode virtualNode = new ListNode(-1);
+            virtualNode.next = head;
+            int sortedLength = 1;
+            while(sortedLength < length) {
+                ListNode prev = virtualNode;
+                ListNode left = virtualNode.next;
+                
+                while(left != null) {
+                    SortedNodes sortedNodes1 = findSortedNodes(left, sortedLength);
+                    if(sortedNodes1.end != null && sortedNodes1.end.next != null) {
+                        ListNode left2 = sortedNodes1.end.next;
+                        SortedNodes sortedNodes2 = findSortedNodes(left2, sortedLength);
+                        ListNode nextStart = null;
+                        if(sortedNodes2.end != null) {
+                            nextStart = sortedNodes2.end.next;
+                        } else {
+                            nextStart = null;
+                        }
+                        ListNode[] nodes = merge(sortedNodes1, sortedNodes2);
+                        
+                        prev.next = nodes[0];
+                        nodes[1].next = nextStart;
+                        prev = nodes[1];
+                        left = nextStart;
+                    } else {
+                        left = null;
+                    }
+                }
+                
+                sortedLength = sortedLength * 2;
+            }
+            
+            return virtualNode.next;
+        } else {
+            return head;
+        }
+    }
+    
+    // Get the length of the list
+    private int getLength(ListNode head) {
+        int length = 0;
+        ListNode current = head;
+        
+        while(current != null) {
+            current = current.next;
+            length++;
+        }
+        
+        return length;
+    }
+    
+    // Find the tailing sorted nodes with the sort length;
+    // e.g, List is 1 -> 2 -> 3 -> 5 -> 4
+    // 1st: left is 1, sorted length is 2, the SortedNodes(left=1, current=2, sortedLength=2)
+    // 2nd: left is 4, sorted length is 2, the SortedNodes(left=4, current=4, sortedLength=1)
+    private SortedNodes findSortedNodes(ListNode left, int sortedLength) {
+        ListNode current = left;
+        int i = 0;
+        while(current != null && i < sortedLength-1) {
+            current = current.next;
+            i++;
+        }
+        if(current == null) {
+            return new SortedNodes(left, current, i);
+        } else {
+            return new SortedNodes(left, current, i+1);
+        }
+    }
+    
+    private ListNode[] merge(SortedNodes nodes1, SortedNodes nodes2) {       
+        ListNode virtualNode = new ListNode(-1);
+        ListNode current = virtualNode;
+        ListNode current1 = nodes1.start;
+        ListNode current2 = nodes2.start;
+        int length1 = nodes1.length;
+        int length2 = nodes2.length;
+        int i = 0;
+        int j = 0;
+        
+        while(i < length1 && j < length2) {
+            if(current1.val <= current2.val) {
+                current.next = current1;
+                current1 = current1.next;
+                i++;
+            } else {
+                current.next = current2;
+                current2 = current2.next;
+                j++;
+            }
+            current = current.next;
+        }
+        
+        while(i < length1) {
+            current.next = current1;
+            current1 = current1.next;
+            current = current.next;
+            i++;
+        }
+        
+        while(j < length2) {
+            current.next = current2;
+            current2 = current2.next;
+            current = current.next;
+            j++;
+        }
+        
+        return new ListNode[]{virtualNode.next, current};
+    }
+    
+    private class SortedNodes {
+        private ListNode start;
+        private ListNode end;
+        private int length;
+        
+        private SortedNodes(ListNode start, ListNode end, int length) {
+            this.start = start;
+            this.end = end;
+            this.length = length;
+        }
+    }
+}
+
+

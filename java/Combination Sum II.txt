@@ -42,8 +42,7 @@ public class Solution {
                     i++;
                 }
             }
-        }
-        else {
+        } else {
             if(target == 0) {
                 List<Integer> tmp = new ArrayList<Integer>();
                 tmp.addAll(path);

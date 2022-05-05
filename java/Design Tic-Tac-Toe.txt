@@ -1,0 +1,246 @@
+Assume the following rules are for the tic-tac-toe game on an n x n board between two players:
+
+A move is guaranteed to be valid and is placed on an empty block.
+Once a winning condition is reached, no more moves are allowed.
+A player who succeeds in placing n of their marks in a horizontal, vertical, or diagonal row wins the game.
+Implement the TicTacToe class:
+
+TicTacToe(int n) Initializes the object the size of the board n.
+int move(int row, int col, int player) Indicates that player with id player plays at the cell (row, col) of the board. The move is guaranteed to be a valid move.
+Follow up:
+Could you do better than O(n2) per move() operation?
+
+ 
+
+Example 1:
+
+Input
+["TicTacToe", "move", "move", "move", "move", "move", "move", "move"]
+[[3], [0, 0, 1], [0, 2, 2], [2, 2, 1], [1, 1, 2], [2, 0, 1], [1, 0, 2], [2, 1, 1]]
+Output
+[null, 0, 0, 0, 0, 0, 0, 1]
+
+Explanation
+TicTacToe ticTacToe = new TicTacToe(3);
+Assume that player 1 is "X" and player 2 is "O" in the board.
+ticTacToe.move(0, 0, 1); // return 0 (no one wins)
+|X| | |
+| | | |    // Player 1 makes a move at (0, 0).
+| | | |
+
+ticTacToe.move(0, 2, 2); // return 0 (no one wins)
+|X| |O|
+| | | |    // Player 2 makes a move at (0, 2).
+| | | |
+
+ticTacToe.move(2, 2, 1); // return 0 (no one wins)
+|X| |O|
+| | | |    // Player 1 makes a move at (2, 2).
+| | |X|
+
+ticTacToe.move(1, 1, 2); // return 0 (no one wins)
+|X| |O|
+| |O| |    // Player 2 makes a move at (1, 1).
+| | |X|
+
+ticTacToe.move(2, 0, 1); // return 0 (no one wins)
+|X| |O|
+| |O| |    // Player 1 makes a move at (2, 0).
+|X| |X|
+
+ticTacToe.move(1, 0, 2); // return 0 (no one wins)
+|X| |O|
+|O|O| |    // Player 2 makes a move at (1, 0).
+|X| |X|
+
+ticTacToe.move(2, 1, 1); // return 1 (player 1 wins)
+|X| |O|
+|O|O| |    // Player 1 makes a move at (2, 1).
+|X|X|X|
+ 
+
+Constraints:
+
+2 <= n <= 100
+player is 1 or 2.
+1 <= row, col <= n
+(row, col) are unique for each different call to move.
+At most n2 calls will be made to move.
+
+
+
+
+
+class TicTacToe {
+
+    private int n;
+        
+    private int[] rows;
+    private int[] cols;
+    private int diagCount;
+    private int reverseDiagCount;
+    
+    /** Initialize your data structure here. */
+    public TicTacToe(int n) {
+        this.n = n;
+        this.rows = new int[n];
+        this.cols = new int[n];
+        this.diagCount = 0;
+        this.reverseDiagCount = 0;
+    }
+    
+    /** Player {player} makes a move at ({row}, {col}).
+        @param row The row of the board.
+        @param col The column of the board.
+        @param player The player, can be either 1 or 2.
+        @return The current winning condition, can be either:
+                0: No one wins.
+                1: Player 1 wins.
+                2: Player 2 wins. */
+    public int move(int row, int col, int player) {
+        if(player == 1) {
+            this.rows[row]++;
+            if(this.rows[row] == this.n) {
+                return 1;
+            }
+            this.cols[col]++;
+            if(this.cols[col] == this.n) {
+                return 1;
+            }
+            if(row == col) {
+                this.diagCount++;
+                if(this.diagCount == this.n) {
+                    return 1;
+                }
+            }
+            if(row+col == n-1) {
+                this.reverseDiagCount++;
+                if(this.reverseDiagCount == this.n) {
+                    return 1;
+                }
+            }
+        } else {
+            this.rows[row]--;
+            if(this.rows[row] == -1*this.n) {
+                return 2;
+            }
+            this.cols[col]--;
+            if(this.cols[col] == -1*this.n) {
+                return 2;
+            }
+            if(row == col) {
+                this.diagCount--;
+                if(this.diagCount == -1*this.n) {
+                    return 2;
+                }
+            }
+            if(row+col == n-1) {
+                this.reverseDiagCount--;
+                if(this.reverseDiagCount == -1*this.n) {
+                    return 2;
+                }
+            }
+        }
+        
+        return 0;
+    }
+}
+
+/**
+ * Your TicTacToe object will be instantiated and called as such:
+ * TicTacToe obj = new TicTacToe(n);
+ * int param_1 = obj.move(row,col,player);
+ */
+
+
+
+
+
+class TicTacToe {
+
+    private int n;
+        
+    private int[] player1RowsCount;
+    private int[] player1ColsCount;
+    private int[] player2RowsCount;
+    private int[] player2ColsCount;
+    private int player1DiagCount;
+    private int player1ReverseDiagCount;
+    private int player2DiagCount;
+    private int player2ReverseDiagCount;
+    
+    /** Initialize your data structure here. */
+    public TicTacToe(int n) {
+        this.n = n;
+        this.player1RowsCount = new int[n];
+        this.player1ColsCount = new int[n];
+        this.player2RowsCount = new int[n];
+        this.player2ColsCount = new int[n];
+        this.player1DiagCount = 0;
+        this.player1ReverseDiagCount = 0;
+        this.player2DiagCount = 0;
+        this.player2ReverseDiagCount = 0;
+    }
+    
+    /** Player {player} makes a move at ({row}, {col}).
+        @param row The row of the board.
+        @param col The column of the board.
+        @param player The player, can be either 1 or 2.
+        @return The current winning condition, can be either:
+                0: No one wins.
+                1: Player 1 wins.
+                2: Player 2 wins. */
+    public int move(int row, int col, int player) {
+        if(player == 1) {
+            this.player1RowsCount[row]++;
+            if(this.player1RowsCount[row] == this.n) {
+                return 1;
+            }
+            this.player1ColsCount[col]++;
+            if(this.player1ColsCount[col] == this.n) {
+                return 1;
+            }
+            if(row == col) {
+                this.player1DiagCount++;
+                if(this.player1DiagCount == this.n) {
+                    return 1;
+                }
+            }
+            if(row+col == n-1) {
+                this.player1ReverseDiagCount++;
+                if(this.player1ReverseDiagCount == this.n) {
+                    return 1;
+                }
+            }
+        } else {
+            this.player2RowsCount[row]++;
+            if(this.player2RowsCount[row] == this.n) {
+                return 2;
+            }
+            this.player2ColsCount[col]++;
+            if(this.player2ColsCount[col] == this.n) {
+                return 2;
+            }
+            if(row == col) {
+                this.player2DiagCount++;
+                if(this.player2DiagCount == this.n) {
+                    return 2;
+                }
+            }
+            if(row+col == n-1) {
+                this.player2ReverseDiagCount++;
+                if(this.player2ReverseDiagCount == this.n) {
+                    return 2;
+                }
+            }
+        }
+        
+        return 0;
+    }
+}
+
+/**
+ * Your TicTacToe object will be instantiated and called as such:
+ * TicTacToe obj = new TicTacToe(n);
+ * int param_1 = obj.move(row,col,player);
+ */

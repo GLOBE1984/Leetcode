@@ -64,3 +64,54 @@ class Solution {
         }
     }
 }
+
+
+
+
+
+class Solution {
+    // sum = left + middle + right
+    // 4 conditions: sum = k, left = k, right = k, middle = k
+    // use prefix sum for left and middle
+    public int subarraySum(int[] nums, int k) {
+        if(nums != null && nums.length > 1) {            
+            int count = nums[0] == k ? 1 : 0;           
+            
+            int sum = nums[0];
+            Map<Integer, Integer> prefixSumCounts = new HashMap<>();
+            prefixSumCounts.put(sum, 1);
+            for(int i = 1; i < nums.length-1; ++i) {                
+                sum += nums[i];
+                if(sum == k) {
+                    count++;
+                }
+                count += prefixSumCounts.getOrDefault(sum-k, 0).intValue();
+                
+                int tmp = prefixSumCounts.getOrDefault(sum, 0).intValue() + 1;                
+                prefixSumCounts.put(sum, tmp);
+            }
+            
+            sum += nums[nums.length-1];
+            if(sum == k) {
+                count++;
+            }
+            
+            if(nums[nums.length-1] == k) {
+                count++;
+            }
+            sum = nums[nums.length-1];
+            for(int i = nums.length-2; i >= 1; --i) {
+                sum += nums[i];
+                if(sum == k) {
+                    count++;
+                }
+            }
+            
+            return count;
+        } else if(nums != null && nums.length == 1) {
+            return nums[0] == k ? 1 : 0;
+        } else {
+            return 0;
+        }
+    }
+}
