@@ -1,0 +1,70 @@
+You are given two non-empty linked lists representing two non-negative integers. The digits are stored in reverse order and each of their nodes contain a single digit. Add the two numbers and return it as a linked list.
+
+You may assume the two numbers do not contain any leading zero, except the number 0 itself.
+
+Example:
+
+Input: (2 -> 4 -> 3) + (5 -> 6 -> 4)
+Output: 7 -> 0 -> 8
+Explanation: 342 + 465 = 807.
+
+
+
+
+
+# Definition for singly-linked list.
+# class ListNode(object):
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
+class Solution(object):
+    def addTwoNumbers(self, l1, l2):
+        """
+        :type l1: ListNode
+        :type l2: ListNode
+        :rtype: ListNode
+        """
+        
+        if l1 is None and l2 is None: 
+            return None
+        
+        l = ListNode()
+        current = l
+        increment = 0
+        current1 = l1
+        current2 = l2
+        
+        while current1 is not None and current2 is not None: 
+            tmp = ListNode(-1)
+            val = current1.val + current2.val + increment
+            tmp.val = val - 10 if val >= 10 else val
+            increment = 1 if val >= 10 else 0
+            current.next = tmp
+            current = tmp
+            current1 = current1.next
+            current2 = current2.next
+        
+        if current1 is not None: 
+            while current1 is not None: 
+                tmp = ListNode()
+                val = current1.val + increment
+                tmp.val = val - 10 if val >= 10 else val
+                increment = 1 if val >= 10 else 0
+                current.next = tmp
+                current = tmp
+                current1 = current1.next
+        elif current2 is not None: 
+            while current2 is not None: 
+                tmp = ListNode()
+                val = current2.val + increment
+                tmp.val = val - 10 if val >= 10 else val
+                increment = 1 if val >= 10 else 0
+                current.next = tmp
+                current = tmp
+                current2 = current2.next
+        
+        if increment == 1: 
+            current.next = ListNode(1)
+        
+        return l.next
+        
