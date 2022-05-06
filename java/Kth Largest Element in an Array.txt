@@ -10,16 +10,77 @@ You may assume k is always valid, 1 ? k ? array's length.
 
 
 // Solution 1: bottom to top merge sort
-public class Solution {
+class Solution {
     public int findKthLargest(int[] nums, int k) {
-        PriorityQueue<Integer> p = new PriorityQueue<Integer>();
-        for(int i = 0 ; i < nums.length; i++){
-            p.add(nums[i]);
-            if(p.size() > k) {
-                p.poll();
+        if(nums != null && nums.length > 0 && k > 0) {
+            int sortedLength = 1;
+            
+            for(int i = 0; i < nums.length; ++i) {
+                nums[i] = nums[i] + 10000;
+            }
+            
+            while(sortedLength < nums.length) {
+                int index = 0;
+                while(index < nums.length) {
+                    int left1 = index;
+                    int right1 = index + sortedLength - 1;
+                    int left2 = right1 + 1;
+                    int right2 = left2 + sortedLength - 1;
+                    if(right1 < nums.length && right2 < nums.length) {
+                        sort(nums, left1, right1, left2, right2);
+                    } else if(left2 < nums.length && right2 >= nums.length) {
+                        sort(nums, left1, right1, left2, nums.length-1);
+                    }
+                    index = right2 + 1;
+                }
+                sortedLength = sortedLength * 2;
+            }
+            
+            for(int i = 0; i < nums.length; ++i) {
+                nums[i] = nums[i] - 10000;
+            }
+            
+            return nums[k-1];
+        } else {
+            return 0;
+        }
+    }
+    
+    // Refer to https://www.geeksforgeeks.org/merge-sort-with-o1-extra-space-merge-and-on-lg-n-time/
+    private void sort(int[] nums, int left1, int right1, int left2, int right2) {
+        // since the max is 20000
+        int max = 20001;
+        int current1 = left1;
+        int current2 = left2;
+        int current = left1;
+        
+        while(current1 <= right1 && current2 <= right2) {
+            if(nums[current1] % max >= nums[current2] % max) {
+                nums[current] = nums[current] + (nums[current1] % max) * max;
+                current1++;
+                current++;
+            } else {
+                nums[current] = nums[current] + (nums[current2] % max) * max;
+                current2++;
+                current++;
             }
         }
-        return p.poll();
+        
+        while(current1 <= right1) {
+            nums[current] = nums[current] + (nums[current1] % max) * max;
+            current1++;
+            current++;
+        }
+        
+        while(current2 <= right2) {
+            nums[current] = nums[current] + (nums[current2] % max) * max;
+            current2++;
+            current++;
+        }
+        
+        for(int i = left1; i <= right2; ++i) {
+            nums[i] = nums[i] / max;
+        }
     }
 }
 
