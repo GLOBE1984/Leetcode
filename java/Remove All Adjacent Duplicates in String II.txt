@@ -1,0 +1,134 @@
+You are given a string s and an integer k, a k duplicate removal consists of choosing k adjacent and equal letters from s and removing them, causing the left and the right side of the deleted substring to concatenate together.
+
+We repeatedly make k duplicate removals on s until we no longer can.
+
+Return the final string after all such duplicate removals have been made. It is guaranteed that the answer is unique.
+
+ 
+
+Example 1:
+
+Input: s = "abcd", k = 2
+Output: "abcd"
+Explanation: There's nothing to delete.
+Example 2:
+
+Input: s = "deeedbbcccbdaa", k = 3
+Output: "aa"
+Explanation: 
+First delete "eee" and "ccc", get "ddbbbdaa"
+Then delete "bbb", get "dddaa"
+Finally delete "ddd", get "aa"
+Example 3:
+
+Input: s = "pbbcggttciiippooaais", k = 2
+Output: "ps"
+ 
+
+Constraints:
+
+1 <= s.length <= 105
+2 <= k <= 104
+s only contains lower case English letters.
+
+
+
+
+// Solution 1: Time exceeded
+class Solution {
+    public String removeDuplicates(String s, int k) {
+        if(s != null && s.length() > 1) {
+            String str = s;
+            boolean isNewDuplicatesFound = true;           
+            
+            while(isNewDuplicatesFound) {
+                isNewDuplicatesFound = false;
+                
+                StringBuffer buffer = new StringBuffer();
+                int left = 0;
+                int right = 0;
+                
+                while(right < str.length()) {
+                    char c = str.charAt(right);
+                    if(str.charAt(left) == c) {
+                        if(right-left+1 == k) {
+                            isNewDuplicatesFound = true;
+                            right++;
+                            left = right;
+                        } else {
+                            right++;
+                        }
+                    } else {
+                        while(left < right) {
+                            buffer.append(str.charAt(left));
+                            left++;
+                        }
+                        right++;
+                    }
+                }
+                
+                while(left < right) {
+                    buffer.append(str.charAt(left));
+                    left++;
+                }
+                
+                str = buffer.toString();
+            }
+            
+            return str;
+        } else {
+            return s;
+        }
+    }
+}
+
+
+// Solution 2:
+class Solution {
+    public String removeDuplicates(String s, int k) {
+        if(s != null && s.length() > 1) {
+            
+            Deque<CharCount> deque = new LinkedList<>();
+            
+            for(int i = 0; i < s.length(); ++i) {
+                char c = s.charAt(i);
+                if(!deque.isEmpty()) {                  
+                    CharCount charCount = deque.getLast();
+                    if(charCount.c == c) {
+                        charCount.count++;
+                        if(charCount.count == k) {
+                            deque.pollLast();
+                        }
+                    } else {
+                        charCount = new CharCount();
+                        charCount.c = c;
+                        charCount.count = 1;
+                        deque.offer(charCount);
+                    }
+                } else {
+                    CharCount charCount = new CharCount();
+                    charCount.c = c;
+                    charCount.count = 1;
+                    deque.offer(charCount);
+                }
+            }
+            
+            StringBuffer buffer = new StringBuffer();
+            while(!deque.isEmpty()) {
+                CharCount charCount = deque.pollFirst();
+                for(int i = 0; i < charCount.count; ++i) {
+                    buffer.append(charCount.c);
+                }
+            }
+            
+            return buffer.toString();
+        } else {
+            return s;
+        }
+    }
+    
+    private class CharCount {
+        private char c;
+        private int count;
+    }
+}

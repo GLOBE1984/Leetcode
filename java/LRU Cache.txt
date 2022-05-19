@@ -23,49 +23,33 @@ cache.get(4);       // returns 4
 
 
 
-public class LRUCache {
-    private Map<Integer, Integer> map;
-    private int count;
+class LRUCache {
+
+    private LinkedHashMap<Integer, Integer> map;
     private int capacity;
     
     public LRUCache(int capacity) {
-        this.map = new LinkedHashMap<Integer, Integer>(capacity);
-        this.count = 0;
+        this.map = new LinkedHashMap<>();
         this.capacity = capacity;
     }
     
     public int get(int key) {
-        if(this.map.get(key) != null) {
-            Integer value = this.map.remove(key);
+        Integer value = this.map.remove(key);
+        if(value != null) {
             this.map.put(key, value);
             return value.intValue();
-        }
-        else {
+        } else {
             return -1;
         }
     }
     
     public void put(int key, int value) {
-        if(this.map.get(key) != null) {
-            this.map.remove(key);
-            this.map.put(key, value);
-        }
-        else {
-            if(this.capacity != 0) {
-                if(this.count == this.capacity) {
-                    Set<Integer> tmp = this.map.keySet();
-                    Iterator<Integer> iter = tmp.iterator();
-                    if(iter.hasNext()) {
-                        Integer key_tmp = iter.next();
-                        this.map.remove(key_tmp);
-                    }
-                    this.map.put(key, value);
-                }
-                else {
-                    this.map.put(key, value);
-                    this.count++;
-                }
-            }
+        this.map.remove(key);
+        this.map.put(key, value);
+        if(this.map.size() > this.capacity) {
+            Iterator<Map.Entry<Integer, Integer>> iterator = this.map.entrySet().iterator();
+            iterator.next();
+            iterator.remove();
         }
     }
 }

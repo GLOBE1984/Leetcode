@@ -12,56 +12,50 @@ Could you devise a constant space solution?
 
 
 
-public class Solution {
-    public void setZeroes(int[][] matrix) {
-        if(matrix != null && matrix.length != 0 && matrix[0].length != 0) {
-            int length1 = matrix.length;
-            int length2 = matrix[0].length;
-            
-            boolean is_row0_zero = false;
-            for(int j = 0; j < length2; ++j) {
-                if(matrix[0][j] == 0) {
-                    is_row0_zero = true;
-                    break;
-                }
-            }
-            
-            boolean is_col0_zero = false;
-            for(int i = 0; i < length1; ++i) {
-                if(matrix[i][0] == 0) {
-                    is_col0_zero = true;
-                    break;
-                }
-            }
-            
-            for(int i = 1; i < length1; ++i) {
-                for(int j = 1; j < length2; ++j) {
-                    if(matrix[i][j] == 0) {
-                        matrix[i][0] = 0;
-                        matrix[0][j] = 0;
-                    }
-                }
-            }
-            
-            for(int i = 1; i < length1; ++i) {
-                for(int j = 1; j < length2; ++j) {
-                    if(matrix[i][0] == 0 || matrix[0][j] == 0) {
-                        matrix[i][j] = 0;
-                    }
-                }
-            }
-            
-            if(is_row0_zero) {
-                for(int j = 0; j < length2; ++j) {
-                    matrix[0][j] = 0;
-                }
-            }
-            
-            if(is_col0_zero) {
-                for(int i = 0; i < length1; ++i) {
-                    matrix[i][0] = 0;
-                }
-            }
+class Solution {
+  public void setZeroes(int[][] matrix) {
+    Boolean isCol = false;
+
+    for (int i = 0; i < matrix.length; i++) {
+
+      // Since first cell for both first row and first column is the same i.e. matrix[0][0]
+      // We can use an additional variable for either the first row/column.
+      // For this solution we are using an additional variable for the first column
+      // and using matrix[0][0] for the first row.
+      if (matrix[i][0] == 0) {
+        isCol = true;
+      }
+
+      for (int j = 1; j < matrix[0].length; j++) {
+        // If an element is zero, we set the first element of the corresponding row and column to 0
+        if (matrix[i][j] == 0) {
+          matrix[0][j] = 0;
+          matrix[i][0] = 0;
         }
+      }
     }
+
+    // Iterate over the array once again and using the first row and first column, update the elements.
+    for (int i = 1; i < matrix.length; i++) {
+      for (int j = 1; j < matrix[0].length; j++) {
+        if (matrix[i][0] == 0 || matrix[0][j] == 0) {
+          matrix[i][j] = 0;
+        }
+      }
+    }
+
+    // See if the first row needs to be set to zero as well
+    if (matrix[0][0] == 0) {
+      for (int j = 0; j < matrix[0].length; j++) {
+        matrix[0][j] = 0;
+      }
+    }
+
+    // See if the first column needs to be set to zero as well
+    if (isCol) {
+      for (int i = 0; i < matrix.length; i++) {
+        matrix[i][0] = 0;
+      }
+    }
+  }
 }

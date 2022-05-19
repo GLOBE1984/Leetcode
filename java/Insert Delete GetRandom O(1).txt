@@ -49,8 +49,7 @@ public class RandomizedSet {
     public boolean insert(int val) {
         if (this.map.containsKey(val)) {
             return false;
-        }
-        else {
+        } else {
             this.map.put(val, list.size());
             this.list.add(val);
             return true;
@@ -61,8 +60,7 @@ public class RandomizedSet {
     public boolean remove(int val) {
         if (!this.map.containsKey(val)) {
             return false;
-        }
-        else {
+        } else {
             int index = this.map.remove(val);
             int last = this.list.remove(this.list.size() - 1);
             if (last != val) {

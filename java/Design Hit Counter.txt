@@ -34,43 +34,23 @@ What if the number of hits per second could be very large? Does your design scal
 
 
 
-public class HitCounter {
+class HitCounter {
+
     private Queue<Integer> queue;
-    private int time_start;
     
-    /** Initialize your data structure here. */
     public HitCounter() {
-        queue = new LinkedList<Integer>();
-        time_start = 0;
+        this.queue = new LinkedList<>();
     }
     
-    /** Record a hit.
-        @param timestamp - The current timestamp (in seconds granularity). */
     public void hit(int timestamp) {
-        queue.offer(timestamp);
-        if(time_start == 0) {
-            time_start = timestamp;
-        }
+        this.queue.offer(timestamp);
     }
     
-    /** Return the number of hits in the past 5 minutes.
-        @param timestamp - The current timestamp (in seconds granularity). */
     public int getHits(int timestamp) {
-        if(timestamp > 300) {
-            int min = timestamp - 300;
-            if(time_start <= min) {
-                while(!queue.isEmpty() && queue.peek().intValue() <= min) {
-                    queue.poll();
-                }
-                if(!queue.isEmpty()) {
-                    time_start = queue.peek().intValue();
-                }
-                else {
-                    time_start = 0;
-                }
-            }
+        while(!this.queue.isEmpty() && this.queue.peek().intValue() <= (timestamp-300)) {
+            this.queue.poll();
         }
-        return queue.size();
+        return this.queue.size();
     }
 }
 

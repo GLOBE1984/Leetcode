@@ -23,38 +23,44 @@ Output: 1->4->3->2->5->NULL
  */
 class Solution {
     public ListNode reverseBetween(ListNode head, int m, int n) {
-        if(head != null && head.next != null) {
-            ListNode virtual = new ListNode();
-            virtual.next = head;
-            ListNode anchor = virtual;
-            ListNode prev = head;
-            ListNode current = head.next;
-            
-            int index = 1;
-            while(index < n) {
-                if(index < m) {
-                    anchor = prev;
-                    prev = current;
-                    current = current.next;
-                } else {
-                    ListNode tmp = current.next;
-                    current.next = prev;
-                    prev = current;
-                    current = tmp;
-                }
-                
-                index++;
+        if(head != null && head.next != null && m < n) {
+            ListNode prev = null;
+            ListNode current = head;
+            int i = 1;
+            while(i < m) {
+                prev = current;
+                current = current.next;
+                i++;
             }
             
-            ListNode node = anchor.next;
-            anchor.next = prev;
-            node.next = current;
+            // prev points to the node before m, and current points to the node m
+            ListNode start = prev;
+            ListNode first = current;
+            prev = current;
+            current = current.next;
+            i++;
+            while(i <= n) {
+                ListNode next = current.next;
+                current.next = prev;
+                prev = current;
+                current = next;
+                i++;
+            }
             
-            return virtual.next;
-        } else if(head != null) {
-            return head;
+            // prev points to the node n, and current points to the node after n
+            if(start != null) {
+                start.next = prev;
+            }
+            first.next = current;
+            
+            // if the first node is not reversed, return previous head; otherwise, return the node n
+            if(m > 1) {
+                return head;
+            } else {
+                return prev;
+            }
         } else {
-            return null;
+            return head;
         }
     }
 }

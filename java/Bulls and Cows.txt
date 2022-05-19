@@ -27,16 +27,10 @@ public class Solution {
         int[] gNum = new int[10];
         int correct = 0;
         
-        for(int i = 0; i < 10; ++i) {
-            sNum[i] = 0;
-            gNum[i] = 0;
-        }
-        
         for(int i = 0; i < secret.length(); ++i) {
             if(secret.charAt(i) == guess.charAt(i)) {
                 correct++;
-            }
-            else {
+            } else {
                 sNum[secret.charAt(i) - '0'] = sNum[secret.charAt(i) - '0'] + 1;
                 gNum[guess.charAt(i) - '0'] = gNum[guess.charAt(i) - '0'] + 1;
             }

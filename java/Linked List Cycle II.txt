@@ -30,8 +30,7 @@ public class Solution {
             step2 = step2.next;
             if(step2 != null) {
                 step2 = step2.next;
-            }
-            else {
+            } else {
                 return null;
             }
             if(step1 == step2) {
@@ -46,8 +45,7 @@ public class Solution {
                 step2 = step2.next;
             }
             return step2;
-        }
-        else {
+        } else {
             return null;
         }
     }

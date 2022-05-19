@@ -27,7 +27,7 @@ Output: [1,4,8,2,5,9,3,6,7].
 
 
 
-
+// Solution 1: 
 public class ZigzagIterator {
 
     private List<Integer> list;
@@ -66,6 +66,50 @@ public class ZigzagIterator {
 
     public boolean hasNext() {
         return this.index < this.list.size();
+    }
+}
+
+/**
+ * Your ZigzagIterator object will be instantiated and called as such:
+ * ZigzagIterator i = new ZigzagIterator(v1, v2);
+ * while (i.hasNext()) v[f()] = i.next();
+ */
+
+
+// Solution 2: 
+public class ZigzagIterator {
+    
+    private Iterator<Integer> i1;
+    private Iterator<Integer> i2;
+    private int currentV;
+    
+    public ZigzagIterator(List<Integer> v1, List<Integer> v2) {
+        this.i1 = v1.iterator();
+        this.i2 = v2.iterator();
+        currentV = 1;
+    }
+
+    public int next() {
+        if(currentV == 1) {
+            if(this.i1.hasNext()) {
+                currentV = 2;
+                return this.i1.next();
+            } else {
+                return this.i2.next();
+            }
+        } else {
+            if(this.i2.hasNext()) {
+                currentV = 1;
+                return this.i2.next();
+            } else {
+                return this.i1.next();
+            }
+        }
+        
+    }
+
+    public boolean hasNext() {
+        return this.i1.hasNext() || this.i2.hasNext();
     }
 }
 

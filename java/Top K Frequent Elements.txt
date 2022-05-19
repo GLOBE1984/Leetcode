@@ -15,49 +15,47 @@ Your algorithm's time complexity must be better than O(n log n), where n is the 
 
 
 
-
 class Solution {
-    public List<Integer> topKFrequent(int[] nums, int k) {
-        
-        List<Integer> results = new ArrayList<>();
-        
-        Map<Integer, Integer> counts = new HashMap<>();
-        
-        for(int num : nums) {
-            if(counts.containsKey(num)) {
-                int count = counts.get(num).intValue();
-                count++;
-                counts.put(num, count);
-            } else {
-                counts.put(num, 1);
+    public int[] topKFrequent(int[] nums, int k) {
+        if(nums != null && nums.length > 0) {
+            Map<Integer, IntegerCount> map = new HashMap<>();
+            
+            for(int num : nums) {
+                IntegerCount integerCount = map.getOrDefault(num, new IntegerCount());
+                integerCount.num = num;
+                integerCount.count++;
+                map.put(num, integerCount);
             }
-        }
-        
-        List<List<Integer>> records = new ArrayList<>();
-        for(int i = 0; i < nums.length; ++i) {
-            records.add(new ArrayList<>());
-        }
-        for (int key : counts.keySet()) {
-            int frequency = counts.get(key);
-            records.get(frequency - 1).add(key);
-        }
-        
-        
-        int tmp = k;
-        for(int i = nums.length-1; i >= 0; --i) {
-            List<Integer> integers = records.get(i);
-            for(Integer integer : integers) {
-                results.add(integer);
-                tmp--;
-                if(tmp == 0) {
-                    break;
+            
+            PriorityQueue<IntegerCount> priorityQueue = new PriorityQueue<>(k, new Comparator<IntegerCount>(){
+                
+                public int compare(IntegerCount ic1, IntegerCount ic2) {
+                    return ic1.count - ic2.count;
+                }
+                
+            });
+            
+            Iterator<IntegerCount> iterator = map.values().iterator();
+            while(iterator.hasNext()) {
+                priorityQueue.offer(iterator.next());
+                if(priorityQueue.size() > k) {
+                    priorityQueue.poll();
                 }
             }
-            if(tmp == 0) {
-                break;
+            
+            int[] results = new int[k];
+            for(int i = 0; i < k; ++i) {
+                results[i] = priorityQueue.poll().num;
             }
+            
+            return results;
+        } else {
+            return new int[0];
         }
-        
-        return results;
+    }
+    
+    private class IntegerCount {
+        private int num;
+        private int count;
     }
 }

@@ -2,30 +2,58 @@ Reverse a singly linked list.
 
 
 
-
+// Solution 1: 
 /**
  * Definition for singly-linked list.
  * public class ListNode {
  *     int val;
  *     ListNode next;
- *     ListNode(int x) { val = x; }
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
  * }
  */
-public class Solution {
+class Solution {
     public ListNode reverseList(ListNode head) {
-        if(head == null) {
-            return null;
-        }
-        
         ListNode prev = null;
         ListNode current = head;
+        ListNode next = null;
+        
         while(current != null) {
-            ListNode tmp = current.next;
+            next = current.next;
             current.next = prev;
             prev = current;
-            current = tmp;
+            current = next;
         }
         
         return prev;
+    }
+}
+
+
+// Solution 2: 
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+class Solution {
+    public ListNode reverseList(ListNode head) {
+        return reverse(null, head);
+    }
+    
+    private ListNode reverse(ListNode prev, ListNode current) {
+        if(current != null) {
+            ListNode next = current.next;
+            current.next = prev;
+            return reverse(current, next);
+        } else {
+            return prev;
+        }
     }
 }

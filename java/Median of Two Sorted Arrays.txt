@@ -44,10 +44,10 @@ class Solution {
         int n2 = start2 + k/2 - 1 < nums2.length? nums2[start2+k/2-1] : Integer.MAX_VALUE;
         
         if (n1 < n2) {
-			return findKthElement(nums1, start1+k/2, nums2, start2, k-k/2);
-		} else {
-			return findKthElement(nums1, start1, nums2, start2+k/2, k-k/2);
-		}
+	    return findKthElement(nums1, start1+k/2, nums2, start2, k-k/2);
+	} else {
+	    return findKthElement(nums1, start1, nums2, start2+k/2, k-k/2);
+	}
         
     }
 }
