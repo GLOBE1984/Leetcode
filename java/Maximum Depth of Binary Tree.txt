@@ -12,32 +12,21 @@ The maximum depth is the number of nodes along the longest path from the root no
  *     int val;
  *     TreeNode left;
  *     TreeNode right;
- *     TreeNode(int x) { val = x; }
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
  * }
  */
 class Solution {
     public int maxDepth(TreeNode root) {
-        int depth = 0;
-        
-        if(root != null) {
-            Queue<TreeNode> queue = new LinkedList<TreeNode>();
-            queue.offer(root);
-            while(!queue.isEmpty()) {
-                depth++;
-                Queue<TreeNode> level = new LinkedList<TreeNode>();
-                while(!queue.isEmpty()) {
-                    TreeNode node = queue.poll();
-                    if(node.left != null) {
-                        level.offer(node.left);
-                    }
-                    if(node.right != null) {
-                        level.offer(node.right);
-                    }
-                }
-                queue = level;
-            }
+        if(root == null) {
+            return 0;
         }
         
-        return depth;
+        return Math.max(maxDepth(root.left), maxDepth(root.right)) + 1;
     }
 }

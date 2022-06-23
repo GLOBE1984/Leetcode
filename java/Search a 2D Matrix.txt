@@ -1,0 +1,62 @@
+Write an efficient algorithm that searches for a value target in an m x n integer matrix matrix. This matrix has the following properties:
+
+Integers in each row are sorted from left to right.
+The first integer of each row is greater than the last integer of the previous row.
+ 
+
+Example 1:
+Input: matrix = [[1,3,5,7],[10,11,16,20],[23,30,34,60]], target = 3
+Output: true
+
+Example 2:
+Input: matrix = [[1,3,5,7],[10,11,16,20],[23,30,34,60]], target = 13
+Output: false
+ 
+
+Constraints:
+m == matrix.length
+n == matrix[i].length
+1 <= m, n <= 100
+-104 <= matrix[i][j], target <= 104
+
+
+
+
+
+class Solution {
+    public boolean searchMatrix(int[][] matrix, int target) {
+        if(matrix != null && matrix.length > 0 && matrix[0].length > 0) {
+            return searchMatrix(matrix, 0, matrix.length*matrix[0].length-1, target);
+        } else {
+            return false;
+        }
+    }
+    
+    private boolean searchMatrix(int[][] matrix, int min, int max, int target) {
+        if(min == max) {
+            return findElement(matrix, min) == target;
+        }
+        
+        int mid = (min + max) / 2;
+        int element = findElement(matrix, mid);
+        if(element > target) {
+            return searchMatrix(matrix, min, mid, target);
+        } else if(element < target) {
+            return searchMatrix(matrix, mid+1, max, target);
+        } else {
+            return true;
+        }
+        
+    }
+    
+    private int findElement(int[][] matrix, int index) {        
+        int devide = (index + 1) / matrix[0].length;
+        int remainder = (index + 1) % matrix[0].length;
+        
+        if(remainder != 0) {
+            return matrix[devide][remainder-1];
+        } else {
+            return matrix[devide-1][matrix[0].length-1];
+        }
+    }
+}

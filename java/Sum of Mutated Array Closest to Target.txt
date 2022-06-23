@@ -1,0 +1,141 @@
+Given an integer array arr and a target value target, return the integer value such that when we change all the integers larger than value in the given array to be equal to value, the sum of the array gets as close as possible (in absolute difference) to target.
+
+In case of a tie, return the minimum such integer.
+
+Notice that the answer is not neccesarilly a number from arr.
+
+ 
+
+Example 1:
+Input: arr = [4,9,3], target = 10
+Output: 3
+Explanation: When using 3 arr converts to [3, 3, 3] which sums 9 and that's the optimal answer.
+
+Example 2:
+Input: arr = [2,3,5], target = 10
+Output: 5
+
+Example 3:
+Input: arr = [60864,25176,27249,21296,20204], target = 56803
+Output: 11361
+ 
+
+Constraints:
+1 <= arr.length <= 104
+1 <= arr[i], target <= 105
+
+
+
+
+
+// Solution 1
+class Solution {
+    public int findBestValue(int[] arr, int target) {
+        if(arr != null && arr.length > 0) {
+            TreeMap<Integer, Integer> map = new TreeMap<>();
+            
+            for(int num : arr) {
+                int count = map.getOrDefault(num, 0);
+                count++;
+                map.put(num, count);
+            }
+            
+            int min = Integer.MAX_VALUE;
+            int currentCount = 0;
+            int val = 0;
+            int sum = 0;
+            int prev = 0;
+            
+            Iterator<Map.Entry<Integer, Integer>> iterator = map.entrySet().iterator();
+            
+            while(iterator.hasNext()) {
+                Map.Entry<Integer, Integer> entry = iterator.next();
+                int current = entry.getKey();
+                int count = entry.getValue();
+                
+                int rest = target - sum;
+                int restCount = arr.length - currentCount;
+                
+                int minSum = sum + prev * restCount;
+                int maxSum = sum + current * restCount;
+                
+                if(minSum >= target) {
+                    val = Math.abs(minSum - target) < min ? prev : val;
+                    min = Math.min(min, Math.abs(minSum - target));
+                } else if(maxSum <= target) {
+                    val = Math.abs(maxSum - target) < min ? current : val;
+                    min = Math.min(min, Math.abs(maxSum - target));
+                } else {
+                    int value = (target - sum) / restCount;
+                    if(value >= prev && value <= current) {
+                        int smaller = sum + value * restCount;
+                        int larger = sum + (value + 1) * restCount;
+                        if(Math.abs(smaller-target) <= Math.abs(larger-target)) {
+                            val = Math.abs(smaller-target) < min ? value : val;
+                            min = Math.min(min, Math.abs(smaller - target));
+                        } else {
+                            val = Math.abs(larger-target) < min ? value+1 : val;
+                            min = Math.min(min, Math.abs(larger - target));
+                        }
+                    }
+                    
+                }
+                
+                sum = sum + current * count;
+                currentCount = currentCount + count;
+                prev = current;
+            }
+            
+            return val;
+        } else {
+            return -1;
+        }
+    }
+}
+
+
+// Solution 2: 
+思路是二分法。首先遍历input数组，得到数组所有元素的和sum以及数组中最大的数字max。需要寻找的这个res一定介于0 - max之间。为什么呢？因为被修改的数字一定是需要小于value的，如果这个value大于数组中的最大元素，意味着没有任何一个数字被修改过，所以value大于max是不成立的。所以在0 - max之间做二分搜索，并且每找到一个mid，就算一次sum和，二分法逼近最接近target的sum之后，找到对应的mid即可。时间O(nlogn)
+class Solution {
+    public int findBestValue(int[] arr, int target) {
+        if(arr != null && arr.length > 0) {
+            int sum = 0;
+            int max = Integer.MIN_VALUE;
+            for (int a : arr) {
+                sum += a;
+                max = Math.max(max, a);
+            }
+            if (sum == target) {
+                return max;
+            }
+            int min = 0, res = 1,diff = Integer.MAX_VALUE;
+            // The answer would lie between 0 and maximum value in the array.
+            while (min <= max) {
+                int mid = min + (max - min) / 2;
+                sum = getMutatedSum(arr, mid);
+                if (sum > target) {
+                    max = mid - 1;
+                } else {
+                    min = mid + 1;
+                }
+                // If current difference is less than diff || current difference==diff but mid < res.(choose the smaller one.)
+                if (Math.abs(sum - target) < diff || (Math.abs(sum - target) == diff && mid < res)) {
+                    res = mid;
+                    diff = Math.abs(sum - target);
+                }
+            }
+            return res;
+        } else {
+            return -1;
+        }
+        
+    }
+
+    private int getMutatedSum(int[] arr, int mid) {
+        int sum = 0;
+        for (int a : arr) {
+            sum += (a > mid) ? mid : a;
+        }
+        return sum;
+    }
+}

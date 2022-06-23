@@ -18,6 +18,7 @@ The input string length won't exceed 1000.
 
 
 
+// Solution 1: DP
 class Solution {
     public int countSubstrings(String s) {
         if(s != null && s.length() > 0) {
@@ -37,5 +38,42 @@ class Solution {
         else {
             return 0;
         }
+    }
+}
+
+
+// Solution 2
+class Solution {
+    public int countSubstrings(String s) {
+        if(s == null) {
+            return 0;
+        }
+        
+        int count = s.length();
+        
+        int length = s.length();
+        for(int i = 0; i < length - 1; ++i) {
+            if(s.charAt(i) == s.charAt(i + 1)) {
+                int start = i;
+                int end = i + 1;
+                while(start >= 0 && end <= length - 1 && s.charAt(start) == s.charAt(end)) {
+                    start--;
+                    end++;
+                    count++;
+                }
+            }
+            
+            if(i > 0 && s.charAt(i - 1) == s.charAt(i + 1)) {
+                int start = i - 1;
+                int end = i + 1;
+                while(start >= 0 && end <= length - 1 && s.charAt(start) == s.charAt(end)) {
+                    start--;
+                    end++;
+                    count++;
+                }
+            }
+        }
+        
+        return count;
     }
 }

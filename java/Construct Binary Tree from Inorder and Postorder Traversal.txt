@@ -12,57 +12,47 @@ You may assume that duplicates do not exist in the tree.
  *     int val;
  *     TreeNode left;
  *     TreeNode right;
- *     TreeNode(int x) { val = x; }
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
  * }
  */
-public class Solution {
+class Solution {
     public TreeNode buildTree(int[] inorder, int[] postorder) {
-        if(inorder == null || inorder.length == 0 || postorder == null || postorder.length == 0) {
+        if(inorder != null && inorder.length > 0 && postorder != null && postorder.length > 0) {
+            Map<Integer, Integer> map = new HashMap<>();
+            for(int i = 0; i < inorder.length; ++i) {
+                map.put(inorder[i], i);
+            }
+            
+            return buildTree(map, 0, inorder.length-1, postorder, 0, postorder.length-1);
+        } else {
+            return null;
+        }
+    }
+    
+    private TreeNode buildTree(Map<Integer, Integer> map, int inorderLeft, int inorderRight, int[] postorder, int postorderLeft, int postorderRight) {
+        if(postorderLeft > postorderRight) {
             return null;
         }
         
-        Map<TreeNode, Integer> map = new HashMap<TreeNode, Integer>();
-    
-        TreeNode root = new TreeNode(postorder[postorder.length-1]);
-        map.put(root, Integer.valueOf(indexAt(inorder, postorder[postorder.length-1])));
-        for(int i = postorder.length-2; i >= 0; --i) {
-            TreeNode node = new TreeNode(postorder[i]);
-            int index = indexAt(inorder, postorder[i]);
-            map.put(node, Integer.valueOf(index));
-            
-            TreeNode current = root;
-            while(current != null) {
-                int tmp = map.get(current).intValue();
-                if(index < tmp) {
-                    if(current.left == null) {
-                        current.left = node;
-                        break;
-                    }
-                    else {
-                        current = current.left;
-                    }
-                }
-                else {
-                    if(current.right == null) {
-                        current.right = node;
-                        break;
-                    }
-                    else {
-                        current = current.right;
-                    }
-                }
-            }
+        if(postorderLeft == postorderRight) {
+            return new TreeNode(postorder[postorderLeft]);
         }
-
+        
+        TreeNode root = new TreeNode(postorder[postorderRight]);
+        int rootInorderIndex = map.get(root.val).intValue();
+        int leftLength = rootInorderIndex - inorderLeft;
+        
+        TreeNode left = buildTree(map, inorderLeft, rootInorderIndex-1, postorder, postorderLeft, postorderLeft+leftLength-1);
+        TreeNode right = buildTree(map, rootInorderIndex+1, inorderRight, postorder, postorderLeft+leftLength, postorderRight-1);
+        root.left = left;
+        root.right = right;
+        
         return root;
-    }
-    
-    private int indexAt(int[] inorder, int val) {
-        for(int i = 0; i < inorder.length; ++i) {
-            if(inorder[i] == val) {
-                return i;
-            }
-        }
-        return -1;
     }
 }

@@ -1,0 +1,121 @@
+You are given an array routes representing bus routes where routes[i] is a bus route that the ith bus repeats forever.
+
+For example, if routes[0] = [1, 5, 7], this means that the 0th bus travels in the sequence 1 -> 5 -> 7 -> 1 -> 5 -> 7 -> 1 -> ... forever.
+You will start at the bus stop source (You are not on any bus initially), and you want to go to the bus stop target. You can travel between bus stops by buses only.
+
+Return the least number of buses you must take to travel from source to target. Return -1 if it is not possible.
+
+ 
+
+Example 1:
+Input: routes = [[1,2,7],[3,6,7]], source = 1, target = 6
+Output: 2
+Explanation: The best strategy is take the first bus to the bus stop 7, then take the second bus to the bus stop 6.
+
+Example 2:
+Input: routes = [[7,12],[4,5,15],[6],[15,19],[9,12,13]], source = 15, target = 12
+Output: -1
+ 
+
+Constraints:
+1 <= routes.length <= 500.
+1 <= routes[i].length <= 105
+All the values of routes[i] are unique.
+sum(routes[i].length) <= 105
+0 <= routes[i][j] < 106
+0 <= source, target < 106
+
+
+
+
+// Use route as nodes in the graph for BFS, instead of stations
+class Solution {
+    public int numBusesToDestination(int[][] routes, int source, int target) {
+        if(routes != null && routes.length > 0) {
+            if(source == target) {
+                return 0;
+            }
+            
+            Set<Integer> sourceRoutes = new HashSet<>();
+            Set<Integer> targetRoutes = new HashSet<>();
+            for(int i = 0; i < routes.length; ++i) {
+                Arrays.sort(routes[i]);
+                if(Arrays.binarySearch(routes[i], source) >= 0) {
+                    sourceRoutes.add(i);
+                }
+                if(Arrays.binarySearch(routes[i], target) >= 0) {
+                    targetRoutes.add(i);
+                }
+            }
+            
+            Map<Integer, Set<Integer>> connections = new HashMap<>();
+            for(int i = 0; i < routes.length; ++i) {
+                for(int j = i+1; j < routes.length; ++j) {
+                    if(hasIntersection(routes[i], routes[j])) {
+                        Set<Integer> set = connections.getOrDefault(i, new HashSet<Integer>());
+                        set.add(j);
+                        connections.put(i, set);
+                        set = connections.getOrDefault(j, new HashSet<Integer>());
+                        set.add(i);
+                        connections.put(j, set);
+                    }
+                }
+            }
+            
+            int steps = 1;
+            Queue<Integer> queue = new LinkedList<>();
+            queue.addAll(sourceRoutes);
+            Set<Integer> visited = new HashSet<>();
+            visited.addAll(sourceRoutes);
+            
+            while(!queue.isEmpty()) {
+                int size = queue.size();
+                int index = 0;
+                
+                while(index < size) {
+                    int route = queue.poll().intValue();
+                    if(targetRoutes.contains(route)) {
+                        return steps;
+                    }
+                    
+                    Set<Integer> set = connections.get(route);
+                    if(set != null && !set.isEmpty()) {
+                        Iterator<Integer> iterator = set.iterator();
+                        while(iterator.hasNext()) {
+                            int nextRoute = iterator.next();
+                            if(!visited.contains(nextRoute)) {
+                                queue.add(nextRoute);
+                                visited.add(nextRoute);
+                            }
+                        }
+                    }
+                    
+                    index++;
+                }
+                
+                steps++;
+            }
+            
+            return -1;
+        } else {
+            return -1;
+        }
+    }
+    
+    private boolean hasIntersection(int[] bus1, int[] bus2) {
+        int index1 = 0;
+        int index2 = 0;
+        
+        while(index1 < bus1.length && index2 < bus2.length) {
+            if(bus1[index1] == bus2[index2]) {
+                return true;
+            } else if(bus1[index1] > bus2[index2]) {
+                index2++;
+            } else {
+                index1++;
+            }
+        }
+        
+        return false;
+    }
+}

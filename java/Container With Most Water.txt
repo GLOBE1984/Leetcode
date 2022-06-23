@@ -18,11 +18,7 @@ class Solution {
             int j = len - 1;
 
             while (i < j) {
-                int tmp = Math.min(lh, rh) * (j - i);
-
-                if (tmp > area) {
-                    area = tmp;
-                }
+                area = Math.max(area, Math.min(lh, rh)*(j-i));
 
                 if (lh < rh) {
                     while (i < j && height[i] <= lh) {

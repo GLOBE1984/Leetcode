@@ -1,0 +1,149 @@
+You are given an m x n integer matrix grid where each cell is either 0 (empty) or 1 (obstacle). You can move up, down, left, or right from and to an empty cell in one step.
+
+Return the minimum number of steps to walk from the upper left corner (0, 0) to the lower right corner (m - 1, n - 1) given that you can eliminate at most k obstacles. If it is not possible to find such walk return -1.
+
+ 
+
+Example 1:
+Input: grid = [[0,0,0],[1,1,0],[0,0,0],[0,1,1],[0,0,0]], k = 1
+Output: 6
+Explanation: 
+The shortest path without eliminating any obstacle is 10.
+The shortest path with one obstacle elimination at position (3,2) is 6. Such path is (0,0) -> (0,1) -> (0,2) -> (1,2) -> (2,2) -> (3,2) -> (4,2).
+
+Example 2:
+Input: grid = [[0,1,1],[1,1,1],[1,0,0]], k = 1
+Output: -1
+Explanation: We need to eliminate at least two obstacles to find such a walk.
+ 
+
+Constraints:
+m == grid.length
+n == grid[i].length
+1 <= m, n <= 40
+1 <= k <= m * n
+grid[i][j] is either 0 or 1.
+grid[0][0] == grid[m - 1][n - 1] == 0
+
+
+
+
+
+class Solution {
+    public int shortestPath(int[][] grid, int k) {
+        if(grid != null && grid.length > 0 && grid[0].length > 0) {
+            State state = new State();
+            state.x = 0;
+            state.y = 0;
+            state.left = k;
+            
+            Map<State, Integer> visited = new HashMap<>();
+            visited.put(state, k);
+            
+            Queue<State> queue = new LinkedList<>();
+            queue.offer(state);
+            
+            int steps = 0;
+            
+            while(!queue.isEmpty()) {
+                int size = queue.size();
+                int index = 0;              
+                
+                while(index < size) {
+                    state = queue.poll();
+                    
+                    if(state.x == grid.length-1 && state.y == grid[0].length-1) {
+                        return steps;
+                    }
+                    
+                    if(state.x > 0) {
+                        State newState = new State();
+                        newState.x = state.x - 1;
+                        newState.y = state.y;
+                        if(grid[newState.x][newState.y] == 0 && (!visited.containsKey(newState) || visited.get(newState).intValue() < state.left)) {
+                            newState.left = state.left;
+                            queue.offer(newState);
+                            visited.put(newState, newState.left);
+                        } else if(grid[newState.x][newState.y] == 1 && state.left > 0 && (!visited.containsKey(newState) || visited.get(newState).intValue() < state.left-1)) {
+                            newState.left = state.left - 1;
+                            queue.offer(newState);
+                            visited.put(newState, newState.left);
+                        }
+                    }
+                    
+                    if(state.x < grid.length-1) {
+                        State newState = new State();
+                        newState.x = state.x + 1;
+                        newState.y = state.y;
+                        if(grid[newState.x][newState.y] == 0 && (!visited.containsKey(newState) || visited.get(newState).intValue() < state.left)) {
+                            newState.left = state.left;
+                            queue.offer(newState);
+                            visited.put(newState, newState.left);
+                        } else if(grid[newState.x][newState.y] == 1 && state.left > 0 && (!visited.containsKey(newState) || visited.get(newState).intValue() < state.left-1)) {
+                            newState.left = state.left - 1;
+                            queue.offer(newState);
+                            visited.put(newState, newState.left);
+                        }
+                    }
+                    
+                    if(state.y > 0) {
+                        State newState = new State();
+                        newState.x = state.x;
+                        newState.y = state.y - 1;
+                        if(grid[newState.x][newState.y] == 0 && (!visited.containsKey(newState) || visited.get(newState).intValue() < state.left)) {
+                            newState.left = state.left;
+                            queue.offer(newState);
+                            visited.put(newState, newState.left);
+                        } else if(grid[newState.x][newState.y] == 1 && state.left > 0 && (!visited.containsKey(newState) || visited.get(newState).intValue() < state.left-1)) {
+                            newState.left = state.left - 1;
+                            queue.offer(newState);
+                            visited.put(newState, newState.left);
+                        }
+                    }
+                    
+                    if(state.y < grid[0].length-1) {
+                        State newState = new State();
+                        newState.x = state.x;
+                        newState.y = state.y + 1;
+                        if(grid[newState.x][newState.y] == 0 && (!visited.containsKey(newState) || visited.get(newState).intValue() < state.left)) {
+                            newState.left = state.left;
+                            queue.offer(newState);
+                            visited.put(newState, newState.left);
+                        } else if(grid[newState.x][newState.y] == 1 && state.left > 0 && (!visited.containsKey(newState) || visited.get(newState).intValue() < state.left-1)) {
+                            newState.left = state.left - 1;
+                            queue.offer(newState);
+                            visited.put(newState, newState.left);
+                        }
+                    }
+                    
+                    index++;
+                }
+                
+                steps++;
+            }
+            
+            return -1;            
+        } else {
+            return -1;
+        }
+    }
+    
+    private class State {
+        private int x;
+        private int y;
+        private int left;
+        
+        public boolean equals(Object object) {
+            if(!(object instanceof State)) {
+                return false;
+            }
+            
+            State state = (State) object;
+            return this.x == state.x && this.y == state.y;
+        }
+        
+        public int hashCode() {
+            return this.x * 100 + this.y;
+        }
+    }
+}

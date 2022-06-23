@@ -73,51 +73,50 @@ return its vertical order traversal as:
  *     }
  * }
  */
+
+import java.util.Collection;
+
 class Solution {
     public List<List<Integer>> verticalOrder(TreeNode root) {
         List<List<Integer>> results = new ArrayList<>();
         
         if(root != null) {
-            TreeMap<Integer, List<Integer>> columns = new TreeMap<>();
+            Map<TreeNode, Integer> nodeColumnMapping = new HashMap<>();
+            TreeMap<Integer, List<Integer>> columnMapping = new TreeMap<>();
             
-            Queue<TreeNodeWrapper> queue = new LinkedList<>();
-            queue.offer(new TreeNodeWrapper(root, 0));
+            Queue<TreeNode> queue = new LinkedList<>();
+            queue.add(root);
+            nodeColumnMapping.put(root, 0);
+            List<Integer> list = new LinkedList<>();
+            list.add(root.val);
+            columnMapping.put(0, list);
+            
             while(!queue.isEmpty()) {
+                TreeNode node = queue.poll();
+                int column = nodeColumnMapping.get(node).intValue();
+                nodeColumnMapping.remove(node);
                 
-                TreeNodeWrapper treeNodeWrapper = queue.poll();
-                List<Integer> vals = columns.getOrDefault(treeNodeWrapper.column, new LinkedList<>());
-                vals.add(treeNodeWrapper.node.val);
-                columns.put(treeNodeWrapper.column, vals);
-                                
-                if(treeNodeWrapper.node.left != null) {
-                    queue.offer(new TreeNodeWrapper(treeNodeWrapper.node.left, treeNodeWrapper.column-1));
+                if(node.left != null) {
+                    queue.offer(node.left);
+                    nodeColumnMapping.put(node.left, column-1);
+                    list = columnMapping.getOrDefault(column-1, new LinkedList<>());
+                    list.add(node.left.val);
+                    columnMapping.put(column-1, list);
                 }
                 
-                if(treeNodeWrapper.node.right != null) {
-                    queue.offer(new TreeNodeWrapper(treeNodeWrapper.node.right, treeNodeWrapper.column+1));
+                if(node.right != null) {
+                    queue.offer(node.right);
+                    nodeColumnMapping.put(node.right, column+1);
+                    list = columnMapping.getOrDefault(column+1, new LinkedList<>());
+                    list.add(node.right.val);
+                    columnMapping.put(column+1, list);
                 }
             }
             
-            Set<Map.Entry<Integer, List<Integer>>> entries = columns.entrySet();
-            
-            for(Map.Entry<Integer, List<Integer>> entry : entries) {
-                results.add(entry.getValue());
-            }
+            Collection<List<Integer>> collection = columnMapping.values();
+            results.addAll(collection);
         }
         
         return results;
-    }
-    
-    private class TreeNodeWrapper {
-        
-        private TreeNode node;
-        
-        private int column;
-        
-        private TreeNodeWrapper(TreeNode node, int column) {
-            this.node = node;
-            this.column = column;
-        }
-        
     }
 }

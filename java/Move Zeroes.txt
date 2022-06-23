@@ -13,6 +13,7 @@ Minimize the total number of operations.
 
 
 
+// Solution 1:
 class Solution {
     public void moveZeroes(int[] nums) {
         if(nums != null && nums.length > 0) {
@@ -27,6 +28,29 @@ class Solution {
                     index_zero++;
                 }
                 index_nonzero++;
+            }
+        }
+    }
+}
+
+
+// Solution 2: 
+class Solution {
+    public void moveZeroes(int[] nums) {
+        if(nums != null && nums.length > 0) {
+            int zeroCount = 0;
+            int index = 0;
+            
+            while(index < nums.length) {
+                if(nums[index] != 0) {
+                    nums[index-zeroCount] = nums[index];
+                    if(zeroCount > 0) {
+                        nums[index] = 0;
+                    }
+                } else {
+                    zeroCount++;
+                }
+                index++;
             }
         }
     }

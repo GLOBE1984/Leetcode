@@ -24,64 +24,51 @@ Try to solve it in O(n log k) time and O(n) extra space.
 
 class Solution {
     public List<String> topKFrequent(String[] words, int k) {
-        List<String> results = new ArrayList<String>();
+        LinkedList<String> results = new LinkedList<>();
         
         if(words != null && words.length > 0) {
-            Map<String, Integer> counter = new HashMap<String, Integer>();
-            TreeMap<Integer, Set<String>> groups = new TreeMap<Integer, Set<String>>(new Comparator<Integer>(){
-                public int compare(Integer i1, Integer i2){
-                    return  i2.compareTo(i1);
-                }
-            });
             
-            int length = words.length;
-            for(int i = 0; i < length; ++i) {
-                String word = words[i];
-                int tmp = 0;
-                if(counter.get(word) != null) {
-                    tmp = counter.get(word).intValue();
-                }
-                tmp++;
-                counter.put(word, tmp);
+            Map<String, WordCount> map = new HashMap<>();
+            for(String word : words) {
+                WordCount wc = map.getOrDefault(word, new WordCount(word));
+                wc.count++;
+                map.put(word, wc);
+            }
+            
+            PriorityQueue<WordCount> queue = new PriorityQueue<>(k, new Comparator<WordCount>(){
                 
-                Set<String> set = groups.get(tmp);
-                if(set == null) {
-                    set = new TreeSet<String>(new Comparator<String>(){
-                        public int compare(String s1, String s2){
-                            return  s1.compareTo(s2);
-                        }
-                    });
+                public int compare(WordCount wc1, WordCount wc2) {
+                    if(wc1.count != wc2.count) {
+                        return wc1.count - wc2.count;
+                    } else {
+                        return wc2.word.compareTo(wc1.word);
+                    }
                 }
-                set.add(word);
-                groups.put(tmp, set);
-                set = groups.get(tmp - 1);
-                if(set != null) {
-                    set.remove(word);
-                    groups.put(tmp-1, set);
+                
+            });
+            Iterator<Map.Entry<String, WordCount>> iterator = map.entrySet().iterator();
+            while(iterator.hasNext()) {
+                queue.offer(iterator.next().getValue());
+                if(queue.size() > k) {
+                    queue.poll();
                 }
             }
             
-            Set<Map.Entry<Integer, Set<String>>> entries = groups.entrySet();
-            Iterator<Map.Entry<Integer, Set<String>>> iterator = entries.iterator();
-            int count = k;
-            while(count > 0 && iterator.hasNext()) {
-                Map.Entry<Integer, Set<String>> entry = iterator.next();
-                if(count > entry.getValue().size()) {
-                    results.addAll(entry.getValue());
-                    count = count - entry.getValue().size();
-                }
-                else {
-                    for(String word : entry.getValue()) {
-                        results.add(word);
-                        count--;
-                        if(count == 0) {
-                            break;
-                        }
-                    }
-                }                
+            while(!queue.isEmpty()) {
+                results.addFirst(queue.poll().word);
             }
         }
         
         return results;
+    }
+    
+    private class WordCount {
+        private String word;
+        private int count;
+        
+        private WordCount(String word) {
+            this.word = word;
+            this.count = 0;
+        }
     }
 }

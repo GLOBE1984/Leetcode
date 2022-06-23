@@ -1,0 +1,77 @@
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */
+public class Solution {
+    public List<TreeNode> bottomView(TreeNode root) {
+    List<TreeNode> nodes = new LinkedList<>();
+
+    if(root != null) {
+      List<PositionedTreeNode> positionedTreeNodes = new LinkedList<>();
+
+      // Horizontal to the bottom node list
+      TreeMap<Integer, LinkedList<PositionedTreeNode>> map = new TreeMap<>();
+
+      Queue<PositionedTreeNode> queue = new LinkedList<>();
+      PositionedTreeNode positionedRoot = new PositionedTreeNode(root, 0, 1);
+      queue.offer(positionedRoot);
+
+      while(!queue.isEmpty()) {
+        PositionedTreeNode positionedTreeNode = queue.poll();
+        LinkedList<PositionedTreeNode> list = map.getOrDefault(positionedTreeNode.horizontal, new LinkedList<>());
+        if(list.isEmpty()) {
+          list.add(positionedTreeNode);
+        } else {
+          PositionedTreeNode tmp = list.getFirst();
+          if(tmp.vertical < positionedTreeNode.vertical) {
+            list = new LinkedList<>();
+          }
+          list.add(positionedTreeNode);
+        }
+        map.put(positionedTreeNode.horizontal, list);
+
+        if(positionedTreeNode.getTreeNode().left != null) {
+          queue.offer(new PositionedTreeNode(positionedTreeNode.getTreeNode().left, positionedTreeNode.horizontal-1, positionedTreeNode.vertical+1));
+        }
+        if(positionedTreeNode.getTreeNode().right != null) {
+          queue.offer(new PositionedTreeNode(positionedTreeNode.getTreeNode().right, positionedTreeNode.horizontal+1, positionedTreeNode.vertical+1));
+        }
+      }
+
+      Collection<LinkedList<PositionedTreeNode>> collection = map.values();
+      collection.forEach(positionedTreeNodes::addAll);
+
+      nodes = this.convertToTreeNodeList(positionedTreeNodes);
+    }
+
+    return nodes;
+  }
+
+  private List<TreeNode> convertToTreeNodeList(List<PositionedTreeNode> positionedTreeNodes) {
+    return positionedTreeNodes.stream().map(p -> p.getTreeNode()).collect(Collectors.toList());
+  }
+
+  private class PositionedTreeNode {
+    private final TreeNode node;
+    private int horizontal;
+    private int vertical;
+
+    private PositionedTreeNode(TreeNode node, int horizontal, int vertical) {
+      this.node = node;
+      this.horizontal = horizontal;
+      this.vertical = vertical;
+    }
+
+    private TreeNode getTreeNode() {
+      return this.node;
+    }
+  }
+}
+
+Time Complexity: O(NlogK), in which K is the horizontal scaling. If output order does not matter, we can use map instead of treemap, which will reduce the complexity to O(N).
+Space Complexity: O(N)

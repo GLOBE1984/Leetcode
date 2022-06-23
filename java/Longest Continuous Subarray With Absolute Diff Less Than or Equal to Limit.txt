@@ -1,0 +1,149 @@
+Given an array of integers nums and an integer limit, return the size of the longest non-empty subarray such that the absolute difference between any two elements of this subarray is less than or equal to limit.
+
+ 
+
+Example 1:
+Input: nums = [8,2,4,7], limit = 4
+Output: 2 
+Explanation: All subarrays are: 
+[8] with maximum absolute diff |8-8| = 0 <= 4.
+[8,2] with maximum absolute diff |8-2| = 6 > 4. 
+[8,2,4] with maximum absolute diff |8-2| = 6 > 4.
+[8,2,4,7] with maximum absolute diff |8-2| = 6 > 4.
+[2] with maximum absolute diff |2-2| = 0 <= 4.
+[2,4] with maximum absolute diff |2-4| = 2 <= 4.
+[2,4,7] with maximum absolute diff |2-7| = 5 > 4.
+[4] with maximum absolute diff |4-4| = 0 <= 4.
+[4,7] with maximum absolute diff |4-7| = 3 <= 4.
+[7] with maximum absolute diff |7-7| = 0 <= 4. 
+Therefore, the size of the longest subarray is 2.
+
+Example 2:
+Input: nums = [10,1,2,4,7,2], limit = 5
+Output: 4 
+Explanation: The subarray [2,4,7,2] is the longest since the maximum absolute diff is |2-7| = 5 <= 5.
+
+Example 3:
+Input: nums = [4,2,2,2,4,4,2,2], limit = 0
+Output: 3
+ 
+
+Constraints:
+1 <= nums.length <= 105
+1 <= nums[i] <= 109
+0 <= limit <= 109
+
+
+
+
+
+// Solution 1: Sliding Window + TreeSet
+class Solution {
+    public int longestSubarray(int[] nums, int limit) {
+        if(nums != null && nums.length > 0) {            
+            TreeSet<Element> set = new TreeSet<>(new Comparator<Element>(){
+                
+                public int compare(Element e1, Element e2) {
+                    if(e1.num != e2.num) {
+                        return e1.num - e2.num;
+                    } else {
+                        return e1.index - e2.index;
+                    }
+                }
+                
+            });
+            
+            Map<Integer, Element> map = new HashMap<>();
+            
+            int longest = 0;
+            int left = 0;
+            int right = 0;
+            
+            while(right < nums.length) {
+                if(!set.isEmpty()) {                  
+                    if(Math.abs(set.first().num-nums[right]) <= limit && Math.abs(set.last().num-nums[right]) <= limit) {
+                        longest = Math.max(longest, right-left+1);
+                    } else {
+                        while(left < right) {
+                            if(Math.abs(set.first().num-nums[right]) <= limit && Math.abs(set.last().num-nums[right]) <= limit) {
+                                break;
+                            } else {
+                                Element element = map.get(left);
+                                set.remove(element);
+                                left++;
+                            }
+                        }
+                    }
+                } else {
+                    longest = Math.max(longest, 1);
+                }
+                
+                Element element = new Element();
+                element.index = right;
+                element.num = nums[right];
+                set.add(element);
+                map.put(right, element);
+                right++;
+            }
+            
+            return longest;
+        } else {
+            return 0;
+        }
+    }
+    
+    private class Element {
+        private int index;
+        private int num;
+    }
+}
+
+
+// Solution 2: Dual Monotonic Queue
+还有一种办法是sliding window + 单调queue。注意不是单调栈，而是单调queue。每一次都检查从start到end的元素中max - min是否不大于limit
+我们维护一个单调递减queue maxQueue和一个单调递增queue minQueue，里面存的都是下标。maxQueue的首元素是当前遍历到的最大元素的下标，minQueue的首元素是当前遍历到的最小元素的下标。注意存元素也可以，但是存下标的好处是如果有重复元素，对下标是没有影响的。
+同时我们需要两个指针start和end。一开始end往后走，当发现
+maxQueue不为空且maxQueue的最后一个元素小于当前元素nums[end]了，则不断往外poll元素，直到整个maxQueue变回降序
+minQueue不为空且minQueue的最后一个元素大于当前元素nums[end]了，则不断往外poll元素，直到整个minQueue变回升序
+此时再判断，如果两个queue都不为空但是两个queue里的第一个元素（一个是最大值，一个是最小值）的差值大于limit了，则开始左移start指针，左移的同时，如果两个queue里有任何元素的下标<= start，则往外poll，因为不需要了。这里也是存下标的另一个好处，因为下标一定是有序被放进两个queue的，所以如果大于limit了，你是需要从最一开始的start指针那里开始检查的。
+
+时间O(n)
+
+空间O(n)
+class Solution {
+    public int longestSubarray(int[] nums, int limit) {
+        if(nums != null && nums.length > 0) {            
+            // all the elements are decending
+            Deque<Integer> maxQueue = new ArrayDeque<>();
+            // all the elements are increasing
+            Deque<Integer> minQueue = new ArrayDeque<>();
+            int res = 0;
+            int start = 0;
+            for (int end = 0; end < nums.length; end++) {
+                while (!maxQueue.isEmpty() && nums[maxQueue.peekLast()] < nums[end]) {
+                    maxQueue.pollLast();
+                }
+                maxQueue.add(end);
+                while (!minQueue.isEmpty() && nums[minQueue.peekLast()] > nums[end]) {
+                    minQueue.pollLast();
+                }
+                minQueue.add(end);
+
+                while (!maxQueue.isEmpty() && !minQueue.isEmpty()
+                        && nums[maxQueue.peekFirst()] - nums[minQueue.peekFirst()] > limit) {
+                    if (maxQueue.peekFirst() <= start) {
+                        maxQueue.pollFirst();
+                    }
+                    if (minQueue.peekFirst() <= start) {
+                        minQueue.pollFirst();
+                    }
+                    start++;
+                }
+                res = Math.max(res, end - start + 1);
+            }
+            return res;
+        } else {
+            return 0;
+        }
+    }
+}

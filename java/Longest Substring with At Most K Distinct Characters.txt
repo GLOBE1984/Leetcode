@@ -20,50 +20,39 @@ class Solution {
         if(s != null && s.length() > 0 && k > 0) {
             int left = 0;
             int right = 0;
+            int longest = 0;
             
-            Window window = new Window();
-            int max = 0;
-            
+            Map<Character, Integer> map = new HashMap<>();
             while(right < s.length()) {
-                window.add(s.charAt(right));
+                char c = s.charAt(right);
                 
-                while(window.getDiffCharCount() > k) {
-                    window.remove(s.charAt(left));
-                    left++;
-                }
-                
-                if(window.getDiffCharCount() <= k) {
-                    max = Math.max(max, right-left+1);
+                if(!map.containsKey(c)) {
+                    map.put(c, 1);
+                    if(map.size() > k) {
+                        while(left < right && map.size() > k) {
+                            char tmp = s.charAt(left);
+                            int count = map.get(tmp).intValue() - 1;
+                            if(count == 0) {
+                                map.remove(tmp);
+                            } else {
+                                map.put(tmp, count);
+                            }
+                            left++;
+                        }
+                    } else {
+                        longest = Math.max(longest, right-left+1);
+                    }
+                } else {
+                    map.put(c, map.get(c).intValue()+1);
+                    longest = Math.max(longest, right-left+1);
                 }
                 
                 right++;
             }
             
-            return max;
+            return longest;
         } else {
             return 0;
-        }
-    }
-    
-    private class Window {
-        private Map<Character, Integer> map = new HashMap<>();
-                
-        private void add(char c) {
-            int tmp = map.getOrDefault(c, 0) + 1;
-            map.put(c, map.getOrDefault(c, 0)+1);
-        }
-        
-        private void remove(char c) {
-            int tmp = map.getOrDefault(c, 0) - 1;
-            if(tmp > 0) {
-                map.put(c, tmp);
-            } else {
-                map.remove(c);
-            }
-        }
-        
-        private int getDiffCharCount() {
-            return map.size();
         }
     }
 }

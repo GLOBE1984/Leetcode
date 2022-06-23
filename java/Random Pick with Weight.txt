@@ -53,6 +53,7 @@ pickIndex will be called at most 10000 times.
 
 
 
+
 class Solution {
     private int[] prefixSums;
     private int totalSum;
@@ -76,10 +77,11 @@ class Solution {
         while (low < high) {
             // better to avoid the overflow
             int mid = low + (high - low) / 2;
-            if (target > this.prefixSums[mid])
+            if (target > this.prefixSums[mid]) {
                 low = mid + 1;
-            else
+            } else {
                 high = mid;
+            }
         }
         return low;
     }

@@ -16,6 +16,7 @@ Note: Do not use class member/global/static variables to store states. Your seri
 
 
 
+// Solution 1: 
 /**
  * Definition for a binary tree node.
  * public class TreeNode {
@@ -150,3 +151,143 @@ public class Codec {
 // Your Codec object will be instantiated and called as such:
 // Codec codec = new Codec();
 // codec.deserialize(codec.serialize(root));
+
+
+// Solution 2: 
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */
+public class Codec {
+
+    // Encodes a tree to a single string.
+    public String serialize(TreeNode root) {
+        if(root == null) {
+            return "";
+        }
+        
+        SerialTreeNode serialTreeRoot = new SerialTreeNode(root, 1);
+        generateSerialTree(serialTreeRoot);
+        
+        StringBuffer buffer = new StringBuffer();
+        
+        // Preorder traverse
+        buffer.append(this.preorderTraverse(serialTreeRoot));
+        buffer.setLength(buffer.length()-1);
+        
+        return buffer.toString();
+    }
+
+    // Serial of the left child node: current * 2; Serial of the right child node: current * 2 + 1
+    private void generateSerialTree(SerialTreeNode serialTreeNode) {
+        TreeNode node = serialTreeNode.getNode();
+        
+        if(node.left != null) {
+            SerialTreeNode left = new SerialTreeNode(node.left, serialTreeNode.getNumber()*2);
+            serialTreeNode.left = left;
+            generateSerialTree(left);
+        }
+        if(node.right != null) {
+            SerialTreeNode right = new SerialTreeNode(node.right, serialTreeNode.getNumber()*2+1);
+            serialTreeNode.right = right;
+            generateSerialTree(right);
+        }
+    }
+    
+    private String preorderTraverse(SerialTreeNode serialTreeNode) {
+        StringBuffer buffer = new StringBuffer();
+        
+        buffer.append(serialTreeNode.number).append("@").append(serialTreeNode.node.val).append(",");
+        if(serialTreeNode.left != null) {
+            buffer.append(preorderTraverse(serialTreeNode.left));
+        }
+        if(serialTreeNode.right != null) {
+            buffer.append(preorderTraverse(serialTreeNode.right));
+        }
+        
+        return buffer.toString();
+    }
+    
+    // Decodes your encoded data to tree.
+    public TreeNode deserialize(String data) {
+        if(data == null || data.isBlank()) {
+            return null;
+        }
+        
+        String[] nodeStrs = data.split(",");
+        Index index = new Index();
+        index.number = 0;
+        
+        return  deserialize(nodeStrs, index);
+    }
+    
+    private TreeNode deserialize(String[] nodeStrs, Index index) {
+        if(index.number >= nodeStrs.length) {
+            return null;
+        }
+        
+        String[] parts = nodeStrs[index.number].split("@");
+        TreeNode root = new TreeNode();
+        int number = Integer.valueOf(parts[0]).intValue();
+        root.val = Integer.valueOf(parts[1]).intValue();
+        
+        // Check the next element to see whether it is either the left or right child node;
+        if(index.number < nodeStrs.length - 1) {
+            String[] tmpParts = nodeStrs[index.number+1].split("@");
+            int tmpNumber = Integer.valueOf(tmpParts[0]).intValue();
+            if(tmpNumber == number*2) {
+                index.number++;
+                root.left = deserialize(nodeStrs, index);
+            } else if(tmpNumber == number*2+1) {
+                index.number++;
+                root.right = deserialize(nodeStrs, index);
+            }
+        }
+        
+        // After checking the left sub tree, check the next element to see whether is is the right child node;
+        if(index.number < nodeStrs.length - 1) {
+            String[] tmpParts = nodeStrs[index.number+1].split("@");
+            int tmpNumber = Integer.valueOf(tmpParts[0]).intValue();
+            if(tmpNumber == number*2+1) {
+                index.number++;
+                root.right = deserialize(nodeStrs, index);
+            }
+        }
+        
+        return root;
+    }
+    
+    private class Index {
+        private int number;
+    }
+    
+    private class SerialTreeNode {
+        private final TreeNode node;
+        private final int number;
+        private SerialTreeNode left;
+        private SerialTreeNode right;
+        
+        private SerialTreeNode(TreeNode node, int number) {
+            this.node = node;
+            this.number = number;
+        }
+        
+        private TreeNode getNode() {
+            return this.node;
+        }
+        
+        private int getNumber() {
+            return this.number;
+        }
+    }
+}
+
+// Your Codec object will be instantiated and called as such:
+// Codec ser = new Codec();
+// Codec deser = new Codec();
+// TreeNode ans = deser.deserialize(ser.serialize(root));

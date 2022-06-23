@@ -12,45 +12,41 @@ Given "pwwkew", the answer is "wke", with the length of 3. Note that the answer 
 
 
 
-public class Solution {
+class Solution {
     public int lengthOfLongestSubstring(String s) {
         if(s == null || s.length() == 0) {
             return 0;
         }
         
-        int length = s.length();
-        int start = 0;
-        int end = 0;
-        int max = 0;
-        int count = 0;
-        Map<Character, Integer> indexes = new HashMap<Character, Integer>();
-        while(end < length) {
-            char c = s.charAt(end);
-            Integer index = indexes.get(c);
-            if(index == null) {
-                indexes.put(c, end);
-                count++;
-                if(count > max) {
-                    max = count;
-                }
-            } else {
-                int tmp = index.intValue();
-                indexes.put(c, end);
-                if(tmp >= start) {
-                    count = count - (tmp - start) - 1;
-                    count++;
-                    start = tmp + 1;
-                } else {
-                    count++;
-                    if(count > max) {
-                        max = count;
-                    }
-                }
+        int[] charCounts = new int[256];
+        int left = 0;
+        int right = 0;
+        int duplicateChars = 0;
+        int longest = 0;
+        
+        while(right < s.length()) {
+            char c = s.charAt(right);
+            charCounts[c]++;
+            
+            if(charCounts[c] > 1) {
+                duplicateChars++;
             }
-            end++;
+            
+            if(duplicateChars == 0) {
+                longest = Math.max(longest, right-left+1);
+            }
+            
+            while(left < right && duplicateChars > 0) {
+                char tmp = s.charAt(left);
+                charCounts[tmp]--;
+                if(charCounts[tmp] == 1) {
+                    duplicateChars--;
+                }
+                left++;
+            }
+            right++;
         }
         
-        
-        return max;
+        return longest;
     }
 }

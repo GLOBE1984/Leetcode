@@ -25,7 +25,8 @@ public class Solution {
         
         int length = s.length();
         int max = 0;
-        String result = "";
+        int left = 0;
+        int right = 1;
         for(int i = 0; i < length - 1; ++i) {
             if(s.charAt(i) == s.charAt(i + 1)) {
                 int start = i;
@@ -35,7 +36,8 @@ public class Solution {
                     end++;
                 }
                 if((end-start+1) > max) {
-                    result = s.substring(start+1, end);
+                    left = start + 1;
+                    right = end;
                     max = end - start + 1;
                 }
             }
@@ -48,16 +50,13 @@ public class Solution {
                     end++;
                 }
                 if((end-start+1) > max) {
-                    result = s.substring(start+1, end);
+                    left = start + 1;
+                    right = end;
                     max = end - start + 1;
                 }
             }
         }
         
-        if(length > 0 && max == 0) {
-            result = s.charAt(0) + "";
-        }
-        
-        return result;
+        return s.substring(left, right);
     }
 }

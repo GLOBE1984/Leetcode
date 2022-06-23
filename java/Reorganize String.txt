@@ -1,0 +1,92 @@
+Given a string s, rearrange the characters of s so that any two adjacent characters are not the same.
+
+Return any possible rearrangement of s or return "" if not possible.
+
+ 
+
+Example 1:
+Input: s = "aab"
+Output: "aba"
+
+Example 2:
+Input: s = "aaab"
+Output: ""
+ 
+
+Constraints:
+1 <= s.length <= 500
+s consists of lowercase English letters.
+
+
+
+
+
+class Solution {
+    public String reorganizeString(String s) {
+        if(s != null && s.length() > 0) {
+            Map<Character, CharCount> map = new HashMap<>();
+            for(int i = 0; i < s.length(); ++i) {
+                char c = s.charAt(i);
+                CharCount charCount = map.getOrDefault(c, new CharCount(c));
+                charCount.count++;
+                map.put(c, charCount);
+            }
+            
+            PriorityQueue<CharCount> queue = new PriorityQueue<CharCount>(new Comparator<CharCount>(){
+                
+                public int compare(CharCount cc1, CharCount cc2) {
+                    if(cc1.count != cc2.count) {
+                        return cc2.count - cc1.count;
+                    } else {
+                        return cc1.c - cc2.c;
+                    }
+                }
+                
+            });
+            queue.addAll(map.values());
+            
+            if((s.length() % 2 == 1 && queue.peek().count > s.length() / 2 + 1) || (s.length() % 2 == 0 && queue.peek().count > s.length() / 2)) {
+                return "";
+            }
+            
+            StringBuffer buffer = new StringBuffer();
+            CharCount forbid = null;
+            while(!queue.isEmpty()) {
+                CharCount charCount = queue.poll();
+                buffer.append(charCount.c);
+                charCount.count--;
+                if(charCount.count > 0) {
+                    if(forbid != null) {
+                        queue.offer(forbid);
+                        forbid = charCount;
+                    } else {
+                        if(queue.isEmpty()) {
+                            queue.offer(charCount);
+                        } else {
+                            forbid = charCount;
+                        }
+                    }
+                } else {
+                    if(forbid != null) {
+                        queue.offer(forbid);
+                    }
+                    forbid = null;
+                }
+            }
+            
+            return buffer.toString();
+        } else {
+            return s;
+        }
+    }
+    
+    private class CharCount {
+        private char c;
+        private int count;
+        
+        private CharCount(char c) {
+            this.c = c;
+            this.count = 0;
+        }
+    }
+}

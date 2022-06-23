@@ -7,45 +7,46 @@ Given an array S of n integers, find three integers in S such that the sum is cl
 
 
 
-public class Solution {
+class Solution {
     public int threeSumClosest(int[] nums, int target) {
-        if(nums == null || nums.length == 0) {
-            return Integer.MAX_VALUE;
-        }
-        
-        Arrays.sort(nums);
-        
-        int result = Integer.MAX_VALUE;
-        int min = Integer.MAX_VALUE;
-        for(int i = 0; i < nums.length; ++i) {
-            int num = nums[i];
+        if(nums != null && nums.length > 0) {
+            int diff = Integer.MAX_VALUE;
+            int sum = 0;
+            Arrays.sort(nums);
             
-            int sum = target - num;
-            
-            int j = i + 1;
-            int k = nums.length - 1;
-            while(j < k) {
-                if((nums[j]+nums[k]) < sum) {
-                    if((sum-nums[j]-nums[k]) < min) {
-                        min = sum - nums[j] - nums[k];
-                        result = num + nums[j] + nums[k];
+            for(int i = 0; i < nums.length; ++i) {
+                int left = i + 1;
+                int right = nums.length - 1;
+                boolean foundEqual = false;
+                
+                while(left < right) {
+                    if(nums[i]+nums[left]+nums[right] < target) {
+                        if(Math.abs(target-nums[i]-nums[left]-nums[right]) < diff) {
+                            diff = Math.abs(target-nums[i]-nums[left]-nums[right]);
+                            sum = nums[i] + nums[left] + nums[right];
+                        }
+                        left++;
+                    } else if(nums[i]+nums[left]+nums[right] > target) {
+                        if(Math.abs(target-nums[i]-nums[left]-nums[right]) < diff) {
+                            diff = Math.abs(target-nums[i]-nums[left]-nums[right]);
+                            sum = nums[i] + nums[left] + nums[right];
+                        }
+                        right--;
+                    } else {
+                        sum = target;
+                        foundEqual = true;
+                        break;
                     }
-                    j++;
                 }
-                else if((nums[j]+nums[k]) > sum) {
-                    if((nums[j]+nums[k]-sum) < min) {
-                        min = nums[j] + nums[k] - sum;
-                        result = num + nums[j] + nums[k];
-                    }
-                    k--;
-                }
-                else {
-                    return target;
+                
+                if(foundEqual) {
+                    break;
                 }
             }
+            
+            return sum;
+        } else {
+            return Integer.MIN_VALUE;
         }
-        
-        return result;
-        
     }
 }

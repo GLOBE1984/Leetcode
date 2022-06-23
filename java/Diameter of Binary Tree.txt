@@ -28,43 +28,28 @@ Note: The length of path between two nodes is represented by the number of edges
 class Solution {
     public int diameterOfBinaryTree(TreeNode root) {
         if(root != null) {
-            Max max = new Max(0);
-            
-            findMax(root, max);
-            
-            return max.getMax() - 1;            
+            int[] results = findLongestPath(root);
+            return Math.max(results[0], results[1]);
         } else {
             return 0;
         }
     }
     
-    private int findMax(TreeNode node, Max max) {
-        if(node == null) {
-            return 0;
+    public int[] findLongestPath(TreeNode node) {
+        int[] leftLongest = node.left != null ? findLongestPath(node.left) : new int[]{0, 0};
+        int[] rightLongest = node.right != null ? findLongestPath(node.right) : new int[]{0, 0};
+        
+        int longestPass = 0;
+        int longestNonPass = 0;
+        if(node.left != null) {
+            longestPass = Math.max(leftLongest[0]+1, longestPass);
+            longestNonPass = longestNonPass + leftLongest[0] + 1;
+        }
+        if(node.right != null) {
+            longestPass = Math.max(rightLongest[0]+1, longestPass);
+            longestNonPass = longestNonPass + rightLongest[0] + 1;
         }
         
-        int left = findMax(node.left, max);
-        int right = findMax(node.right, max);
-        
-        max.setMax(left + right + 1);
-        
-        return Math.max(left, right) + 1;
-    }
-    
-    private class Max {
-        
-        private int max;
-        
-        private Max(int max) {
-            this.max = max;
-        }
-        
-        private void setMax(int num) {
-            this.max = Math.max(this.max, num);
-        }
-        
-        private int getMax() {
-            return this.max;
-        }
+        return new int[]{longestPass, Math.max(Math.max(leftLongest[1], rightLongest[1]), longestNonPass)};
     }
 }

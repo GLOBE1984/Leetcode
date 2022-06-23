@@ -26,46 +26,286 @@ Return:
 
 
 
+// Solution 1: 
 class Solution {
-    int dx[] = {0,0,-1,1};
-    int dy[] = {1,-1,0,0};
+    public List<List<Integer>> pacificAtlantic(int[][] heights) {
+        List<List<Integer>> results = new ArrayList<>();
+        
+        if(heights != null && heights.length > 0 && heights[0].length > 0) {
+            Set<Point> pacificPoints = new HashSet<>();
+            Set<Point> atlanticPoints = new HashSet<>();
+                      
+            TreeMap<Integer, Set<Point>> union = new TreeMap<>();
+            for(int i = 0; i < heights.length; ++i) {
+                for(int j = 0; j < heights[0].length; ++j) {
+                    Point point = new Point();
+                    point.x = i;
+                    point.y = j;
+                    Set<Point> points = union.getOrDefault(heights[i][j], new HashSet<>());
+                    points.add(point);
+                    union.put(heights[i][j], points);
+                }
+            }
+            
+            while(!union.isEmpty()) {
+                Map.Entry<Integer, Set<Point>> entry = union.firstEntry();
+                
+                while(!entry.getValue().isEmpty()) {
+                    Point point = entry.getValue().iterator().next();
+                    
+                    Set<Point> connectedPoints = new HashSet<>();
+                    connectedPoints.add(point);
+                    Queue<Point> queue = new LinkedList<>();
+                    queue.offer(point);
+                    
+                    boolean isConnectPacific = false;
+                    boolean isConnectAtlantic = false;
+                    while(!queue.isEmpty()) {
+                        point = queue.poll();
+                        
+                        if(point.x == 0 || point.y == 0) {
+                            isConnectPacific = true;
+                        }
+                        if(point.x == heights.length-1 || point.y == heights[0].length-1) {
+                            isConnectAtlantic = true;
+                        }
+                        
+                        if(point.x > 0) {
+                            Point newPoint = new Point();
+                            newPoint.x = point.x - 1;
+                            newPoint.y = point.y;
+                            
+                            if(entry.getValue().contains(newPoint) && !connectedPoints.contains(newPoint)) {
+                                connectedPoints.add(newPoint);
+                                queue.offer(newPoint);
+                            } else if(heights[point.x][point.y] > heights[newPoint.x][newPoint.y]) {
+                                if(pacificPoints.contains(newPoint)) {
+                                    isConnectPacific = true;
+                                }
+                                if(atlanticPoints.contains(newPoint)) {
+                                    isConnectAtlantic = true;
+                                }
+                            }
+                        }
+                        
+                        if(point.x < heights.length-1) {
+                            Point newPoint = new Point();
+                            newPoint.x = point.x + 1;
+                            newPoint.y = point.y;
+                            
+                            if(entry.getValue().contains(newPoint) && !connectedPoints.contains(newPoint)) {
+                                connectedPoints.add(newPoint);
+                                queue.offer(newPoint);
+                            } else if(heights[point.x][point.y] > heights[newPoint.x][newPoint.y]) {
+                                if(pacificPoints.contains(newPoint)) {
+                                    isConnectPacific = true;
+                                }
+                                if(atlanticPoints.contains(newPoint)) {
+                                    isConnectAtlantic = true;
+                                }
+                            }
+                        }
+                        
+                        if(point.y > 0) {
+                            Point newPoint = new Point();
+                            newPoint.x = point.x;
+                            newPoint.y = point.y - 1;
+                            
+                            if(entry.getValue().contains(newPoint) && !connectedPoints.contains(newPoint)) {
+                                connectedPoints.add(newPoint);
+                                queue.offer(newPoint);
+                            } else if(heights[point.x][point.y] > heights[newPoint.x][newPoint.y]) {
+                                if(pacificPoints.contains(newPoint)) {
+                                    isConnectPacific = true;
+                                }
+                                if(atlanticPoints.contains(newPoint)) {
+                                    isConnectAtlantic = true;
+                                }
+                            }
+                        }
+                        
+                        if(point.y < heights[0].length-1) {
+                            Point newPoint = new Point();
+                            newPoint.x = point.x;
+                            newPoint.y = point.y + 1;
+                            
+                            if(entry.getValue().contains(newPoint) && !connectedPoints.contains(newPoint)) {
+                                connectedPoints.add(newPoint);
+                                queue.offer(newPoint);
+                            } else if(heights[point.x][point.y] > heights[newPoint.x][newPoint.y]) {
+                                if(pacificPoints.contains(newPoint)) {
+                                    isConnectPacific = true;
+                                }
+                                if(atlanticPoints.contains(newPoint)) {
+                                    isConnectAtlantic = true;
+                                }
+                            }
+                        }
+                    }
+                    
+                    if(isConnectPacific) {
+                        pacificPoints.addAll(connectedPoints);
+                    }
+                    if(isConnectAtlantic) {
+                        atlanticPoints.addAll(connectedPoints);
+                    }
+                    
+                    entry.getValue().removeAll(connectedPoints);
+                }
+                
+                union.remove(entry.getKey());
+            }
+            
+            pacificPoints.retainAll(atlanticPoints);
+            Iterator<Point> iterator = pacificPoints.iterator();
+            while(iterator.hasNext()) {
+                Point point = iterator.next();
+                List<Integer> result = new ArrayList<>();
+                result.add(point.x);
+                result.add(point.y);
+                results.add(result);
+            }
+        }
+        
+        return results;
+    }
     
-    public List<int[]> pacificAtlantic(int[][] matrix) {
-        List<int[]> res = new ArrayList();
-        int n = matrix.length;
-        if(n == 0) {
-            return res;
+    private class Point {
+        private int x;
+        private int y;
+        
+        public boolean equals(Object object) {
+            if(!(object instanceof Point)) {
+                return false;
+            }
+            
+            Point point = (Point) object;
+            return this.x == point.x && this.y == point.y;
         }
-        int m = matrix[0].length;
-        boolean PV[][] = new boolean[n][m];
-        boolean AV[][] = new boolean[n][m];
-        for(int i = 0;i < n; ++i){
-            flow(PV,matrix,i,0,n,m);
-            flow(AV,matrix,i,m-1,n,m);
+        
+        public int hashCode() {
+            return this.x * 1000 + this.y;
         }
-        for(int i = 0;i < m; ++i){
-            flow(PV,matrix,0,i,n,m);
-            flow(AV,matrix,n-1,i,n,m);
+    }
+}
+
+
+// Solution 2:
+class Solution {
+    public List<List<Integer>> pacificAtlantic(int[][] heights) {
+        List<List<Integer>> results = new ArrayList<>();
+        
+        if(heights != null && heights.length > 0 && heights[0].length > 0) {            
+            Set<Point> pacificPoints = new HashSet<>();
+            Queue<Point> queue = new LinkedList<>();
+            for(int i = 0; i < heights.length; ++i) {
+                Point point = new Point();
+                point.x = i;
+                point.y = 0;
+                pacificPoints.add(point);
+                queue.offer(point);
+            }
+            for(int i = 0; i < heights[0].length; ++i) {
+                Point point = new Point();
+                point.x = 0;
+                point.y = i;
+                pacificPoints.add(point);
+                queue.offer(point);
+            }
+            bfs(queue, pacificPoints, heights);
+            
+            Set<Point> atlanticPoints = new HashSet<>();
+            for(int i = 0; i < heights.length; ++i) {
+                Point point = new Point();
+                point.x = i;
+                point.y = heights[0].length - 1;
+                atlanticPoints.add(point);
+                queue.offer(point);
+            }
+            for(int i = 0; i < heights[0].length; ++i) {
+                Point point = new Point();
+                point.x = heights.length - 1;
+                point.y = i;
+                atlanticPoints.add(point);
+                queue.offer(point);
+            }
+            bfs(queue, atlanticPoints, heights);
+            
+            pacificPoints.retainAll(atlanticPoints);
+            Iterator<Point> iterator = pacificPoints.iterator();
+            while(iterator.hasNext()) {
+                Point point = iterator.next();
+                List<Integer> result = new ArrayList<>();
+                result.add(point.x);
+                result.add(point.y);
+                results.add(result);
+            }
         }
-        for(int i = 0;i < n; ++i) {
-            for(int j=0;j<m;j++) {
-                if(PV[i][j] && AV[i][j]) {
-                    res.add(new int[] {i,j});
+        
+        return results;
+    }
+    
+    private void bfs(Queue<Point> queue, Set<Point> set, int[][] heights) {
+        while(!queue.isEmpty()) {
+            Point point = queue.poll();
+            
+            if(point.x > 0) {
+                Point newPoint = new Point();
+                newPoint.x = point.x - 1;
+                newPoint.y = point.y;
+                if(!set.contains(newPoint) && heights[point.x][point.y] <= heights[newPoint.x][newPoint.y]) {
+                    set.add(newPoint);
+                    queue.offer(newPoint);
+                }
+            }
+            
+            if(point.x < heights.length-1) {
+                Point newPoint = new Point();
+                newPoint.x = point.x + 1;
+                newPoint.y = point.y;
+                if(!set.contains(newPoint) && heights[point.x][point.y] <= heights[newPoint.x][newPoint.y]) {
+                    set.add(newPoint);
+                    queue.offer(newPoint);
+                }
+            }
+            
+            if(point.y > 0) {
+                Point newPoint = new Point();
+                newPoint.x = point.x;
+                newPoint.y = point.y - 1;
+                if(!set.contains(newPoint) && heights[point.x][point.y] <= heights[newPoint.x][newPoint.y]) {
+                    set.add(newPoint);
+                    queue.offer(newPoint);
+                }
+            }
+            
+            if(point.y < heights[0].length-1) {
+                Point newPoint = new Point();
+                newPoint.x = point.x;
+                newPoint.y = point.y + 1;
+                if(!set.contains(newPoint) && heights[point.x][point.y] <= heights[newPoint.x][newPoint.y]) {
+                    set.add(newPoint);
+                    queue.offer(newPoint);
                 }
             }
         }
-        return res;
     }
     
-    private void flow(boolean visited[][],int matrix[][],int x,int y,int n,int m ){
-        visited[x][y] = true;
-        for(int i = 0;i < 4; ++i){
-            int nx = x + dx[i];
-            int ny = y + dy[i];
-            if(nx >= 0 && nx < n && ny >= 0 && ny < m){
-                if(visited[nx][ny] == false && matrix[nx][ny] >= matrix[x][y])
-                    flow(visited,matrix,nx,ny,n,m);
+    private class Point {
+        private int x;
+        private int y;
+        
+        public boolean equals(Object object) {
+            if(!(object instanceof Point)) {
+                return false;
             }
+            
+            Point point = (Point) object;
+            return this.x == point.x && this.y == point.y;
+        }
+        
+        public int hashCode() {
+            return this.x * 1000 + this.y;
         }
     }
 }

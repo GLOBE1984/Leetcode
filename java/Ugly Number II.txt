@@ -22,28 +22,28 @@ class Solution {
             int[] uglys = new int[n];
             uglys[0] = 1;
             
-            int lastTwo = 0;
-            int lastThree = 0;
-            int lastFive = 0;
+            int index2 = 0;
+            int index3 = 0;
+            int index5 = 0;
             
             int index = 1;
             while(index < n) {
-                int two = uglys[lastTwo] * 2;
-                int three = uglys[lastThree] * 3;
-                int five = uglys[lastFive] * 5;
+                int two = uglys[index2] * 2;
+                int three = uglys[index3] * 3;
+                int five = uglys[index5] * 5;
                 
                 int min = Math.min(two, Math.min(three, five));
                 uglys[index] = min;
                 index++;
                 
                 if(min == two) {
-                    lastTwo++;
+                    index2++;
                 }
                 if(min == three) {
-                    lastThree++;
+                    index3++;
                 }
                 if(min == five) {
-                    lastFive++;
+                    index5++;
                 }
             }
             
