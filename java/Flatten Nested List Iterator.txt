@@ -15,6 +15,7 @@ By calling next repeatedly until hasNext returns false, the order of elements re
 
 
 
+// Solution 1: 
 /**
  * // This is the interface that allows for creating nested lists.
  * // You should not implement it, or speculate about its implementation
@@ -64,14 +65,90 @@ public class NestedIterator implements Iterator<Integer> {
     private void flatten(NestedInteger nestedInteger, List<Integer> results) {
         if(nestedInteger.isInteger()) {
             results.add(nestedInteger.getInteger());
-        }
-        else {
+        } else {
             List<NestedInteger> nestedList = nestedInteger.getList();
             int size = nestedList.size();
             for(int i = 0; i < size; ++i) {
                 flatten(nestedList.get(i), results);
             }
         }
+    }
+}
+
+/**
+ * Your NestedIterator object will be instantiated and called as such:
+ * NestedIterator i = new NestedIterator(nestedList);
+ * while (i.hasNext()) v[f()] = i.next();
+ */
+
+
+// Solution 2: 
+/**
+ * // This is the interface that allows for creating nested lists.
+ * // You should not implement it, or speculate about its implementation
+ * public interface NestedInteger {
+ *
+ *     // @return true if this NestedInteger holds a single integer, rather than a nested list.
+ *     public boolean isInteger();
+ *
+ *     // @return the single integer that this NestedInteger holds, if it holds a single integer
+ *     // Return null if this NestedInteger holds a nested list
+ *     public Integer getInteger();
+ *
+ *     // @return the nested list that this NestedInteger holds, if it holds a nested list
+ *     // Return empty list if this NestedInteger holds a single integer
+ *     public List<NestedInteger> getList();
+ * }
+ */
+public class NestedIterator implements Iterator<Integer> {
+
+    private Stack<Iterator<NestedInteger>> stack;
+    private NestedInteger current;
+    
+    public NestedIterator(List<NestedInteger> nestedList) {
+        this.stack = new Stack<>();
+        this.stack.push(nestedList.iterator());
+        this.current = null;
+    }
+
+    @Override
+    public Integer next() {
+        return this.current.getInteger();    
+    }
+
+    @Override
+    public boolean hasNext() {
+        Iterator<NestedInteger> iterator = this.stack.peek();
+        while(!iterator.hasNext()) {
+            this.stack.pop();
+            if(this.stack.empty()) {
+                return false; 
+            }
+            iterator = this.stack.peek();
+        }
+        
+        NestedInteger nestedInteger = iterator.next();
+        while(!nestedInteger.isInteger()) {
+            if(!nestedInteger.getList().isEmpty()) {
+                iterator = nestedInteger.getList().iterator();
+                nestedInteger = iterator.next();
+                this.stack.push(iterator);
+            } else {
+                if(!iterator.hasNext()) {
+                    while(!iterator.hasNext()) {
+                        this.stack.pop();
+                        if(this.stack.empty()) {
+                            return false; 
+                        }
+                        iterator = this.stack.peek();
+                    }
+                }
+                nestedInteger = iterator.next();
+            }
+        }
+        
+        this.current = nestedInteger;
+        return true;
     }
 }
 

@@ -4,25 +4,20 @@ Ensure that numbers within the set are sorted in ascending order.
 
 
 Example 1:
-
 Input: k = 3, n = 7
-
 Output:
-
 [[1,2,4]]
 
 Example 2:
-
 Input: k = 3, n = 9
-
 Output:
-
 [[1,2,6], [1,3,5], [2,3,4]]
 
 
 
 
 
+// Solution 1: 
 public class Solution {
     public List<List<Integer>> combinationSum3(int k, int n) {
         List<List<Integer>> results = new ArrayList<List<Integer>>();
@@ -54,6 +49,56 @@ public class Solution {
                     results.add(tmp);
                 }
             }
+        }
+    }
+}
+
+
+// Solution 2: 
+class Solution {
+    public List<List<Integer>> combinationSum3(int k, int n) {
+        List<List<Integer>> results = new ArrayList<>();
+        
+        if(k > 0) {            
+            Node node = new Node();
+            dfs(k, n, node, results);
+        }
+        
+        return results;
+    }
+    
+    private void dfs(int k, int n, Node node, List<List<Integer>> results) {
+        if(node.sum == n && node.path.size() == k) {
+            results.add(node.path);
+        } else if(node.sum < n && node.path.size() < k) {  
+	    // Since larger numbers will be used, we can restrict the upper limit based on a rough estimation
+            for(int i = node.max+1; i <= Math.min(9, (n-node.sum)/(k-node.path.size())); ++i) {
+                Node copy = node.copy();
+                copy.path.add(i);
+                copy.sum = node.sum + i;
+                copy.max = i;
+                dfs(k, n, copy, results);
+            }
+        }
+    }
+    
+    private class Node {
+        private int sum;
+        private List<Integer> path;
+        private int max;
+        
+        private Node() {
+            this.sum = 0;
+            this.path = new ArrayList<>();
+            this.max = 0;
+        }
+        
+        private Node copy() {
+            Node node = new Node();
+            node.sum = this.sum;
+            node.path = new ArrayList<>(this.path);
+            node.max = this.max;
+            return node;
         }
     }
 }

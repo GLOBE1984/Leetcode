@@ -20,53 +20,50 @@ You may assume both pattern and str contains only lowercase letters.
 
 
 
-
 class Solution {
-    public boolean wordPatternMatch(String pattern, String str) {
-        if(pattern != null && pattern.length() > 0 && str != null && str.length() > 0) {
-            Map<Character, String> charToStr = new HashMap<>();
-            Map<String, Character> strToChar = new HashMap<>();
-            
-            return wordPatternMatch(pattern, 0, str, 0, charToStr, strToChar);
-        } else if(pattern != null && pattern.length() == 0 && str != null && str.length() == 0) {
-            return true;
+    public boolean wordPatternMatch(String pattern, String s) {
+        if(pattern != null && s != null) {
+            Map<Character, String> csMap = new HashMap<>();
+            Map<String, Character> scMap = new HashMap<>();
+            return wordPatternMatch(pattern, 0, s, 0, csMap, scMap);
         } else {
             return false;
         }
     }
     
-    private boolean wordPatternMatch(String pattern, int patternIndex, String str, int strIndex, 
-                                     Map<Character, String> charToStr, Map<String, Character> strToChar) {
-        if(patternIndex == pattern.length() && strIndex == str.length()) {
+    private boolean wordPatternMatch(String pattern, int index1, String s, int index2, Map<Character, String> csMap, Map<String, Character> scMap) {
+        if(index1 == pattern.length() && index2 == s.length()) {
             return true;
-        } else if(patternIndex == pattern.length() || strIndex == str.length()) {
+        } else if(index1 == pattern.length() || index2 == s.length()) {
             return false;
         }
         
-        char c = pattern.charAt(patternIndex);
-        if(!charToStr.containsKey(c)) {
-            for(int i = 1; (strIndex+i) <= str.length(); ++i) {
-                String tmp = str.substring(strIndex, strIndex+i);
-                if(!strToChar.containsKey(tmp)) {
-                    charToStr.put(c, tmp);
-                    strToChar.put(tmp, c);
-                    boolean result = wordPatternMatch(pattern, patternIndex+1, str, strIndex+tmp.length(), charToStr, strToChar);
-                    if(result) {
-                        return result;
-                    } else {
-                        charToStr.remove(c);
-                        strToChar.remove(tmp);
-                    }
-                }
-            }
-            return false;
-        } else {
-            String tmp = charToStr.get(c);
-            if(str.startsWith(tmp, strIndex)) {
-                return wordPatternMatch(pattern, patternIndex+1, str, strIndex+tmp.length(), charToStr, strToChar);
+        char c = pattern.charAt(index1);
+        if(csMap.containsKey(c)) {
+            String str = csMap.get(c);
+            if(s.startsWith(str, index2)) {
+                return wordPatternMatch(pattern, index1+1, s, index2+str.length(), csMap, scMap);
             } else {
                 return false;
             }
+        } else {
+            for(int i = index2; i < s.length(); ++i) {
+                String str = s.substring(index2, i+1);
+                if(scMap.containsKey(str)) {
+                    continue;
+                }
+                csMap.put(c, str);
+                scMap.put(str, c);
+                boolean result = wordPatternMatch(pattern, index1+1, s, i+1, csMap, scMap);
+                if(result) {
+                    return true;
+                } else {
+                    csMap.remove(c);
+                    scMap.remove(str);
+                }
+            }
+
+            return false;
         }
     }
 }

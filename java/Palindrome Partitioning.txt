@@ -29,16 +29,14 @@ class Solution {
                 for(int j = i+1; j < length; ++j) {
                     if(dp[i+1][j-1] && s.charAt(i) == s.charAt(j)) {
                         dp[i][j] = true;
-                    }
-                    else if(i == j-1 && s.charAt(i) == s.charAt(j)) {
+                    } else if(i == j-1 && s.charAt(i) == s.charAt(j)) {
                         dp[i][j] = true;
                     }
                 }
             }
             
             findPatitions(s, 0, dp, results, new LinkedList<String>());
-        }
-        else if(s != null && s.length() == 1) {
+        } else if(s != null && s.length() == 1) {
             List<String> result = new LinkedList<String>();
             result.add(s);
             results.add(result);

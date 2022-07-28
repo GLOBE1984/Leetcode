@@ -1,39 +1,44 @@
 Given n pairs of parentheses, write a function to generate all combinations of well-formed parentheses.
 
-For example, given n = 3, a solution set is:
+ 
 
-"((()))", "(()())", "(())()", "()(())", "()()()"
+Example 1:
+Input: n = 3
+Output: ["((()))","(()())","(())()","()(())","()()()"]
+
+Example 2:
+Input: n = 1
+Output: ["()"]
+ 
+
+Constraints:
+1 <= n <= 8
 
 
 
 
-public class Solution {
+class Solution {
     public List<String> generateParenthesis(int n) {
         List<String> results = new ArrayList<String>();
         
         if(n > 0) {
-            generateParenthesis(n, 0, 0, results, "");
+            generateParenthesis(n, 0, 0, "", results);
         }
         
         return results;
     }
     
-    public void generateParenthesis(int n, int num_left, int num_right, List<String> results, String current) {
-        if(n == num_right) {
+    private void generateParenthesis(int n, int left, int right, String current, List<String> results) {
+        if(left == n && right == n) {
             results.add(current);
-            return;
-        }
-        
-        if(num_left == num_right) {
-            generateParenthesis(n, num_left+1, num_right, results, current+"(");
-        }
-        else {
-            if(num_left < n) {
-                generateParenthesis(n, num_left+1, num_right, results, current+"(");
-                generateParenthesis(n, num_left, num_right+1, results, current+")");
-            }
-            else {
-                generateParenthesis(n, num_left, num_right+1, results, current+")");
+        } else {
+            if(left == right) {
+                generateParenthesis(n, left+1, right, current.concat("("), results);
+            } else {
+                if(left < n) {
+                generateParenthesis(n, left+1, right, current.concat("("), results);
+                }
+                generateParenthesis(n, left, right+1, current.concat(")"), results);
             }
         }
     }

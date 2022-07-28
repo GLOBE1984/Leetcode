@@ -26,31 +26,32 @@ You may assume pattern contains only lowercase letters, and str contains lowerca
 
 
 class Solution {
-    public boolean wordPattern(String pattern, String str) {
-        if(pattern != null && pattern.length() > 0 && str != null && str.length() > 0) {
-            Map<Character, String> charToStr = new HashMap<>();
-            Map<String, Character> strToChar = new HashMap<>();
-            
-            String[] words = str.trim().split(" ");
-            if(pattern.length() != words.length) {
+    public boolean wordPattern(String pattern, String s) {
+        if(pattern != null && s != null) {
+            String[] strs = s.split(" ");
+            if(pattern.length() == strs.length) {
+                Map<Character, String> csMap = new HashMap<>();
+                Map<String, Character> scMap = new HashMap<>();
+                
+                for(int i = 0; i < strs.length; ++i) {
+                    char c = pattern.charAt(i);
+                    if(csMap.containsKey(c)) {
+                        if(!csMap.get(c).equals(strs[i]) || scMap.get(strs[i]) != c) {
+                            return false;
+                        }
+                    } else {
+                        if(scMap.containsKey(strs[i])) {
+                            return false;
+                        }
+                        csMap.put(c, strs[i]);
+                        scMap.put(strs[i], c);
+                    }
+                }
+                
+                return true;
+            } else {
                 return false;
             }
-            
-            for(int i = 0; i < pattern.length(); ++i) {
-                char c = pattern.charAt(i);
-                if(!charToStr.containsKey(c) && !strToChar.containsKey(words[i])) {
-                    charToStr.put(c, words[i]);
-                    strToChar.put(words[i], c);
-                } else if(charToStr.containsKey(c) && strToChar.containsKey(words[i])) {
-                    if(!charToStr.get(c).equals(words[i]) || (strToChar.get(words[i]).charValue() != c)) {
-                        return false;
-                    }
-                } else {
-                    return false;
-                }
-            }
-            
-            return true;
         } else {
             return false;
         }

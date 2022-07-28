@@ -47,10 +47,11 @@ public class Solution {
         Queue<Node> queue = new LinkedList<Node>();
         queue.offer(root);
         boolean found = false;
-        while(!queue.isEmpty()) {
-            Queue<Node> level = new LinkedList<Node>();
+        while(!queue.isEmpty() && !found) {
+            int size = queue.size();
+            int index = 0;
             Set<String> remove = new HashSet<String>();
-            while(!queue.isEmpty()) {
+            while(index < size) {
                 Node node = queue.poll();
                 String word = node.word;
                 for(int i = 0; i < length; ++i) {
@@ -60,13 +61,12 @@ public class Solution {
                             if(end.word.equals(word_new)) {
                                 end.parents.add(node);
                                 found = true;
-                            }
-                            else {
+                            } else {
                                 Node node_new = map.get(word_new);
                                 if(node_new == null) {
                                     node_new = new Node(word_new);
                                     map.put(word_new, node_new);
-                                    level.add(node_new);
+                                    queue.offer(node_new);
                                 }
                                 node_new.parents.add(node);
                                 remove.add(word_new);
@@ -74,14 +74,9 @@ public class Solution {
                         }
                     }
                 }
+                index++;
             }
-            if(found) {
-                break;
-            }
-            else {
-                words.removeAll(remove);
-                queue = level;
-            }
+            words.removeAll(remove);
         }
     }
     
@@ -89,12 +84,11 @@ public class Solution {
         result.addFirst(node.word);
         if(root == node) {
             results.add(result);
-        }
-        else {
+        } else {
             Set<Node> parents = node.parents;
             for(Node parent : parents) {
-                LinkedList<String> result_new = new LinkedList<String>(result);
-                traverseTree(root, parent, result_new, results);
+                LinkedList<String> copy = new LinkedList<String>(result);
+                traverseTree(root, parent, copy, results);
             }
         }
     }

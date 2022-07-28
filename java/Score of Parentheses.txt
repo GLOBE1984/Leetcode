@@ -1,0 +1,100 @@
+Given a balanced parentheses string s, return the score of the string.
+
+The score of a balanced parentheses string is based on the following rule:
+
+"()" has score 1.
+AB has score A + B, where A and B are balanced parentheses strings.
+(A) has score 2 * A, where A is a balanced parentheses string.
+ 
+
+Example 1:
+Input: s = "()"
+Output: 1
+
+Example 2:
+Input: s = "(())"
+Output: 2
+
+Example 3:
+Input: s = "()()"
+Output: 2
+ 
+
+Constraints:
+2 <= s.length <= 50
+s consists of only '(' and ')'.
+s is a balanced parentheses string.
+
+
+
+// Solution 1:
+class Solution {
+    public int scoreOfParentheses(String s) {
+        if(s != null && s.length() > 0) {
+            return scoreOfParentheses(s, 0).score;
+        } else {
+            return 0;
+        }
+    }
+    
+    private Sub scoreOfParentheses(String s, int index) {
+        int score = 0;
+        int subScore = 0;
+        int i = index;
+        int left = 0;
+        
+        while(i < s.length()) {
+            char c = s.charAt(i);
+            if(c == '(') {
+                if(s.charAt(i+1) == ')') {
+                    score++;
+                    i++;
+                } else {
+                    left++;
+                    Sub sub = scoreOfParentheses(s, i+1);
+                    subScore += sub.score;
+                    i = sub.index;
+                }
+            } else {
+                if(left > 0) {
+                    left--;
+                    score += 2 * subScore;
+                    subScore = 0;
+                } else {
+                    i--;
+                    break;
+                }
+            }
+            i++;
+        }
+        
+        Sub sub = new Sub();
+        sub.index = i;
+        sub.score = subScore > 0 ? score + subScore : score;
+        return sub;
+    }
+    
+    private class Sub {
+        private int index;
+        private int score;
+    }
+}
+
+
+// Solution 2: Keep track of the balance of the string, as defined in Approach #1. For every ) that immediately follows a (, the answer is 1 << balance, as balance is the number of exterior set of parentheses that contains this core. 
+class Solution {
+    public int scoreOfParentheses(String s) {
+        int ans = 0, bal = 0;
+        for (int i = 0; i < s.length(); ++i) {
+            if (s.charAt(i) == '(') {
+                bal++;
+            } else {
+                bal--;
+                if (s.charAt(i-1) == '(')
+                    ans += 1 << bal;
+            }
+        }
+
+        return ans;
+    }
+}

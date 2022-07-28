@@ -16,6 +16,7 @@ A solution set is:
 
 
 
+// Solution 1: 
 public class Solution {
     public List<List<Integer>> combinationSum2(int[] candidates, int target) {
         List<List<Integer>> results = new ArrayList<List<Integer>>();
@@ -48,6 +49,60 @@ public class Solution {
                 tmp.addAll(path);
                 results.add(tmp);
             }
+        }
+    }
+}
+
+
+// Solution 2: 
+class Solution {
+    public List<List<Integer>> combinationSum2(int[] candidates, int target) {
+        List<List<Integer>> results = new ArrayList<>();
+        
+        if(candidates != null && candidates.length > 0) {
+            Arrays.sort(candidates);
+            
+            Node node = new Node();
+            dfs(candidates, target, node, results);
+        }
+        
+        return results;
+    }
+    
+    private void dfs(int[] candidates, int target, Node node, List<List<Integer>> results) {
+        if(node.sum == target) {
+            results.add(node.path);
+        } else {  
+            for(int i = node.index+1; i < candidates.length && node.sum+candidates[i] <= target; ++i) {
+                if(i > node.index+1 && candidates[i] == candidates[i-1]) {
+                    continue;
+                }
+                Node copy = node.copy();
+                copy.index = i;
+                copy.path.add(candidates[i]);
+                copy.sum = node.sum + candidates[i];
+                dfs(candidates, target, copy, results);
+            }
+        }
+    }
+    
+    private class Node {
+        private int sum;
+        private List<Integer> path;
+        private int index;
+        
+        private Node() {
+            this.sum = 0;
+            this.path = new ArrayList<>();
+            this.index = -1;
+        }
+        
+        private Node copy() {
+            Node node = new Node();
+            node.sum = this.sum;
+            node.path = new ArrayList<>(this.path);
+            node.index = this.index;
+            return node;
         }
     }
 }

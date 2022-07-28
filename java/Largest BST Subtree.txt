@@ -47,45 +47,86 @@ The number of nodes in the tree is in the range [0, 104].
  *     }
  * }
  */
-public class Solution {
-    
-    private int max = 0;
-    
+public class Solution {    
     public int largestBSTSubtree(TreeNode root) {
-        lbst(root);
-        return this.max;
+        if(root != null) {
+            State state = findBSTSubtree(root);
+            return state.max;
+        } else {
+            return 0;
+        }
     }
     
-    private State lbst(TreeNode node) {
-        if (node == null) {
-            return null;
+    private State findBSTSubtree(TreeNode root) {
+        if(root.left == null && root.right == null) {
+            State state = new State();
+            state.lower = root.val;
+            state.upper = root.val;
+            state.max = 1;
+            state.root = root;
+            state.isBST = true;
         }
         
-        State result = null;
-        State left = lbst(node.left);
-        State right = lbst(node.right);
-        if ((left == null || (left.isBST && node.val > left.max)) && (right == null || (right.isBST && node.val < right.min))) {
-            //A valid BST
-            int newMin = left == null ? node.val : left.min;
-            int newMax = right == null ? node.val : right.max;
-            int newNum = (left == null ? 0 : left.num) + (right == null ? 0 : right.num) + 1;
-            this.max = Math.max(this.max, newNum);
-            return new State(true, newMin, newMax, newNum);
+        State leftState = null;
+        if(root.left != null) {
+            leftState = findBSTSubtree(root.left);
         }
-        return new State(false, 0, 0, 0);
+        
+        State rightState = null;
+        if(root.right != null) {
+            rightState = findBSTSubtree(root.right);
+        }
+        
+        State state = new State();
+        if(leftState != null && rightState != null) {
+            if(leftState.isBST && rightState.isBST && root.val > leftState.upper && root.val < rightState.lower) {
+                state.lower = leftState.lower;
+                state.upper = rightState.upper;
+                state.max = leftState.max + rightState.max + 1;
+                state.root = root;
+                state.isBST = true;
+            } else {
+                state.isBST = false;
+                state.max = Math.max(leftState.max, rightState.max);
+            }
+        } else if(leftState != null) {
+            if(leftState.isBST && root.val > leftState.upper) {
+                state.lower = leftState.lower;
+                state.upper = root.val;
+                state.max = leftState.max + 1;
+                state.root = root;
+                state.isBST = true;
+            } else {
+                state.isBST = false;
+                state.max = leftState.max;
+            }
+        } else if(rightState != null) {
+            if(rightState.isBST && root.val < rightState.lower) {
+                state.lower = root.val;
+                state.upper = rightState.upper;
+                state.max = rightState.max + 1;
+                state.root = root;
+                state.isBST = true;
+            } else {
+                state.isBST = false;
+                state.max = rightState.max;
+            }
+        } else {
+            state.lower = root.val;
+            state.upper = root.val;
+            state.max = 1;
+            state.root = root;
+            state.isBST = true;
+        }
+        
+        return state;
     }
     
     private class State {
-        private boolean isBST;
-        private int min;
+        private int lower;
+        private int upper;
         private int max;
-        private int num;
-        
-        private State(boolean isBST, int min, int max, int num) {
-            this.isBST = isBST;
-            this.min = min;
-            this.max = max;
-            this.num = num;
-        }
+        private TreeNode root;
+        private boolean isBST;
     }
 }

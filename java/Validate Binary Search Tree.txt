@@ -26,36 +26,43 @@ Binary tree [1,2,3], return false.
  *     int val;
  *     TreeNode left;
  *     TreeNode right;
- *     TreeNode(int x) { val = x; }
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
  * }
  */
-public class Solution {
+class Solution {
     public boolean isValidBST(TreeNode root) {
-        if(root == null) {
-            return true;
+        if(root != null) {
+            return isValidBST(root, Long.MIN_VALUE, Long.MAX_VALUE);
+        } else {
+            return false;
         }
-        
-        return isValidBST(root, Long.MIN_VALUE, Long.MAX_VALUE);
     }
     
-    private boolean isValidBST(TreeNode root, long min, long max) {
-        boolean result = true;
+    private boolean isValidBST(TreeNode root, long lower, long upper) {
+        if(root.val <= lower || root.val >= upper) {
+            return false;
+        }
+        
         if(root.left != null) {
-            if(root.left.val < root.val && min < root.left.val) {
-                result = result & isValidBST(root.left, min, root.val);
-            }
-            else {
+            boolean isValid = isValidBST(root.left, lower, (long)root.val);
+            if(!isValid) {
                 return false;
             }
         }
+        
         if(root.right != null) {
-            if(root.val < root.right.val && root.right.val < max) {
-                result = result & isValidBST(root.right, root.val, max);
-            }
-            else {
+            boolean isValid = isValidBST(root.right, (long)root.val, upper);
+            if(!isValid) {
                 return false;
             }
         }
-        return result;
+        
+        return true;
     }
 }

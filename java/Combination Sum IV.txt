@@ -1,10 +1,8 @@
 Given an integer array with all positive numbers and no duplicates, find the number of possible combinations that add up to a positive integer target.
 
 Example:
-
 nums = [1, 2, 3]
 target = 4
-
 The possible combination ways are:
 (1, 1, 1, 1)
 (1, 1, 2)
@@ -25,63 +23,93 @@ What limitation we need to add to the question to allow negative numbers?
 
 
 
-public class Solution {
+// Solution 1: 
+class Solution {
+    private HashMap<Integer, Integer> memo;
+
     public int combinationSum4(int[] nums, int target) {
-        if(nums == null || nums.length == 0) {
-            return 0;
-        }
-        
-        Arrays.sort(nums);
-        Map<Integer, Integer> map = new HashMap<Integer, Integer>();
-        
+        // minor optimization
+        // Arrays.sort(nums);
+        memo = new HashMap<>();
+        return combs(nums, target);
+    }
+
+    private int combs(int[] nums, int remain) {
+        if (remain == 0)
+            return 1;
+        if (memo.containsKey(remain))
+            return memo.get(remain);
+
         int result = 0;
-        
-        result = combinationSum4(nums, target, map);
-        
+        for (int num : nums) {
+            if (remain - num >= 0)
+                result += combs(nums, remain - num);
+            // minor optimizaton, early stopping
+            // else
+            //     break;
+        }
+        memo.put(remain, result);
         return result;
     }
-    
-    public int combinationSum4(int[] nums, int target, Map<Integer, Integer> map) {
-        if(map.get(target) != null) {
-            return map.get(target).intValue();
-        }
+}
+
+
+// Solution 2: 
+class Solution {
+    public int combinationSum4(int[] nums, int target) {
+        Arrays.sort(nums);
         
-        int result = 0;
-        
-        int length = nums.length;
-        int index_start = 0;
-        
-        if(nums[0] >= 0) {
-            if(nums[0] == 0) {
-                if(length == 1) {
-                    if(target == 0) {
-                        return 1;
-                    }
-                    else {
-                        return 0;
-                    }
-                }
-                else {
-                    index_start++;
-                }
-            }
-            if(target >= nums[index_start]) {
-                for(int i = index_start; i < length; ++i) {
-                    if(target > nums[i]) {
-                        result = result + combinationSum4(nums, target-nums[i], map);
-                    }
-                    else if(target == nums[i]) {
-                        result++;
-                    }
-                    else {
-                        break;
-                    }
+        int[] dp = new int[target + 1];
+        dp[0] = 1;
+
+        for (int combSum = 1; combSum < target + 1; ++combSum) {
+            for (int num : nums) {
+                if (combSum - num >= 0) {
+                    dp[combSum] += dp[combSum - num];
+                } else {
+                    break;
                 }
             }
         }
-        
-        map.put(target, result);
-        
-        return result;
+        return dp[target];
+    }
+}
+
+
+// Solution 3: 
+class Solution {
+    public int combinationSum4(int[] nums, int target) {
+        if(nums != null && nums.length > 0) {
+            int count = 0;
+            
+            Map<Integer, Integer> map = new HashMap<>();
+            for(int num : nums) {
+                map.put(num, 1);
+            }
+            
+            Arrays.sort(nums);
+            
+            while(!map.isEmpty()) {
+                count += map.getOrDefault(target, 0);
+                Map<Integer, Integer> tmp = new HashMap<>();
+                Iterator<Map.Entry<Integer, Integer>> iterator = map.entrySet().iterator();
+                while(iterator.hasNext()) {
+                    Map.Entry<Integer, Integer> entry = iterator.next();
+                    for(int num : nums) {
+                        int sum = entry.getKey().intValue() + num;
+                        if(entry.getKey().intValue()+num <= target) {
+                            int current = tmp.getOrDefault(sum, 0);
+                            current += entry.getValue().intValue();
+                            tmp.put(sum, current);
+                        }
+                    }
+                }
+                map = tmp;
+            }
+            
+            return count;
+        } else {
+            return 0;
+        }
     }
 }

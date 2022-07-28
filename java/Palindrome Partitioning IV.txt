@@ -1,0 +1,74 @@
+Given a string s, return true if it is possible to split the string s into three non-empty palindromic substrings. Otherwise, return false.​​​​​
+
+A string is said to be palindrome if it the same string when reversed.
+
+ 
+
+Example 1:
+Input: s = "abcbdd"
+Output: true
+Explanation: "abcbdd" = "a" + "bcb" + "dd", and all three substrings are palindromes.
+
+Example 2:
+Input: s = "bcbddxy"
+Output: false
+Explanation: s cannot be split into 3 palindromes.
+ 
+
+Constraints:
+3 <= s.length <= 2000
+s​​​​​​ consists only of lowercase English letters.
+
+
+
+
+
+class Solution {
+    public boolean checkPartitioning(String s) {
+        if(s != null && s.length() > 0) {
+            boolean[][] palindromes = new boolean[s.length()][s.length()];
+            for(int i = 0; i < s.length(); ++i) {
+                palindromes[i][i] = true;
+            }
+            for(int i = s.length()-1; i >= 0; --i) {
+                for(int j = i+1; j < s.length(); ++j) {
+                    if(palindromes[i+1][j-1] && s.charAt(i) == s.charAt(j)) {
+                        palindromes[i][j] = true;
+                    } else if(j == i+1 && s.charAt(i) == s.charAt(j)) {
+                        palindromes[i][j] = true;
+                    }
+                }
+            }
+            
+            Map<Integer, Map<Integer, Boolean>> records = new HashMap<>();
+            
+            return checkPartitioning(s, 0, 3, palindromes, records);
+        } else {
+            return false;
+        }
+    }
+    
+    private boolean checkPartitioning(String s, int index, int k, boolean[][] palindromes, Map<Integer, Map<Integer, Boolean>> records) {
+        if(records.containsKey(k) && records.get(k).containsKey(index)) {
+            return records.get(k).get(index).booleanValue();
+        }
+        
+        if(k == 1) {
+            return palindromes[index][s.length()-1];
+        }
+        
+        for(int i = index+1; i <= s.length()-k+1; ++i) {
+            if(palindromes[index][i-1] && checkPartitioning(s, i, k-1, palindromes, records)) {
+                Map<Integer, Boolean> map = records.getOrDefault(k, new HashMap<>());
+                map.put(index, true);
+                records.put(k, map);
+                return true;
+            }
+        }
+        
+        Map<Integer, Boolean> map = records.getOrDefault(k, new HashMap<>());
+        map.put(index, false);
+        records.put(k, map);
+        return false;
+    }
+}
