@@ -1,0 +1,119 @@
+Given an integer array nums and two integers firstLen and secondLen, return the maximum sum of elements in two non-overlapping subarrays with lengths firstLen and secondLen.
+
+The array with length firstLen could occur before or after the array with length secondLen, but they have to be non-overlapping.
+
+A subarray is a contiguous part of an array.
+
+ 
+
+Example 1:
+Input: nums = [0,6,5,2,2,5,1,9,4], firstLen = 1, secondLen = 2
+Output: 20
+Explanation: One choice of subarrays is [9] with length 1, and [6,5] with length 2.
+
+Example 2:
+Input: nums = [3,8,1,3,2,1,8,9,0], firstLen = 3, secondLen = 2
+Output: 29
+Explanation: One choice of subarrays is [3,8,1] with length 3, and [8,9] with length 2.
+
+Example 3:
+Input: nums = [2,1,5,6,0,9,5,0,3,8], firstLen = 4, secondLen = 3
+Output: 31
+Explanation: One choice of subarrays is [5,6,0,9] with length 4, and [0,3,8] with length 3.
+ 
+
+Constraints:
+
+1 <= firstLen, secondLen <= 1000
+2 <= firstLen + secondLen <= 1000
+firstLen + secondLen <= nums.length <= 1000
+0 <= nums[i] <= 1000
+
+
+
+
+
+// Solution 1: O(N) time, O(N) space
+class Solution {
+    public int maxSumTwoNoOverlap(int[] nums, int firstLen, int secondLen) {
+        if(nums != null && nums.length > 0) {
+            int length = firstLen + secondLen;
+            
+            int shorter = firstLen <= secondLen ? firstLen : secondLen;
+            int longer = firstLen > secondLen ? firstLen : secondLen;
+            
+            int lss = 0;
+            for(int i = 0; i < shorter; ++i) {
+                lss += nums[i];
+            }
+            int lls = lss;
+            for(int i = shorter; i < longer; ++i) {
+                lls += nums[i];
+            }
+            
+            int rss = 0;
+            for(int i = nums.length-1; i >= nums.length-shorter; --i) {
+                rss += nums[i];
+            }
+            int rls = rss;
+            for(int i = nums.length-shorter-1; i >= nums.length-longer; --i) {
+                rls += nums[i];
+            }
+            
+            int leftShortSum = lss + rls;
+            int leftLongSum = lls + rss;
+            
+            Map<Integer, Integer> records = new HashMap<>();
+            
+            return Math.max(maxSumTwoNoOverlap(nums, 0, nums.length-1, shorter, longer, leftShortSum, records), maxSumTwoNoOverlap(nums, 0, nums.length-1, longer, shorter, leftLongSum, records));
+        } else {
+            return 0;
+        }
+    }
+    
+    private int maxSumTwoNoOverlap(int[] nums, int left, int right, int leftLength, int rightLength, int sum, Map<Integer, Integer> records) {        
+        if(leftLength+rightLength > right-left+1) {
+            return 0;
+        }
+        
+        int key = (left+"_"+right+"_"+leftLength+"_"+rightLength).hashCode();
+        if(records.containsKey(key)) {
+            return records.get(key).intValue();
+        }
+        
+        int max = sum;
+        max = Math.max(max, maxSumTwoNoOverlap(nums, left+1, right, leftLength, rightLength, sum+nums[left+leftLength]-nums[left], records));
+        max = Math.max(max, maxSumTwoNoOverlap(nums, left, right-1, leftLength, rightLength, sum+nums[right-rightLength]-nums[right], records));
+        
+        records.put(key, max);
+        return max;
+    }
+}
+
+
+// Solution 2: 
+class Solution {
+    public int maxSumTwoNoOverlap(int[] nums, int firstLen, int secondLen) {
+        if(nums != null && nums.length > 0) {
+            for(int i = 1; i < nums.length; ++i) {
+                nums[i] += nums[i-1];
+            }
+            
+            int result = nums[firstLen+secondLen-1];
+            // lMax checks all conditions that firstLen is on the left and secondLen is on the right
+            int lMax = nums[firstLen-1];
+            // mMax checks all conditions that secondLen is on the left and firstLen is on the right
+            int mMax = nums[secondLen-1];
+            
+            for(int i = firstLen+secondLen; i < nums.length; ++i) {
+                lMax = Math.max(lMax, nums[i-secondLen]-nums[i-secondLen-firstLen]);
+                mMax = Math.max(mMax, nums[i-firstLen]-nums[i-secondLen-firstLen]);
+                result = Math.max(result, Math.max(lMax+nums[i]-nums[i-secondLen], mMax+nums[i]-nums[i-firstLen]));
+            }
+            
+            return result;
+        } else {
+            return 0;
+        }
+    }
+}

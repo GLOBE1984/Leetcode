@@ -15,6 +15,7 @@ If n = 4 and k = 2, a solution is:
 
 
 
+// Solution 1:
 public class Solution {
     public List<List<Integer>> combine(int n, int k) {
         List<List<Integer>> results = new ArrayList<List<Integer>>();
@@ -41,6 +42,49 @@ public class Solution {
                 tmp.addAll(path);
                 results.add(tmp);
             }
+        }
+    }
+}
+
+
+// Solution 2: 
+class Solution {
+    public List<List<Integer>> combine(int n, int k) {
+        List<List<Integer>> results = new ArrayList<>();
+        
+        if(n >= 1 && k > 0) {
+            Node node = new Node();
+            dfs(n, k, node, results);
+        }
+        
+        return results;
+    }
+    
+    private void dfs(int n, int k, Node node, List<List<Integer>> results) {
+        if(node.list.size() == k) {
+            results.add(node.list);
+        } else {
+            for(int i = node.num+1; i <= n; ++i) {
+                Node copy = new Node(node);
+                copy.list.add(i);
+                copy.num = i;
+                dfs(n, k, copy, results);
+            }
+        }
+    }
+    
+    private class Node {
+        private List<Integer> list;
+        private int num;
+        
+        private Node() {
+            this.list = new ArrayList<>();
+            this.num = 0;
+        }
+        
+        private Node(Node node) {
+            this.list = new ArrayList<>(node.list);
+            this.num = node.num;
         }
     }
 }

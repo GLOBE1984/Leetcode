@@ -27,16 +27,23 @@ Returns [4, 5, 3], [2], [1].
 
 
 
+// Solution 1:
 /**
  * Definition for a binary tree node.
  * public class TreeNode {
  *     int val;
  *     TreeNode left;
  *     TreeNode right;
- *     TreeNode(int x) { val = x; }
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
  * }
  */
-public class Solution {
+class Solution {
     public List<List<Integer>> findLeaves(TreeNode root) {
         List<List<Integer>> results = new ArrayList<List<Integer>>();
         
@@ -52,8 +59,7 @@ public class Solution {
             List<Integer> tmp = null;
             if(results.size() > 0) {
                 results.get(0).add(node.val);
-            }
-            else {
+            } else {
                 tmp = new ArrayList<Integer>();
                 tmp.add(node.val);
                 results.add(tmp);
@@ -73,13 +79,92 @@ public class Solution {
         List<Integer> tmp = null;
         if(results.size() > level) {
             results.get(level).add(node.val);
-        }
-        else {
+        } else {
             tmp = new ArrayList<Integer>();
             tmp.add(node.val);
             results.add(tmp);
         }
         
         return level;
+    }
+}
+
+
+// Solution 2: Topological sorting
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    public List<List<Integer>> findLeaves(TreeNode root) {
+        List<List<Integer>> results = new ArrayList<>();
+        
+        if(root != null) {
+            // node -> parent node
+            Map<TreeNode, TreeNode> parentMap = new HashMap<>();
+            // node -> out degree
+            Map<TreeNode, Integer> outDegreeMap = new HashMap<>();
+            
+            dfs(root, parentMap, outDegreeMap);
+            
+            Queue<TreeNode> queue = new LinkedList<>();
+            Iterator<Map.Entry<TreeNode, Integer>> iterator = outDegreeMap.entrySet().iterator();
+            while(iterator.hasNext()) {
+                Map.Entry<TreeNode, Integer> entry = iterator.next();
+                if(entry.getValue().intValue() == 0) {
+                    queue.offer(entry.getKey());
+                }
+            }
+            
+            while(!queue.isEmpty()) {
+                int size = queue.size();
+                int index = 0;
+                List<Integer> result = new ArrayList<>();
+                while(index < size) {
+                    TreeNode node = queue.poll();
+                    result.add(node.val);
+                    outDegreeMap.remove(node);
+                    if(node != root) {
+                        TreeNode parent = parentMap.remove(node);
+                        int outdegree = outDegreeMap.get(parent).intValue();
+                        outdegree--;
+                        if(outdegree == 0) {
+                            queue.offer(parent);
+                        }
+                        outDegreeMap.put(parent, outdegree);
+                    }
+                    index++;
+                }
+                results.add(result);
+            }
+        }
+        
+        return results;
+    }
+    
+    private void dfs(TreeNode node, Map<TreeNode, TreeNode> parentMap, Map<TreeNode, Integer> outDegreeMap) {
+        int outdegree = 0;
+        if(node.left != null) {
+            parentMap.put(node.left, node);
+            outdegree++;
+            dfs(node.left, parentMap, outDegreeMap);
+        }
+        if(node.right != null) {
+            parentMap.put(node.right, node);
+            outdegree++;
+            dfs(node.right, parentMap, outDegreeMap);
+        }
+        outDegreeMap.put(node, outdegree);
     }
 }

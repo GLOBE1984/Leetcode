@@ -46,47 +46,40 @@ All characters of searchWord are lower-case English letters.
 
 class Solution {
     public List<List<String>> suggestedProducts(String[] products, String searchWord) {
-        List<List<String>> results = new ArrayList();
+        List<List<String>> results = new ArrayList<>();
         
-        if(products != null && products.length > 0 && searchWord != null && searchWord.length() > 0) {           
-            String[] products_ordered = Arrays.copyOf(products, products.length);
-            Arrays.sort(products_ordered);
+        if(products != null && products.length > 0 && searchWord != null && searchWord.length() > 0) {
+            Arrays.sort(products);
             
             TrieNode root = new TrieNode();
-            for(String product : products_ordered) {
+            for(String product : products) {
                 TrieNode current = root;
                 for(int i = 0; i < product.length(); ++i) {
                     char c = product.charAt(i);
-                    TrieNode node = current.children[c-'a'];
-                    if(node == null) {
-                        node = new TrieNode();
+                    if(current.children[c-'a'] == null) {
+                        current.children[c-'a'] = new TrieNode();
                     }
-                    node.products.add(product);
-                    current.children[c-'a'] = node;
-                    current = node;
+                    current.children[c-'a'].words.add(product);
+                    current = current.children[c-'a'];
                 }
             }
             
             TrieNode current = root;
+            boolean failed = false;
             for(int i = 0; i < searchWord.length(); ++i) {
-                if(current != null) {
-                   char c = searchWord.charAt(i);
-                    if(current.children[c-'a'] != null) {
-                        TrieNode node = current.children[c-'a'];
-                        if(node.products.size() > 3) {
-                            List<String> tmp = new ArrayList<>();
-                            tmp.add(node.products.get(0));
-                            tmp.add(node.products.get(1));
-                            tmp.add(node.products.get(2));
-                            results.add(tmp);
-                        } else {
-                            results.add(node.products);
-                        }
-                        current = node;
-                    } else {
+                char c = searchWord.charAt(i);
+                if(!failed) {
+                    if(current.children[c-'a'] == null) {
+                        failed = true;
                         results.add(new ArrayList<>());
-                        current = null;
-                    } 
+                    } else {
+                        if(current.children[c-'a'].words.size() > 3) {
+                            results.add(current.children[c-'a'].words.subList(0, 3));
+                        } else {
+                            results.add(current.children[c-'a'].words);
+                        }
+                        current = current.children[c-'a'];
+                    }
                 } else {
                     results.add(new ArrayList<>());
                 }
@@ -96,13 +89,13 @@ class Solution {
         return results;
     }
     
-    class TrieNode {
+    private class TrieNode {
         private TrieNode[] children;
-        private List<String> products;
+        private List<String> words;
         
-        TrieNode() {
+        private TrieNode() {
             this.children = new TrieNode[26];
-            this.products = new ArrayList<>();
+            this.words = new ArrayList<>();
         }
     }
 }

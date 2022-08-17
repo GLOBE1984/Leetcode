@@ -12,6 +12,7 @@ If you have figured out the O(n) solution, try coding another solution using the
 
 
 
+// Solution 1:
 class Solution {
     public int maxSubArray(int[] nums) {
         if(nums != null && nums.length != 0) {
@@ -38,9 +39,7 @@ class Solution {
 }
 
 
-
-
-
+// Solution 2: 
 // divide and conquer
 class Solution {
     public int maxSubArray(int[] nums) {
@@ -76,4 +75,51 @@ class Solution {
   
         return Math.max(mmax, Math.max(lmax, rmax));   
     }
+}
+
+
+// Solution 3:
+class Solution {
+    public int maxSubArray(int[] nums) {
+        if(nums != null && nums.length > 0) {
+            int[] prefix = new int[nums.length+1];
+            prefix[0] = 0;
+            for(int i = 1; i <= nums.length; ++i) {
+                prefix[i] = prefix[i-1] + nums[i-1];
+            }
+            
+            int max = Integer.MIN_VALUE;
+            int min = prefix[0];
+            for(int i = 1; i <= nums.length; ++i) {
+                max = Math.max(max, prefix[i]-min);
+                min = Math.min(min, prefix[i]);
+            }
+            
+            return max;
+        } else {
+            return 0;
+        }
+    }        
+}
+
+
+// Solution 4: 
+// Kadane algorithm
+class Solution {
+    public int maxSubArray(int[] nums) {
+        if(nums != null && nums.length > 0) {
+            int currentMax = nums[0];
+            int allMax = nums[0];
+            
+            for(int i = 1; i < nums.length; ++i) {
+                int num = nums[i];
+                currentMax = Math.max(num, currentMax+num);
+                allMax = Math.max(allMax, currentMax);
+            }
+            
+            return allMax;
+        } else {
+            return 0;
+        }
+    }        
 }

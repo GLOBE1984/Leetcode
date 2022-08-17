@@ -14,40 +14,116 @@ Return the array [2, 1, 1, 0].
 
 
 
-public class Solution {
+// Solution 1
+// Implement a merge sort function.
+// For each element i, the function records the number of elements jumping from i's right to i's left during the merge sort.
+// Merge sort nums, store the number of elements jumping from right to left in result.
+// Alternatively, one can sort the indices with corresponding values in nums. That is to say, we are going to sort list [0, 1, ..., n-1] according to the comparator nums[i]. This helps to track the indices and update result. You can find additional details in the implementations below.
+// Return result.
+class Solution {
     public List<Integer> countSmaller(int[] nums) {
-        List<Integer> res = new ArrayList<Integer>(nums.length);
-        List<Integer> index = new ArrayList<Integer>(nums.length);
-
-        for (int i = nums.length-1; i >= 0; i--) {
-            res.add(0);
-            index.add(i);
-        }
-
-        countSmallerSub(nums, index, 1 << 31, res);
-
-        return res;
-    }
-
-    private void countSmallerSub(int[] nums, List<Integer> index, int mask, List<Integer> res) {
-        if (mask != 0 && index.size() > 1) {
-            List<Integer> highGroup = new ArrayList<Integer>(index.size());
-            List<Integer> lowGroup = new ArrayList<Integer>(index.size());
-
-            int highBit = (mask < 0 ? 0 : mask);
-
-            for (int i = 0; i < index.size(); i++) {
-                if ((nums[index.get(i)] & mask) == highBit) {
-                    res.set(index.get(i), res.get(index.get(i)) + lowGroup.size());
-                    highGroup.add(index.get(i));
-                } 
-                else {
-                    lowGroup.add(index.get(i));
-                }
+        List<Integer> results = new ArrayList<>();
+        
+        if(nums != null && nums.length > 0) {
+            int[] indices = new int[nums.length];
+            
+            for(int i = 0; i < nums.length; ++i) {
+                indices[i] = i;
+                results.add(0);
             }
-
-            countSmallerSub(nums, lowGroup, mask >>> 1, res);
-            countSmallerSub(nums, highGroup, mask >>> 1, res);
+            
+            mergeSort(nums, indices, 0, nums.length-1, results);
         }
+        
+        return results;
+    }
+    
+    private void mergeSort(int[] nums, int[] indices, int left, int right, List<Integer> results) {
+        if(left == right) {
+            return;
+        }
+        
+        int mid = (left + right) / 2;
+        mergeSort(nums, indices, left, mid, results);
+        mergeSort(nums, indices, mid+1, right, results);
+        merge(nums, indices, left, right, mid, results);
+    }
+    
+    private void merge(int[] nums, int[] indices, int left, int right, int mid, List<Integer> results) {
+        // merge [left, mid) and [mid, right)
+        int i = left; // current index for the left array
+        int j = mid + 1; // current index for the right array
+        // use temp to temporarily store sorted array
+        List<Integer> temp = new ArrayList<Integer>();
+        
+        while(i <= mid && j <= right) {
+            if (nums[indices[i]] <= nums[indices[j]]) {
+                // j - mid - 1 numbers jump to the left side of indices[i]
+                int result = results.get(indices[i]);
+                result += j - mid - 1;
+                results.set(indices[i], result);
+                temp.add(indices[i]);
+                i++;
+            } else {
+                temp.add(indices[j]);
+                j++;
+            }
+        }
+        
+        // when one of the subarrays is empty
+        while (i <= mid) {
+            // j - mid - 1 numbers jump to the left side of indices[i]
+            int result = results.get(indices[i]);
+            result += j - mid - 1;
+            results.set(indices[i], result);
+            temp.add(indices[i]);
+            i++;
+        }
+        while (j <= right) {
+            temp.add(indices[j]);
+            j++;
+        }
+        // restore from temp
+        for (int k = left; k <= right; k++) {
+            indices[k] = temp.get(k-left);
+        }
+    }
+}
+
+
+// Solution 2: O(N^2). Needs to be improved
+class Solution {
+    public List<Integer> countSmaller(int[] nums) {
+        LinkedList<Integer> results = new LinkedList<>();
+        
+        if(nums != null && nums.length > 0) {
+            TreeMap<Integer, Integer> map = new TreeMap<>();
+            for(int i = nums.length-1; i >= 0; --i) {
+                if(!map.isEmpty()) {
+                    if(nums[i] > map.lastKey().intValue()) {
+                        results.addFirst(nums.length-i-1);
+                    } else if(nums[i] < map.firstKey().intValue()) {
+                        results.addFirst(0);
+                    } else {
+                        Map<Integer, Integer> headMap = map.headMap(nums[i]);
+                        int count = 0;
+                        Iterator<Map.Entry<Integer, Integer>> iterator = headMap.entrySet().iterator();
+                        while(iterator.hasNext()) {
+                            Map.Entry<Integer, Integer> entry = iterator.next();
+                            count += entry.getValue();
+                        }
+                        results.addFirst(count);
+                    }
+                } else {
+                    results.addFirst(0);
+                }
+                
+                int count = map.getOrDefault(nums[i], 0);
+                count++;
+                map.put(nums[i], count);
+            }
+        }
+        
+        return results;
     }
 }

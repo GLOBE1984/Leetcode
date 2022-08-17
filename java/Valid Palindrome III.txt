@@ -1,0 +1,85 @@
+Given a string s and an integer k, return true if s is a k-palindrome.
+
+A string is k-palindrome if it can be transformed into a palindrome by removing at most k characters from it.
+
+ 
+
+Example 1:
+Input: s = "abcdeca", k = 2
+Output: true
+Explanation: Remove 'b' and 'e' characters.
+
+Example 2:
+Input: s = "abbababa", k = 1
+Output: true
+ 
+
+Constraints:
+
+1 <= s.length <= 1000
+s consists of only lowercase English letters.
+1 <= k <= s.length
+
+
+
+
+class Solution {
+    public boolean isValidPalindrome(String s, int k) {
+        if(s != null && s.length() > 0) {
+            int[][] dp = new int[s.length()][s.length()];
+            for(int i = 0; i < s.length(); ++i) {
+                for(int j = 0; j < s.length(); ++j) {
+                    if(i != j) {
+                        dp[i][j] = -1;
+                    } else {
+                        dp[i][j] = 0;
+                    }
+                }
+            }
+            for(int i = s.length()-1; i >= 0; --i) {
+                for(int j = i+1; j < s.length(); ++j) {
+                    if(dp[i+1][j-1] == 0 && s.charAt(i) == s.charAt(j)) {
+                        dp[i][j] = 0;
+                    } else if(j == i+1 && s.charAt(i) == s.charAt(j)) {
+                        dp[i][j] = 0;
+                    }
+                }
+            }
+                        
+            return isValidPalindrome(s, 0, s.length()-1, dp) <= k;
+        } else {
+            return true;
+        }
+    }
+    
+    private int isValidPalindrome(String s, int left, int right, int[][] dp) {
+        if(dp[left][right] == 0) {
+            return 0;
+        }
+        
+        if(left == right-1) {
+            if(dp[left][right] == 0) {
+                return 0;
+            } else {
+                dp[left][right] = 1;
+                return 1;
+            }
+        }
+        
+        if(dp[left][right] != -1) {
+            return dp[left][right];
+        }
+        
+        int count = Integer.MAX_VALUE;
+        if(s.charAt(left) == s.charAt(right)) {
+            count = isValidPalindrome(s, left+1, right-1, dp);
+        } else {
+            count = Math.min(count, 2+isValidPalindrome(s, left+1, right-1, dp));
+            count = Math.min(count, 1+isValidPalindrome(s, left+1, right, dp));
+            count = Math.min(count, 1+isValidPalindrome(s, left, right-1, dp));
+        }
+        dp[left][right] = count;
+        
+        return count;
+    }
+}

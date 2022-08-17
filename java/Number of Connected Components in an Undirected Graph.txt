@@ -25,6 +25,7 @@ There are no repeated edges.
 
 
 
+// Solution 1: 
 class Solution {
     public int countComponents(int n, int[][] edges) {
         int count = 0;
@@ -66,5 +67,56 @@ class Solution {
         }
         
         return count;
+    }
+}
+
+
+// Solution 2: 
+class Solution {
+    public int countComponents(int n, int[][] edges) {
+        int[] vertice = new int[n];
+        for(int i = 0; i < n; ++i) {
+            vertice[i] = i;
+        }
+        
+        int[] sizes = new int[n];
+        Arrays.fill(sizes, 1);
+        
+        for(int[] edge : edges) {
+            uion(edge[0], edge[1], vertice, sizes);
+        }
+        
+        Set<Integer> roots = new HashSet<>();
+        for(int i = 0; i < n; ++i) {
+            int root = find(i, vertice);
+            if(!roots.contains(root)) {
+                roots.add(root);
+            }
+        }
+        return roots.size();
+    }
+    
+    private void uion(int v1, int v2, int[] vertice, int[] sizes) {
+        int root1 = find(v1, vertice);
+        int root2 = find(v2, vertice);
+        if(root1 != root2) {
+            if(sizes[root1] <= sizes[root2]) {
+                vertice[root1] = root2;
+                sizes[root2] += sizes[root1];
+            } else {
+                vertice[root2] = root1;
+                sizes[root1] += sizes[root2];
+            }
+        }
+    }
+    
+    private int find(int v, int[] vertice) {
+        int current = v;
+        int parent = vertice[current];
+        while(parent != current) {
+            current = parent;
+            parent = vertice[current];
+        }
+        return parent;
     }
 }

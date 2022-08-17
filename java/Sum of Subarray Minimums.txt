@@ -1,0 +1,61 @@
+Given an array of integers arr, find the sum of min(b), where b ranges over every (contiguous) subarray of arr. Since the answer may be large, return the answer modulo 109 + 7.
+
+ 
+
+Example 1:
+Input: arr = [3,1,2,4]
+Output: 17
+Explanation: 
+Subarrays are [3], [1], [2], [4], [3,1], [1,2], [2,4], [3,1,2], [1,2,4], [3,1,2,4]. 
+Minimums are 3, 1, 2, 4, 1, 1, 2, 1, 1, 1.
+Sum is 17.
+
+Example 2:
+Input: arr = [11,81,94,43,3]
+Output: 444
+ 
+
+Constraints:
+
+1 <= arr.length <= 3 * 10^4
+1 <= arr[i] <= 3 * 10^4
+
+
+
+
+
+// It is likely that we'll consider the O(n^2) solution optimal since we are adding O(n^2) numbers. But if we jump out of the box of "adding number one at a time", we'll see a O(n) solution. For each array element A[i], if we can find out how many subarrays have it as the minimum in O(1) time, we'll get the total sum in O(n) time. To do this, we need to find out the left and right effect bound of A[i] as the minimum in subarrays. If we have these two bounds, then A[i]'s contribution to the total sum is just A[i] * (i - leftBound) * (rightBound - i). Intuitively, we need to find the first previous smaller element and the first next element. This is a hint that we should consider monotonic stack. Based on this analysis, we derive the following algorithm. 
+// 1. Maintain a non-decreasing stack, push indices into this stack as long as the current element does not break the non-decreasing invariant. This essentially means we have not reached the right effect bound of some of the elements that are just pushed.
+// 2. If the current element is smaller, then we know that we just found the right bound! Pop the stack until the current element is no bigger. For each poped element(index), we calculate its contribution to the total sum. The current index i is the right bound, the poped index j represents the element of interest. The left bound is the the top index k that is in the stack. A very important reason that we maintain a non-decreasing, but not strictly increasing stack, is to handle the case where there are more than 1 element of the same value that can be considered as subarrays minimum. Consider the following example:
+// 2　　3　　4　　9　　3　　8　　3　　4　　6　　1
+// There are three elements of value 3. If we use a strictly increasing stack, then we would calculate the same 3's contribution more than once. 
+// The 2nd 3 will result in the calculation of the 1st 3's contribution; The 1st 3's min effect range is  3　　4　　9　　3
+// The 3rd 3 will result in the calculation of the 2nd 3's contribution; The 2nd 3's min effect range is  3　　4　　9　　3　　8　　3
+// As you can see, the 1st 3's contribution is considered twice.  To fix this, we keep a non decreasing stack to enfore this: for the same value, its min effect range only goes back to the next index of its previous same element. In the above example, we have the following effect ranges for all 3s.
+// 1st 3: 3　　4　　9　　3
+// 2nd 3: 4　　9　　3　　8　　3 
+// 3rd 3: 8　　3　　4　　6
+
+ 
+
+// Another trick this algorithm used is that since we know A[i] > 0, we append a 0 at the end of the array to enforce all indices in the stack get popped and their contributions calculated. 
+
+class Solution {
+    public int sumSubarrayMins(int[] arr) {
+        long res = 0l;
+        Stack<Integer> stack = new Stack<>();
+        int k  = 0;
+        int j = 0;
+        int mod = 1000000007;
+        for(int i = 0; i <= arr.length; i++){
+            while(!stack.isEmpty() && arr[stack.peek()] > (i == arr.length ? Integer.MIN_VALUE : arr[i])){
+                j = stack.pop();
+                k = stack.isEmpty() ? -1: stack.peek();
+                
+                res = (res + (i - j) * (j - k) * (long)arr[j]) % mod;
+            }
+            stack.push(i);
+        }
+        return (int)res;
+    }
+}

@@ -13,6 +13,7 @@ return 10 as area=[height=5, width=2(5 and 6)].
 
 
 
+// Solution 1:
 class Solution {
     public int largestRectangleArea(int[] heights) {
         if(heights != null && heights.length > 0) {
@@ -29,8 +30,7 @@ class Solution {
                     if(queue.peek().val > heights[i]) {
                         Bar bar = queue.poll();
                         areas[bar.x] = bar.val * (i-bar.x);
-                    }
-                    else {
+                    } else {
                         break;
                     }
                 }
@@ -50,8 +50,7 @@ class Solution {
                     if(queue.peek().val > heights[i]) {
                         Bar bar = queue.poll();
                         areas[bar.x] = areas[bar.x] + bar.val * (bar.x-i);
-                    }
-                    else {
+                    } else {
                         break;
                     }
                 }

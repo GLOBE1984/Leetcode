@@ -8,34 +8,29 @@ Note: The length of temperatures will be in the range [1, 30000]. Each temperatu
 
 
 
+// Use non-increasing monotone stack
 class Solution {
-    public int[] dailyTemperatures(int[] T) {
-        if(T != null && T.length > 0) {
-            Deque<Integer> stack = new ArrayDeque<>();
-            int[] rst = new int[T.length];
-            for (int i = 0; i < T.length; i++) {
-                while (!stack.isEmpty() && T[i] > T[stack.peek()]) {
-                    int index = stack.pop();
-                    rst[index] = i - index;
+    public int[] dailyTemperatures(int[] temperatures) {
+        if(temperatures != null & temperatures.length > 0) {
+            int[] results = new int[temperatures.length];
+            Stack<Integer> stack = new Stack<>();
+            
+            for(int i = 0; i < temperatures.length; ++i) {
+                while(!stack.empty() && temperatures[stack.peek().intValue()] < temperatures[i]) {
+                    int index = stack.pop().intValue();
+                    results[index] = i - index;
                 }
                 stack.push(i);
             }
-            return rst;
+            
+            while(!stack.empty()) {
+                int index = stack.pop().intValue();
+                results[index] = 0;
+            }
+            
+            return results;
         } else {
             return new int[0];
         }
-    }
-    
-    private class Temperature {
-        
-        private int temperature;
-        
-        private int index;
-        
-        private Temperature(int temperature, int index) {
-            this.temperature = temperature;
-            this.index = index;
-        }
-        
     }
 }

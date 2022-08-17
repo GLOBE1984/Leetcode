@@ -1,0 +1,93 @@
+The variance of a string is defined as the largest difference between the number of occurrences of any 2 characters present in the string. Note the two characters may or may not be the same.
+
+Given a string s consisting of lowercase English letters only, return the largest variance possible among all substrings of s.
+
+A substring is a contiguous sequence of characters within a string.
+
+ 
+
+Example 1:
+Input: s = "aababbb"
+Output: 3
+Explanation:
+All possible variances along with their respective substrings are listed below:
+- Variance 0 for substrings "a", "aa", "ab", "abab", "aababb", "ba", "b", "bb", and "bbb".
+- Variance 1 for substrings "aab", "aba", "abb", "aabab", "ababb", "aababbb", and "bab".
+- Variance 2 for substrings "aaba", "ababbb", "abbb", and "babb".
+- Variance 3 for substring "babbb".
+Since the largest possible variance is 3, we return it.
+
+Example 2:
+Input: s = "abcde"
+Output: 0
+Explanation:
+No letter occurs more than once in s, so the variance of every substring is 0.
+ 
+
+Constraints:
+1 <= s.length <= 10^4
+s consists of lowercase English letters.
+
+
+
+
+
+class Solution {
+    public int largestVariance(String s) {
+        int n = s.length();
+        int maxVariance = 0;
+        
+        int[] freq = new int[26];
+        
+        // Count the frequency of each character
+        for (int i = 0; i < n; ++i) {
+            freq[s.charAt(i)-'a']++;
+        }
+        
+        // For each character pair the frequencies of which are both > 0, set one to 1 and one to -1, then transfer the problem to find largest differences in the sub array
+        for (int i = 0; i < 26; ++i) {
+            for (int j = 0; j < 26; ++j) {
+                if (i == j || freq[i] == 0 || freq[j] == 0) {
+                    continue;
+                }
+
+                int[] nums = new int[n];
+                
+                for (int k = 0; k < n; ++k) {
+                    int c = s.charAt(k) - 'a';
+                    if (c == i) {
+                        nums[i] = 1;
+                    } else if (c == k) {
+                        nums[i] = -1;
+                    }
+                }
+                maxVariance = Math.max(maxVariance, findVariance(nums));
+            }
+        }
+        return maxVariance;
+    }
+    
+    // Kadane algorithm
+    // We want to maximize the number of a's, but we need at least 1 b. "aaaa" has 4 a's, but variance is 0. "aaba" has 3 a's and 1 b, variance is 2.
+    // So we focus on where there is a b. We take the maximum variance from all substrings that ends with b, and maximum variance from all substrings that starts with that same b, minus -1, to get the maximum variance from all substrings containing b.
+    private int findVariance(int[] nums) {
+        int n = nums.length;
+        
+        int[] dpForward = new int[n];
+        dpForward[0] = nums[0];
+        for (int i = 1; i < n; ++i) {
+            dpForward[i] = Math.max(dpForward[i-1]+nums[i], nums[i]);
+        }
+        
+        int curSum = 0;
+        int maxVariance = 0;
+        for (int i = n-1; i >= 0; --i) {
+            curSum = Math.max(curSum+nums[i], nums[i]);
+            if (nums[i] == -1) {
+                maxVariance = Math.max(maxVariance, dpForward[i]+curSum-nums[i]);
+            }
+        }
+
+        return maxVariance;
+    }
+}

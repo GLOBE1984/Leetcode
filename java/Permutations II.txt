@@ -24,6 +24,7 @@ Constraints:
 
 
 
+// Solution 1: 
 class Solution {
     public List<List<Integer>> permuteUnique(int[] nums) {
         List<List<Integer>> results = new ArrayList<>();
@@ -50,6 +51,53 @@ class Solution {
                 indexRecords.remove(i);
                 numRecords.add(nums[i]);
             }
+        }
+    }
+}
+
+
+// Solution 2: 
+class Solution {
+    public List<List<Integer>> permuteUnique(int[] nums) {
+        List<List<Integer>> results = new ArrayList<>();
+        
+        if(nums.length > 0) {
+            Node node = new Node();
+            dfs(nums, node, results);
+        }
+        
+        return results;
+    }
+    
+    private void dfs(int[] nums, Node node, List<List<Integer>> results) {
+        if(node.list.size() == nums.length) {
+            results.add(node.list);
+        } else {
+            Set<Integer> set = new HashSet<>();
+            for(int i = 0; i < nums.length; ++i) {
+                if(!set.contains(nums[i]) && !node.indexes.contains(i)) {
+                    Node copy = new Node(node);
+                    copy.list.add(nums[i]);
+                    copy.indexes.add(i);
+                    dfs(nums, copy, results);
+                    set.add(nums[i]);
+                }
+            }
+        }
+    }
+    
+    private class Node {
+        private List<Integer> list;
+        private Set<Integer> indexes;
+        
+        private Node() {
+            this.list = new ArrayList<>();
+            this.indexes = new HashSet<>();
+        }
+        
+        private Node(Node node) {
+            this.list = new ArrayList<>(node.list);
+            this.indexes = new HashSet<>(node.indexes);
         }
     }
 }

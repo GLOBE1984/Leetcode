@@ -20,218 +20,121 @@ There may be multiple valid order of letters, return any one of them is fine.
 
 
 
-public class Solution {
+
+class Solution {
     public String alienOrder(String[] words) {
-        if(words != null && words.length != 0) {
-            int length = words.length;
-            Map<Integer, Set<Node>> map = new HashMap<Integer, Set<Node>>();
-            Nodes nodes = new Nodes();
+        if(words != null && words.length > 0) {
+            int[] ingress = new int[26];
+            Arrays.fill(ingress, -1);
             
-            boolean existed = alienOrder(Arrays.asList(words), map, nodes, 0);
-            
-            if(existed) {
-                StringBuilder builder = new StringBuilder();
-                
-                int size = map.keySet().size();
-                for(int level = 1; level <= size; ++level) {
-                    Set<Node> nodes_level = map.get(level);
-                    if(nodes_level != null) {
-                        for(Node node_level : nodes_level) {
-                            builder.append(node_level.getC());
-                        }
+            for(String word : words) {
+                for(int i = 0; i < word.length(); ++i) {
+                    char c = word.charAt(i);
+                    if(ingress[c-'a'] == -1) {
+                        ingress[c-'a'] = 0;
                     }
                 }
-                
-                return builder.toString();
             }
-            else {
+            
+            int[][] outgress = new int[26][26];
+            
+            // Analyze the lexicographically order from the order of strings
+            // Only keep list with size > 1 for the analysis on the next index
+            // [["wrt","wrf","er","ett","rftt"]] (index = 0: w < e < r)-> [["wrt", "wrf"], ["er", "ett"]] (index = 1: r < t)-> [["wrt", "wrf"]] (index = 2: t < f)-> []
+            List<List<String>> groups = new ArrayList<>();
+            groups.add(Arrays.asList(words));
+            int index = 0;
+            while(!groups.isEmpty()) {
+                List<List<String>> tmps = new ArrayList<>();
+                for(int i = 0; i < groups.size(); ++i) {
+                    List<String> group = groups.get(i);
+                    String str = group.get(0);
+                    int prevLength = str.length();
+                    char prev = str.charAt(index);
+                    List<String> tmp = new ArrayList<>();
+                    if(index < str.length()-1) {
+                        tmp.add(str);
+                    }
+                    for(int j = 1; j < group.size(); ++j) {
+                        str = group.get(j);
+                        int currentLength = str.length();
+                        char current = str.charAt(index);
+                        if(prev != current) {
+                            // Establish order in the graph
+                            if(outgress[current-'a'][prev-'a'] == 1) {
+                                // There is cycle between character prev and current
+                                return "";
+                            }
+                            // Avoid duplicated count
+                            if(outgress[prev-'a'][current-'a'] == 0) {
+                                outgress[prev-'a'][current-'a'] = 1;
+                                ingress[current-'a']++;
+                            }
+                            // Add previous group to the next round if the size > 1
+                            if(tmp.size() > 1) {
+                                tmps.add(tmp);
+                            }
+                            tmp = new ArrayList<>();
+                        } else {
+                            // if previous length < current length, the rule is violated
+                            if(index == currentLength-1 && index < prevLength-1) {
+                                return "";
+                            }
+                        }
+                        prev = current;
+                        prevLength = currentLength;
+                        if(index < str.length()-1) {
+                            tmp.add(str);
+                        }
+                    }
+                    if(tmp.size() > 1) {
+                        tmps.add(tmp);
+                    }
+                }
+                index++;
+                groups = tmps;
+            }
+            
+            
+            int length = 0;            
+            Queue<Character> queue = new LinkedList<>();
+            for(int i = 0; i < 26; ++i) {
+                if(ingress[i] > -1) {
+                    if(ingress[i] == 0) {
+                        queue.offer((char)('a'+i));
+                    }
+                    length++;
+                }
+            }
+            
+            // if queue is empty, it means the graph is cycled.
+            if(queue.isEmpty()) {
                 return "";
             }
-        }
-        else {
-            return "";
-        }
-    }
-    
-    private boolean alienOrder(List<String> words, Map<Integer, Set<Node>> map, Nodes nodes, int index) {
-        if(words.size() == 0) {
-            return true;
-        }
-        
-        List<String> tmp = new ArrayList<String>();
-        int size = words.size();
-        char prev = '+';
-        boolean existed = true;
-        for(int i = 0; i < size; ++i) {
-            String word = words.get(i);
-            if(index < word.length()) {
-                char c = word.charAt(index);
-                if(prev != '+' && prev != c) {
-                    Node node_prev = nodes.getNode(prev);
-                    if(nodes.hasNode(c)) {
-                        Node node = nodes.getNode(c);
-                        if(node.getAfters().contains(node_prev)) {
-                            existed = false;
-                            break;
-                        }
-                        else {
-                            if(node_prev.getBefores().contains(node)) {
-                                existed = false;
-                                break;
-                            }
-                            else {
-                                node_prev.getAfters().addAll(node.getAfters());
-                                node_prev.getAfters().add(node);
-                                int level_current = node_prev.getLevel() + 1;
-                                Queue<Node> queue = new LinkedList<Node>();
-                                queue.offer(node);
-                                while(!queue.isEmpty()) {
-                                    Queue<Node> queue_level = new LinkedList<Node>();
-                                    while(!queue.isEmpty()) {
-                                        Node current = queue.poll();
-                                        if(current.getLevel() < level_current) {
-                                            changeMap(map, current, level_current);
-                                        
-                                            for(Node after : current.getAfters()) {
-                                                queue_level.offer(after);
-                                            }
-                                        }
-                                        node_prev.getAfters().addAll(current.getAfters());
-                                        node_prev.getAfters().add(current);
-                                        current.getBefores().addAll(node_prev.getBefores());
-                                        current.getBefores().add(node_prev);
-                                    }
-                                    level_current++;
-                                    queue = queue_level;
-                                }
+            
+            StringBuilder builder = new StringBuilder();
+            while(!queue.isEmpty()) {
+                int size = queue.size();
+                int i = 0;
+                while(i < size) {
+                    char c = queue.poll().charValue();
+                    builder.append(c);
+                    for(int j = 0; j < 26; ++j) {
+                        if(outgress[c-'a'][j] == 1) {
+                            ingress[j]--;
+                            if(ingress[j] == 0) {
+                                queue.offer((char)('a'+j));
                             }
                         }
-                    }
-                    else {
-                        Node node = new Node(c);
-                        int level = node_prev.getLevel() + 1;
-                        changeMap(map, node, level);
-                                
-                        node_prev.getAfters().addAll(node.getAfters());
-                        node_prev.getAfters().add(node);
-                        node.getBefores().addAll(node_prev.getBefores());
-                        node.getBefores().add(node_prev);
-                        
-                        nodes.addNode(node);
                     }
                     
-                    existed = existed && alienOrder(tmp, map, nodes, index+1);
-                    if(!existed) {
-                        return existed;
-                    }
-                    tmp.clear();
+                    i++;
                 }
-                else if(prev == '+') {
-                    if(!nodes.hasNode(c)) {
-                        Node node = new Node(c);
-                        changeMap(map, node, 1);
-                        
-                        nodes.addNode(node);
-                    }
-                }
-                prev = c;
-                tmp.add(word);
-            }
-        }
-        
-        existed = existed && alienOrder(tmp, map, nodes, index+1);
-        
-        return existed;
-    }
-    
-    private void changeMap(Map<Integer, Set<Node>> map, Node node, int level_new) {
-        if(node.getLevel() < level_new) {
-            int level = node.getLevel();
-            Set<Node> nodes_level = map.get(Integer.valueOf(level));
-            if(nodes_level != null) {
-                nodes_level.remove(node);
-                map.put(Integer.valueOf(level), nodes_level);
             }
             
-            node.setLevel(level_new);
-            nodes_level = map.get(Integer.valueOf(level_new));
-            if(nodes_level == null) {
-                nodes_level = new HashSet<Node>();
-            }
-            nodes_level.add(node);
-            map.put(Integer.valueOf(level_new), nodes_level);
-        }
-    }
-    
-    private class Node {
-        private final char c;
-        private final Set<Node> befores;
-        private final Set<Node> afters;
-        private int level;
-        
-        public Node(char c) {
-            this.c = c;
-            this.befores = new HashSet<Node>();
-            this.afters = new HashSet<Node>();
-            this.level = 0;
-        }
-        
-        public char getC() {
-            return this.c;
-        }
-        
-        public Set<Node> getBefores() {
-            return this.befores;
-        }
-        
-        public Set<Node> getAfters() {
-            return this.afters;
-        }
-        
-        public int getLevel() {
-            return this.level;
-        }
-        
-        public void setLevel(int level) {
-            this.level = level;
-        }
-        
-        public int hashCode() {
-            return this.c;
-        }
-        
-        public boolean	equals(Object obj) {
-            if(!(obj instanceof Node)) {
-                return false;
-            }
-            else {
-                Node node = (Node)obj;
-                return this.c == node.c;
-            }
-        }
-    }
-    
-    private class Nodes {
-        private Map<Character, Node> nodes;
-        
-        public Nodes() {
-            this.nodes = new HashMap<Character, Node>();
-        }
-        
-        public Node getNode(char c) {
-            return this.nodes.get(Character.valueOf(c));
-        }
-        
-        public boolean hasNode(char c) {
-            return getNode(c) != null;
-        }
-        
-        public void addNode(char c) {
-            this.nodes.put(Character.valueOf(c), new Node(c));
-        }
-        
-        public void addNode(Node node) {
-            this.nodes.put(node.getC(), node);
+            return length == builder.length() ? builder.toString() : "";
+        } else {
+            return "";
         }
     }
 }

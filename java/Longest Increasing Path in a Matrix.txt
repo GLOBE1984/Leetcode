@@ -26,6 +26,7 @@ Explanation: The longest increasing path is [3, 4, 5, 6]. Moving diagonally is n
 
 
 
+// Solution 1:
 class Solution {
     public int longestIncreasingPath(int[][] matrix) {
         int result = 0;
@@ -102,5 +103,46 @@ class Solution {
             return "[" + this.row + ", " + this.col + "]";
         }
         
+    }
+}
+
+
+// Solution 2:
+class Solution {
+    public int longestIncreasingPath(int[][] matrix) {
+        if(matrix != null && matrix.length > 0 && matrix[0].length > 0) {
+            int[][] records = new int[matrix.length][matrix[0].length];
+            
+            int longest = 0;
+            for(int i = 0; i < matrix.length; ++i) {
+                for(int j = 0; j < matrix[0].length; ++j) {
+                    if(records[i][j] == 0) {
+                        longest = Math.max(longest, longestIncreasingPath(matrix, records, i, j));
+                    }
+                }
+            }
+            
+            return longest;
+        } else {
+            return 0;
+        }
+    }
+    
+    private int longestIncreasingPath(int[][] matrix, int[][] records, int row, int col) {
+        if(records[row][col] != 0) {
+            return records[row][col];
+        }
+        
+        int[][] diffs = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+        int longest = 1;
+        for(int[] diff : diffs) {
+            int x = row + diff[0];
+            int y = col + diff[1];
+            if(x >= 0 && x < matrix.length && y >= 0 && y < matrix[0].length && matrix[row][col] < matrix[x][y]) {
+                longest = Math.max(longest, 1+longestIncreasingPath(matrix, records, x, y));
+            }
+        }
+        records[row][col] = longest;
+        return longest;
     }
 }

@@ -1,0 +1,107 @@
+You are given an empty 2D binary grid grid of size m x n. The grid represents a map where 0's represent water and 1's represent land. Initially, all the cells of grid are water cells (i.e., all the cells are 0's).
+
+We may perform an add land operation which turns the water at position into a land. You are given an array positions where positions[i] = [ri, ci] is the position (ri, ci) at which we should operate the ith operation.
+
+Return an array of integers answer where answer[i] is the number of islands after turning the cell (ri, ci) into a land.
+
+An island is surrounded by water and is formed by connecting adjacent lands horizontally or vertically. You may assume all four edges of the grid are all surrounded by water.
+
+ 
+
+Example 1:
+Input: m = 3, n = 3, positions = [[0,0],[0,1],[1,2],[2,1]]
+Output: [1,1,2,3]
+Explanation:
+Initially, the 2d grid is filled with water.
+- Operation #1: addLand(0, 0) turns the water at grid[0][0] into a land. We have 1 island.
+- Operation #2: addLand(0, 1) turns the water at grid[0][1] into a land. We still have 1 island.
+- Operation #3: addLand(1, 2) turns the water at grid[1][2] into a land. We have 2 islands.
+- Operation #4: addLand(2, 1) turns the water at grid[2][1] into a land. We have 3 islands.
+
+Example 2:
+Input: m = 1, n = 1, positions = [[0,0]]
+Output: [1]
+ 
+
+Constraints:
+1 <= m, n, positions.length <= 104
+1 <= m * n <= 104
+positions[i].length == 2
+0 <= ri < m
+0 <= ci < n
+ 
+
+Follow up: Could you solve it in time complexity O(k log(mn)), where k == positions.length?
+
+
+
+
+
+class Solution {
+    public List<Integer> numIslands2(int m, int n, int[][] positions) {
+        List<Integer> results = new ArrayList<>();
+        
+        if(m > 0 && n > 0 && positions != null && positions.length > 0) {
+            int[] points = new int[m*n];
+            Arrays.fill(points, -1);
+            
+            int[] sizes = new int[m*n];
+            Arrays.fill(sizes, 1);
+            
+            Set<Integer> roots = new HashSet<>();
+            for(int[] position : positions) {
+                union(m, n, position[0], position[1], roots, points, sizes);
+                results.add(roots.size());
+            }
+        }
+        
+        return results;
+    }
+    
+    private int convert(int n, int row, int col) {
+        return row * n + col;
+    }
+    
+    private void union(int m, int n, int row, int col, Set<Integer> roots, int[] points, int[] sizes) {
+        int point = convert(n, row, col);
+        points[point] = point;
+        int[][] diffs = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+        int count = 0;
+        for(int[] diff : diffs) {
+            int newRow = row + diff[0];
+            int newCol = col + diff[1];
+            if(newRow >= 0 && newRow < m && newCol >= 0 && newCol < n) {
+                int newPoint = convert(n, newRow, newCol);
+                if(points[newPoint] > -1) {
+                    int root1 = find(point, points);
+                    int root2 = find(newPoint, points);
+                    if(root1 != root2) {
+                        if(sizes[root1] <= sizes[root2]) {
+                            points[root1] = root2;
+                            sizes[root2] += sizes[root1];
+                            roots.remove(root1);
+                        } else {
+                            points[root2] = root1;
+                            sizes[root1] += sizes[root2];
+                            roots.remove(root2);
+                        }
+                    }
+                    count++;
+                }
+            }
+        }
+        if(count == 0) {
+            roots.add(point);
+        }
+    }
+    
+    private int find(int point, int[] points) {
+        int current = point;
+        int parent = points[current];
+        while(parent != current) {
+            current = parent;
+            parent = points[current];
+        }
+        return parent;
+    }
+}

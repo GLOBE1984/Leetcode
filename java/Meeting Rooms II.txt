@@ -1,52 +1,105 @@
-Given an array of meeting time intervals consisting of start and end times [[s1,e1],[s2,e2],...] (si < ei), find the minimum number of conference rooms required.
+Given an array of meeting time intervals intervals where intervals[i] = [starti, endi], return the minimum number of conference rooms required.
 
-For example,
-Given [[0, 30],[5, 10],[15, 20]],
-return 2.
+ 
+
+Example 1:
+Input: intervals = [[0,30],[5,10],[15,20]]
+Output: 2
+
+Example 2:
+Input: intervals = [[7,10],[2,4]]
+Output: 1
+ 
+
+Constraints:
+
+1 <= intervals.length <= 10^4
+0 <= starti < endi <= 10^6
 
 
 
 
 
-/**
- * Definition for an interval.
- * public class Interval {
- *     int start;
- *     int end;
- *     Interval() { start = 0; end = 0; }
- *     Interval(int s, int e) { start = s; end = e; }
- * }
- */
+// Solution 1
 class Solution {
-    public int minMeetingRooms(Interval[] intervals) {
+    public int minMeetingRooms(int[][] intervals) {
         if(intervals != null && intervals.length > 0) {
-            Arrays.sort(intervals, new Comparator<Interval>(){
-                public int compare(Interval i1, Interval i2) {
-                    if(i1.start != i2.start) {
-                        return i1.start - i2.start;
-                    }
-                    else {
-                        return i1.end - i2.end;
+            Arrays.sort(intervals, new Comparator<int[]>(){
+                
+                public int compare(int[] interval1, int[] interval2) {
+                    if(interval1[0] != interval2[0]) {
+                        return interval1[0] - interval2[0];
+                    } else {
+                        return interval1[1] - interval2[1];
                     }
                 }
+                
             });
             
-            PriorityQueue<Integer> ends = new PriorityQueue<Integer>();
             int max = 0;
-            for(Interval interval : intervals) {
-                if(!ends.isEmpty()) {
-                    Integer first = ends.peek();
-                    if(first.intValue() <= interval.start) {
-                        ends.poll();
-                    }
+            PriorityQueue<Integer> queue = new PriorityQueue<>();
+            for(int[] interval : intervals) {
+                if(!queue.isEmpty() && queue.peek().intValue() <= interval[0]) {
+                    queue.poll();
                 }
-                ends.offer(interval.end);
-                max = Math.max(max, ends.size());
-            }            
+                queue.offer(interval[1]);
+                max = Math.max(max, queue.size());
+            }
+            
             return max;
-        }
-        else {
+        } else {
             return 0;
         }
-    }
+    } 
+}
+
+
+// Solution 2
+class Solution {
+    public int minMeetingRooms(int[][] intervals) {
+        
+        // Check for the base case. If there are no intervals, return 0
+        if (intervals.length == 0) {
+          return 0;
+        }
+
+        Integer[] start = new Integer[intervals.length];
+        Integer[] end = new Integer[intervals.length];
+
+        for (int i = 0; i < intervals.length; i++) {
+          start[i] = intervals[i][0];
+          end[i] = intervals[i][1];
+        }
+        
+        // Sort the intervals by start time
+        Arrays.sort(start);
+
+        // Sort the intervals by end time
+        Arrays.sort(end);
+
+        // The two pointers in the algorithm: e_ptr and s_ptr.
+        int startPointer = 0, endPointer = 0;
+
+        // Variables to keep track of maximum number of rooms used.
+        int usedRooms = 0;
+
+        // Iterate over intervals.
+        while (startPointer < intervals.length) {
+
+          // If there is a meeting that has ended by the time the meeting at `start_pointer` starts
+          if (start[startPointer] >= end[endPointer]) {
+            usedRooms -= 1;
+            endPointer += 1;
+          }
+
+          // We do this irrespective of whether a room frees up or not.
+          // If a room got free, then this used_rooms += 1 wouldn't have any effect. used_rooms would
+          // remain the same in that case. If no room was free, then this would increase used_rooms
+          usedRooms += 1;
+          startPointer += 1;
+
+        }
+
+        return usedRooms;
+  }
 }

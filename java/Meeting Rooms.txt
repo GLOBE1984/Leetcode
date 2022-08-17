@@ -1,47 +1,55 @@
-Given an array of meeting time intervals consisting of start and end times [[s1,e1],[s2,e2],...] (si < ei), determine if a person could attend all meetings.
+Given an array of meeting time intervals where intervals[i] = [starti, endi], determine if a person could attend all meetings.
 
-For example,
-Given [[0, 30],[5, 10],[15, 20]],
-return false.
+ 
+
+Example 1:
+Input: intervals = [[0,30],[5,10],[15,20]]
+Output: false
+
+Example 2:
+Input: intervals = [[7,10],[2,4]]
+Output: true
+ 
+
+Constraints:
+0 <= intervals.length <= 10^4
+intervals[i].length == 2
+0 <= starti < endi <= 10^6
 
 
 
 
 
-/**
- * Definition for an interval.
- * public class Interval {
- *     int start;
- *     int end;
- *     Interval() { start = 0; end = 0; }
- *     Interval(int s, int e) { start = s; end = e; }
- * }
- */
 class Solution {
-    public boolean canAttendMeetings(Interval[] intervals) {
+    public boolean canAttendMeetings(int[][] intervals) {
         if(intervals != null && intervals.length > 0) {
-            Arrays.sort(intervals, new Comparator<Interval>(){
-                public int compare(Interval i1, Interval i2) {
-                    if(i1.start != i2.start) {
-                        return i1.start - i2.start;
+            Arrays.sort(intervals, new Comparator<int[]>(){
+                
+                public int compare(int[] interval1, int[] interval2) {
+                    if(interval1[0] != interval2[0]) {
+                        return interval1[0] - interval2[0];
+                    } else {
+                        return interval1[1] - interval2[1];
                     }
-                    else {
-                        return i1.end - i2.end;
-                    }
-                }
+                } 
+                
             });
             
-            int end = -1;
-            for(Interval interval : intervals) {
-                if(interval.start < end) {
+            int start = 0;
+            int end = 0;
+            for(int[] interval : intervals) {
+                if(end <= interval[0]) {
+                    start = interval[0];
+                    end = interval[1];
+                } else {
                     return false;
                 }
-                end = interval.end;
             }
+            
             return true;
-        }
-        else {
+        } else {
             return true;
         }
     }
+}   }
 }

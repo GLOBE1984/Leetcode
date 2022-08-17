@@ -27,10 +27,7 @@ class Solution {
             TreeMap<Integer, Set<String>> lengthMap = new TreeMap<>();
             for(String word : words) {
                 int length = word.length();
-                Set<String> set = lengthMap.get(length);
-                if(set == null) {
-                    set = new HashSet<>();
-                }
+                Set<String> set = lengthMap.getOrDefault(length, new HashSet<>());
                 set.add(word);
                 lengthMap.put(length, set);
             }
@@ -76,8 +73,8 @@ class Solution {
             if(node == null) {
                 return false;
             }
-            if(node.isEnd && i != word.length() - 1) {
-                String subWord = word.substring(i + 1);
+            if(node.isEnd && i != word.length()-1) {
+                String subWord = word.substring(i+1);
                 if((records.containsKey(subWord) && records.get(subWord)) || indexedWords.contains(subWord)) {
                     return true;
                 }

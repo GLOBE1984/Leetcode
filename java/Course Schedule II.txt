@@ -16,50 +16,66 @@ There are a total of 4 courses to take. To take course 3 you should have finishe
 
 
 
-
-public class Solution {
+class Solution {
     public int[] findOrder(int numCourses, int[][] prerequisites) {
-        List<Set<Integer>> adjLists = new ArrayList<Set<Integer>>();  
-        
-        for (int i = 0; i < numCourses; i++) {  
-            adjLists.add(new HashSet<Integer>());  
-        }  
-          
-        for (int i = 0; i < prerequisites.length; i++) {  
-            adjLists.get(prerequisites[i][1]).add(prerequisites[i][0]);  
-        }  
-          
-        int[] indegrees = new int[numCourses];  
-        for (int i = 0; i < numCourses; i++) {  
-            for (int x : adjLists.get(i)) {  
-                indegrees[x]++;  
-            }  
-        }  
-          
-        Queue<Integer> queue = new LinkedList<Integer>();  
-        for (int i = 0; i < numCourses; i++) {  
-            if (indegrees[i] == 0) {  
-                queue.offer(i);  
-            }  
-        }  
-          
-        int[] res = new int[numCourses];  
-        int count = 0;  
-        while (!queue.isEmpty()) {  
-            int cur = queue.poll();  
-            for (int x : adjLists.get(cur)) {  
-                indegrees[x]--;  
-                if (indegrees[x] == 0) {  
-                    queue.offer(x);  
-                }  
-            }  
-            res[count++] = cur;  
-        }  
-          
-        if (count == numCourses) {
-            return res;
+        if(numCourses > 0 && prerequisites != null && prerequisites.length > 0) {
+            Set<Course> noDependencyCourses = new HashSet<>();
+            Course[] courses = new Course[numCourses];
+            for(int i = 0; i < numCourses; ++i) {
+                Course course = new Course(i);
+                courses[i] = course;
+                noDependencyCourses.add(course);
+            }
+            
+            for(int[] prerequisite : prerequisites) {
+                if(prerequisite[0] == prerequisite[1]) {
+                    return new int[0];
+                }
+                Course course1 = courses[prerequisite[0]];
+                Course course2 = courses[prerequisite[1]];
+                course2.children.add(course1);
+                course1.dependencies++;
+                noDependencyCourses.remove(course1);
+            }
+            
+            int[] schedule = new int[numCourses];
+            int index = 0;
+            while(!noDependencyCourses.isEmpty()) {
+                Set<Course> tmp = new HashSet<>();
+                Iterator<Course> iterator = noDependencyCourses.iterator();
+                while(iterator.hasNext()) {
+                    Course course = iterator.next();
+                    schedule[index] = course.id;
+                    index++;
+                    for(int i = 0; i < course.children.size(); ++i) {
+                        course.children.get(i).dependencies--;
+                        if(course.children.get(i).dependencies == 0) {
+                            tmp.add(course.children.get(i));
+                        }
+                    }
+                }
+                noDependencyCourses = tmp;
+            }
+            
+            return index == numCourses ? schedule : new int[0];
+        } else  {
+            int[] schedule = new int[numCourses];
+            for(int i = 0; i < numCourses; ++i) {
+                schedule[i] = i;
+            }
+            return schedule;
         }
+    }
+    
+    private class Course {
+        private int id;
+        private int dependencies;
+        private List<Course> children;
         
-        return new int[0];
+        private Course(int id) {
+            this.id = id;
+            this.dependencies = 0;
+            this.children = new ArrayList<>();
+        }
     }
 }
