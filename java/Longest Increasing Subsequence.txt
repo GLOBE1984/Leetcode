@@ -15,29 +15,86 @@ Follow up: Could you improve it to O(n log n) time complexity?
 
 
 
-// maxLens[i] 代表 nums 中第0个到第 i  个元素最大长度为 i 的最小值是多少（注意最小值是 nums数组中的某个数）：
+// Solution 1
 class Solution {
     public int lengthOfLIS(int[] nums) {
-        int[] maxLens = new int[nums.length + 1];
-        int maxLen = 0;
-        for(int num : nums) {
-            int len = binarySearch(num, maxLen, maxLens);
-            maxLen = Math.max(len, maxLen);
-            maxLens[len] = num;
-        }
-        return maxLen;
-    }
-    
-    private int binarySearch(int num, int maxLen, int[] maxLens) {
-        int left = 1, right = maxLen;
-        while(left <= right) {
-            int mid = left + (right-left) / 2;
-            if(maxLens[mid] < num) {
-                left = mid + 1;
-            } else {
-                right = mid - 1;
+        int[] dp = new int[nums.length];
+        Arrays.fill(dp, 1);
+        
+        for (int i = 1; i < nums.length; i++) {
+            for (int j = 0; j < i; j++) {
+                if (nums[i] > nums[j]) {
+                    dp[i] = Math.max(dp[i], dp[j] + 1);
+                }
             }
         }
+        
+        int longest = 0;
+        for (int c: dp) {
+            longest = Math.max(longest, c);
+        }
+        
+        return longest;
+    }
+}
+
+
+// Solution 2
+// Initialize an array sub which contains the first element of nums.
+// Iterate through the input, starting from the second element. For each element num:
+// If num is greater than any element in sub, then add num to sub.
+// Otherwise, perform a binary search in sub to find the smallest element that is greater than or equal to num. Replace that element with num.
+// Return the length of sub.
+// Initialize an array sub which contains the first element of nums.
+// Iterate through the input, starting from the second element. For each element num:
+// If num is greater than any element in sub, then add num to sub.
+// Otherwise, perform a binary search in sub to find the smallest element that is greater than or equal to num. Replace that element with num.
+// Return the length of sub.
+class Solution {
+    public int lengthOfLIS(int[] nums) {
+        if(nums != null && nums.length > 0) {
+            ArrayList<Integer> minNums = new ArrayList<>();
+            
+            for(int num : nums) {
+                if(!minNums.isEmpty()) {
+                    if(num > minNums.get(minNums.size()-1)) {
+                        minNums.add(num);
+                        continue;
+                    }
+                    if(num < minNums.get(0)) {
+                        minNums.set(0, num);
+                        continue;
+                    }
+                    
+                    int index = binarySearch(minNums, num);
+                    
+                    minNums.set(index, Math.min(num, minNums.get(index)));
+                } else {
+                    minNums.add(num);
+                }
+            }
+            
+            return minNums.size();
+        } else {
+            return 0;
+        }
+    }
+    
+    private int binarySearch(ArrayList<Integer> minNums, int num) {
+        int left = 0;
+        int right = minNums.size() - 1;
+        
+        while(left < right) {
+            int mid = (left + right) / 2;
+            if(minNums.get(mid) == num) {
+                return mid;
+            } else if(minNums.get(mid) < num) {
+                left = mid + 1;
+            } else {
+                right = mid;
+            }
+        }
+        
         return left;
     }
 }

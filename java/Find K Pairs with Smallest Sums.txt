@@ -30,36 +30,49 @@ All possible pairs are returned from the sequence:
 
 
 
+// Time: O(KlogK), Space: O(K)
 public class Solution {
-    public List<int[]> kSmallestPairs(int[] nums1, int[] nums2, int k) {
-        List<int[]> res = new ArrayList<int[]>();  
+    public List<List<Integer>> kSmallestPairs(int[] nums1, int[] nums2, int k) {
+        LinkedList<List<Integer>> results = new LinkedList<>();  
         
         if(k > 0 && nums1 != null && nums1.length > 0 && nums2 != null && nums2.length > 0) {
-            boolean visit[][] = new boolean[nums1.length][nums2.length];  
-            Queue<int[]> heap = new PriorityQueue<int[]>(new Comparator<int[]>(){  
-                public int compare(int[] i, int[] j) {  
-                    return (nums1[i[0]] + nums2[i[1]] -( nums1[j[0]] + nums2[j[1]]));  
-                }  
-            });  
-          
-            heap.add(new int[] { 0, 0 });  
-            visit[0][0] = true;  
-          
-            while (!heap.isEmpty() && res.size() < k) {  
-                int d[] = heap.poll();  
-                res.add(new int[]{nums1[d[0]], nums2[d[1]]});  
-          
-                if (d[1] + 1 < nums2.length && visit[d[0]][d[1]+1] == false) {  
-                    heap.add(new int[]{d[0], d[1]+1});  
-                    visit[d[0]][d[1]+1] = true;  
-                }  
-                if (d[0] + 1 < nums1.length && visit[d[0]+1][d[1]] == false) {  
-                    heap.add(new int[]{d[0]+1, d[1]});  
-                    visit[d[0]+1][d[1]] = true;  
-                }  
-            }  
+            PriorityQueue<int[]> pq = new PriorityQueue<>((i1, i2) -> nums1[i1[0]] + nums2[i1[1]] - nums1[i2[0]] - nums2[i2[1]]);
+            pq.offer(new int[]{0, 0});
+            Set<Integer> visited = new HashSet<>();
+            visited.add(hashCode(0, 0));
+            int count = 0;
+            
+            while(count < k && !pq.isEmpty()) {
+                int[] pair = pq.poll();
+                List<Integer> result = new ArrayList<>();
+                result.add(nums1[pair[0]]);
+                result.add(nums2[pair[1]]);
+                results.add(result);
+                count++;
+                
+                
+                if(pair[0] < nums1.length-1) {
+                    int hash = hashCode(pair[0]+1, pair[1]);
+                    if(!visited.contains(hash)) {
+                        visited.add(hash);
+                        pq.offer(new int[]{pair[0]+1, pair[1]});
+                    }
+                }
+                
+                if(pair[1] < nums2.length-1) {
+                    int hash = hashCode(pair[0], pair[1]+1);
+                    if(!visited.contains(hash)) {
+                        visited.add(hash);
+                        pq.offer(new int[]{pair[0], pair[1]+1});
+                    }
+                }
+            }
         }
         
-        return res;
+        return results;
+    }
+    
+    private int hashCode(int i, int j) {
+        return Integer.toString(i).concat("_").concat(Integer.toString(j)).hashCode();
     }
 }

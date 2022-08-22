@@ -26,8 +26,7 @@ class Solution {
             for(int i = 1; i < length; ++i) {
                 if(nums[i] > nums[i-1]) {
                     count++;
-                }
-                else {
+                } else {
                     max = Math.max(max, count);
                     count = 1;
                 }

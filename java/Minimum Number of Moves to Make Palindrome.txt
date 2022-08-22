@@ -1,0 +1,90 @@
+You are given a string s consisting only of lowercase English letters.
+
+In one move, you can select any two adjacent characters of s and swap them.
+
+Return the minimum number of moves needed to make s a palindrome.
+
+Note that the input will be generated such that s can always be converted to a palindrome.
+
+ 
+
+Example 1:
+
+Input: s = "aabb"
+Output: 2
+Explanation:
+We can obtain two palindromes from s, "abba" and "baab". 
+- We can obtain "abba" from s in 2 moves: "aabb" -> "abab" -> "abba".
+- We can obtain "baab" from s in 2 moves: "aabb" -> "abab" -> "baab".
+Thus, the minimum number of moves needed to make s a palindrome is 2.
+
+Example 2:
+Input: s = "letelt"
+Output: 2
+Explanation:
+One of the palindromes we can obtain from s in 2 moves is "lettel".
+One of the ways we can obtain it is "letelt" -> "letetl" -> "lettel".
+Other palindromes such as "tleelt" can also be obtained in 2 moves.
+It can be shown that it is not possible to obtain a palindrome in less than 2 moves.
+ 
+
+Constraints:
+
+1 <= s.length <= 2000
+s consists only of lowercase English letters.
+s can be converted to a palindrome using a finite number of moves.
+
+
+
+
+
+class Solution {
+    // Maybe we can prove that we can get global minimum by finding local minimum in each step, like keeping one end fixed and find the minimum move for the other end to match?
+    public int minMovesToMakePalindrome(String s) {
+        if(s != null && s.length() > 0) {
+            int i = 0;
+            int j = s.length() - 1;
+            int count = 0;
+            int center = -1;
+            int left = 0;
+            int right = 0;
+            
+            char[] chars = s.toCharArray();
+            
+            while(i <= j) {
+                // not match
+                if(chars[i] != chars[j]) {
+                    left = i + 1;
+                    while(chars[left] != chars[j] && left < j) {
+                        left++;
+                    }
+                    
+                    // odd element found -> to be made middle element
+                    if(left == j) {
+                        center = j;
+                        j--;
+                        continue;
+                    } else {
+                        for(int k = left; k > i; --k) {
+                            char tmp = chars[k];
+                            chars[k] = chars[k-1];
+                            chars[k-1] = tmp;
+                            count++;
+                        }
+                    }
+                } else {
+                    i++;
+                    j--;
+                }
+            }
+            
+            if(center != -1) {
+                count += center - (s.length()/2);                
+            }
+            
+            return count;
+        } else {
+            return 0;
+        }
+    }
+}

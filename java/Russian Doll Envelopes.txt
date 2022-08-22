@@ -1,0 +1,91 @@
+You are given a 2D array of integers envelopes where envelopes[i] = [wi, hi] represents the width and the height of an envelope.
+
+One envelope can fit into another if and only if both the width and height of one envelope are greater than the other envelope's width and height.
+
+Return the maximum number of envelopes you can Russian doll (i.e., put one inside the other).
+
+Note: You cannot rotate an envelope.
+
+ 
+
+Example 1:
+Input: envelopes = [[5,4],[6,4],[6,7],[2,3]]
+Output: 3
+Explanation: The maximum number of envelopes you can Russian doll is 3 ([2,3] => [5,4] => [6,7]).
+
+Example 2:
+Input: envelopes = [[1,1],[1,1],[1,1]]
+Output: 1
+ 
+
+Constraints:
+
+1 <= envelopes.length <= 10^5
+envelopes[i].length == 2
+1 <= wi, hi <= 10^5
+
+
+
+
+
+class Solution {
+    public int maxEnvelopes(int[][] envelopes) {
+        if(envelopes != null && envelopes.length > 0) {
+            Arrays.sort(envelopes, new Comparator<int[]>(){
+                
+                public int compare(int[] e1, int[] e2) {
+                    if(e1[0] != e2[0]) {
+                        return e1[0] - e2[0];
+                    } else {
+                        // To enforce that if e2 is after e1 in the sorted list and e2[1] > e1[1], then e2[0] > e1[0], which means we can put e1 into e2
+                        return e2[1] - e1[1];
+                    }
+                }
+                
+            });
+            
+            ArrayList<Integer> minNums = new ArrayList<>();
+            
+            for(int[] envelope : envelopes) {              
+                if(minNums.isEmpty()) {
+                    minNums.add(envelope[1]);
+                    continue;
+                }
+                
+                if(envelope[1] < minNums.get(0)) {
+                    minNums.set(0, envelope[1]);
+                    continue;
+                }
+                
+                if(envelope[1] > minNums.get(minNums.size()-1)) {
+                    minNums.add(envelope[1]);
+                }
+                
+                int index = binarySearch(minNums, envelope[1]);
+                minNums.set(index, Math.min(envelope[1], minNums.get(index)));
+            }
+            
+            return minNums.size();
+        } else {
+            return 0;
+        }
+    }
+    
+    private int binarySearch(ArrayList<Integer> minNums, int num) {
+        int left = 0;
+        int right = minNums.size() - 1;
+        
+        while(left < right) {
+            int mid = (left + right) / 2;
+            if(minNums.get(mid) == num) {
+                return mid;
+            } else if(minNums.get(mid) < num) {
+                left = mid + 1;
+            } else {
+                right = mid;
+            }
+        }
+        
+        return left;
+    }
+}
