@@ -1,0 +1,66 @@
+Given two strings text1 and text2, return the length of their longest common subsequence. If there is no common subsequence, return 0.
+
+A subsequence of a string is a new string generated from the original string with some characters (can be none) deleted without changing the relative order of the remaining characters.
+
+For example, "ace" is a subsequence of "abcde".
+A common subsequence of two strings is a subsequence that is common to both strings.
+
+ 
+
+Example 1:
+Input: text1 = "abcde", text2 = "ace" 
+Output: 3  
+Explanation: The longest common subsequence is "ace" and its length is 3.
+
+Example 2:
+Input: text1 = "abc", text2 = "abc"
+Output: 3
+Explanation: The longest common subsequence is "abc" and its length is 3.
+
+Example 3:
+Input: text1 = "abc", text2 = "def"
+Output: 0
+Explanation: There is no such common subsequence, so the result is 0.
+ 
+
+Constraints:
+
+1 <= text1.length, text2.length <= 1000
+text1 and text2 consist of only lowercase English characters.
+
+
+
+
+
+class Solution {
+    public int longestCommonSubsequence(String text1, String text2) {
+        if(text1 != null && text1.length() > 0 && text2 != null && text2.length() > 0) {
+            Map<Integer, Integer> records = new HashMap<>();
+            
+            return longestCommonSubsequence(text1, 0, text2, 0, records);
+        } else {
+            return 0;
+        }
+    }
+    
+    private int longestCommonSubsequence(String text1, int l1, String text2, int l2, Map<Integer, Integer> records) {
+        if(l1 >= text1.length() || l2 >= text2.length()) {
+            return 0;
+        }
+        
+        int key = 10000 * l1 + l2;
+        if(records.containsKey(key)) {
+            return records.get(key);
+        }
+        
+        int common = 0;
+        if(text1.charAt(l1) == text2.charAt(l2)) {
+            common = 1 + longestCommonSubsequence(text1, l1+1, text2, l2+1, records);
+        } else {
+            common = Math.max(longestCommonSubsequence(text1, l1+1, text2, l2, records), longestCommonSubsequence(text1, l1, text2, l2+1, records));
+        }
+        records.put(key, common);
+        
+        return common;
+    }
+}

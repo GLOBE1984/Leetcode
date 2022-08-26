@@ -36,23 +36,48 @@ Return 167
 
 
 
-public class Solution {
-    public int maxCoins(int[] iNums) {
-        int n = iNums.length;
-        int[] nums = new int[n + 2];
-        for (int i = 0; i < n; i++) {
-            nums[i + 1] = iNums[i];
+class Solution {
+    public int maxCoins(int[] nums) {
+        if(nums != null && nums.length > 0) {
+            int[] balloons = new int[nums.length+2];
+            balloons[0] = 1;
+            balloons[balloons.length-1] = 1;
+            for(int i = 0; i < nums.length; ++i) {
+                balloons[i+1] = nums[i];
+            }
+            
+            Map<Integer, Integer> records = new HashMap<>();
+            
+            return maxCoins(balloons, 1, balloons.length-2, records);
+        } else {
+            return 0;
         }
-        nums[0] = nums[n + 1] = 1;
-        int[][] dp = new int[n + 2][n + 2];
-        return DP(1, n, nums, dp);
     }
     
-    public int DP(int i, int j, int[] nums, int[][] dp) {
-        if (dp[i][j] > 0) return dp[i][j];
-        for (int x = i; x <= j; x++) {
-            dp[i][j] = Math.max(dp[i][j], DP(i, x - 1, nums, dp) + nums[i - 1] * nums[x] * nums[j + 1] + DP(x + 1, j, nums, dp));
+    private int maxCoins(int[] balloons, int left, int right, Map<Integer, Integer> records) {
+        if(right-left < 0) {
+            return 0;
         }
-        return dp[i][j];
+        
+        int key = 1000 * left + right;
+        if(records.containsKey(key)) {
+            return records.get(key);
+        }
+        
+        int max = 0;
+        for(int i = left; i <= right; ++i) {
+            // In other words, dp(left, i - 1) and dp(i + 1, right) are not independent, and cannot be calculated separately.
+            // Bad news. Our divide and conquer plan fails. Is there any way to fix this?
+            // What if...nums[i] has not burst? If we keep nums[i] alive all the time, then nums[i - 2] * nums[i - 1] * nums[i] always refers to the correct balloons, and the left part and right part are independent.
+            // How to keep nums[i] alive all the time? Easy, just mark nums[i] as the last burst balloon among [left, right].
+            
+            int self = balloons[left-1] * balloons[i] * balloons[right+1];
+            
+            int result = maxCoins(balloons, left, i-1, records) + maxCoins(balloons, i+1, right, records);
+            max = Math.max(max, self+result);
+        }
+        
+        records.put(key, max);
+        return max;
     }
 }
