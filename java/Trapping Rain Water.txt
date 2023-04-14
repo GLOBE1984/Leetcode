@@ -51,26 +51,34 @@ public class Solution {
 // Solution with monotone decreasing stack
 class Solution {
     public int trap(int[] height) {
-        if(height != null && height.length >= 3) {
+        int count = 0;
+        
+        if(height != null && height.length > 0) {
             Stack<Integer> stack = new Stack<>();
             
-            int count = 0;
             for(int i = 0; i < height.length; ++i) {
-                while(!stack.isEmpty() && height[stack.peek().intValue()] < height[i]) {
-                    int index = stack.pop().intValue();
-                    
-                    if(!stack.isEmpty() && height[stack.peek().intValue()] > height[index]) {
-                        count += (Math.min(height[stack.peek().intValue()], height[i]) - height[index]) 
-                            * (i - stack.peek().intValue() - 1);
+                if(height[i] > 0) {
+                    int prevHeight = 0;
+                    while(!stack.empty() && height[stack.peek().intValue()] <= height[i]) {
+                        int index = stack.pop().intValue();
+                        if(i-index > 1) {
+                            count += (i - index - 1) * (height[index] - prevHeight);
+                        }
+                        prevHeight = height[index];
                     }
-                    
+                    if(!stack.empty() && prevHeight < height[i]) {
+                        int index = stack.peek().intValue();
+                        count += (i - index - 1) * (height[i] - prevHeight);
+                    }
+                    stack.push(i);
+                } else {
+                    if(!stack.empty() && height[stack.peek().intValue()] > 0) {
+                        stack.push(i);
+                    }
                 }
-                stack.push(i);
             }
-            
-            return count;
-        } else {
-            return 0;
         }
+        
+        return count;
     }
 }

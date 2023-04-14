@@ -25,6 +25,7 @@ Constraints:
 
 
 
+// Solution 1: 
 class Solution {
     public int rob(int[] nums) {
         if(nums != null && nums.length > 0) {
@@ -50,5 +51,35 @@ class Solution {
         records.put(index, num);
         
         return num;
+    }
+}
+
+
+// Solution 2: 
+class Solution {
+    public int rob(int[] nums) {
+        if(nums != null && nums.length > 0) {
+            if(nums.length == 1) {
+                return nums[0];
+            }
+            
+            // robFrom(i)=max(robFrom(i+1),robFrom(i+2)+nums(i))
+            // To calculate the current value, we just need to rely on the next two consecutive values/recursive calls.
+            // t1 is the max[i-1]
+            int t1 = 0;
+            // t2 is the max[i-2]
+            int t2 = 0;
+
+            for(int i = 0; i < nums.length; ++i) {
+                int temp = t1;
+                int current = nums[i];
+                t1 = Math.max(current + t2, t1);
+                t2 = temp;
+            }
+
+            return t1;
+        } else {
+            return 0;
+        }
     }
 }

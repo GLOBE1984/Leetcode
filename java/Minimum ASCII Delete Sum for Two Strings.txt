@@ -1,0 +1,83 @@
+Given two strings s1 and s2, return the lowest ASCII sum of deleted characters to make two strings equal.
+
+ 
+
+Example 1:
+
+Input: s1 = "sea", s2 = "eat"
+Output: 231
+Explanation: Deleting "s" from "sea" adds the ASCII value of "s" (115) to the sum.
+Deleting "t" from "eat" adds 116 to the sum.
+At the end, both strings are equal, and 115 + 116 = 231 is the minimum sum possible to achieve this.
+
+Example 2:
+Input: s1 = "delete", s2 = "leet"
+Output: 403
+Explanation: Deleting "dee" from "delete" to turn the string into "let",
+adds 100[d] + 101[e] + 101[e] to the sum.
+Deleting "e" from "leet" adds 101[e] to the sum.
+At the end, both strings are equal to "let", and the answer is 100+101+101+101 = 403.
+If instead we turned both strings into "lee" or "eet", we would get answers of 433 or 417, which are higher.
+ 
+
+Constraints:
+1 <= s1.length, s2.length <= 1000
+s1 and s2 consist of lowercase English letters.
+
+
+
+
+
+class Solution {
+    public int minimumDeleteSum(String s1, String s2) {
+        if(s1 != null && s1.length() > 0 && s2 != null && s2.length() > 0) {
+            Map<Integer, Integer> records = new HashMap<>();
+            
+            return minimumDeleteSum(s1, 0, s2, 0, records);
+        } else {
+            return 0;
+        }
+    }
+    
+    private int minimumDeleteSum(String str1, int index1, String str2, int index2, Map<Integer, Integer> records) {        
+        if(index1 == str1.length()) {
+            int ascii = 0;
+            for(int i = index2; i < str2.length(); ++i) {
+                ascii += 97 + (str2.charAt(i) - 'a');
+            }
+            return ascii;
+        }
+        
+        if(index2 == str2.length()) {
+            int ascii = 0;
+            for(int i = index1; i < str1.length(); ++i) {
+                ascii += 97 + (str1.charAt(i) - 'a');
+            }
+            return ascii;
+        }
+        
+        if(str1.substring(index1).equals(str2.substring(index2))) {
+            return 0;
+        }
+        
+        int key = 10000 * index1 + index2;
+        
+        if(records.containsKey(key)) {
+            return records.get(key).intValue();
+        }
+        
+        int ascii = Integer.MAX_VALUE;
+        char c1 = str1.charAt(index1);
+        char c2 = str2.charAt(index2);
+        if(c1 != c2) {
+            ascii = Math.min(ascii, 97+(c1-'a')+minimumDeleteSum(str1, index1+1, str2, index2, records));
+            ascii = Math.min(ascii, 97+(c2-'a')+minimumDeleteSum(str1, index1, str2, index2+1, records));
+            ascii = Math.min(ascii, 97+(c1-'a')+97+(c2-'a')+minimumDeleteSum(str1, index1+1, str2, index2+1, records));
+        } else {
+            ascii = Math.min(ascii, minimumDeleteSum(str1, index1+1, str2, index2+1, records));
+        }
+        records.put(key, ascii);
+        
+        return ascii;
+    }
+}

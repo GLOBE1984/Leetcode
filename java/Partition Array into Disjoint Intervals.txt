@@ -1,0 +1,90 @@
+Given an integer array nums, partition it into two (contiguous) subarrays left and right so that:
+
+Every element in left is less than or equal to every element in right.
+left and right are non-empty.
+left has the smallest possible size.
+Return the length of left after such a partitioning.
+
+Test cases are generated such that partitioning exists.
+
+ 
+
+Example 1:
+Input: nums = [5,0,3,8,6]
+Output: 3
+Explanation: left = [5,0,3], right = [8,6]
+
+Example 2:
+Input: nums = [1,1,1,0,6,12]
+Output: 4
+Explanation: left = [1,1,1,0], right = [6,12]
+ 
+
+Constraints:
+2 <= nums.length <= 105
+0 <= nums[i] <= 106
+There is at least one valid answer for the given input.
+
+
+
+
+
+// Solution 1
+class Solution {
+    public int partitionDisjoint(int[] nums) {
+        if(nums != null && nums.length > 0) {
+            int[] maxes = new int[nums.length];
+            int max = Integer.MIN_VALUE;
+            for(int i = 0; i < nums.length; ++i) {
+                max = Math.max(max, nums[i]);
+                maxes[i] = max;
+            }
+            
+            int[] mins = new int[nums.length];
+            int min = Integer.MAX_VALUE;
+            for(int i = nums.length-1; i >= 0; --i) {
+                min = Math.min(min, nums[i]);
+                mins[i] = min;
+            }
+            
+            int index = 0;
+            while(index < nums.length-1) {
+                if(maxes[index] <= mins[index+1]) {
+                    break;
+                }
+                index++;
+            }
+            
+            return index + 1;
+        } else {
+            return 0;
+        }
+    }
+}
+
+
+// Solution 2
+// At first, we set curr_max and possible_max both equal to nums[0] and length equal to 1 (since the left part of the given array cannot be empty, as stated in the problem description)
+// As we iterate over the input array, beginning from the first index (counting from 0), two possibilities exist at each step:
+// If nums[i] is less than curr_max, it means that, currently, not every element in left is less than or equal to every element in right, so our condition is violated. Therefore, we need to extend our left array, so that it includes all the values up to nums[i] (inclusive). We update length accordingly and set curr_max equal to possible_max because now we know possible_max must be part of the left subarray. We must now compare every subsequent element starting from nums[i + 1] with the maximum value seen so far.
+// Otherwise, if nums[i] is greater than or equal to curr_max, then it doesn't violate any of our conditions, and since we want the left part to be as small as possible, we do nothing except update the possible_max value with nums[i], if the latter is greater than current possible_max value.
+// After the array traversal is completed, we return length.
+
+class Solution {
+    public int partitionDisjoint(int[] nums) {
+        int currMax = nums[0];
+        int possibleMax = nums[0];
+        int length = 1;
+        
+        for (int i = 1; i < nums.length; ++i) {
+            if (nums[i] < currMax) {
+                length = i + 1;
+                currMax = possibleMax;
+            } else {
+                possibleMax = Math.max(possibleMax, nums[i]);
+            }
+        }
+        
+        return length;
+    }
+}

@@ -45,14 +45,12 @@ class Solution {
             Map.Entry<Integer, Set<String>> entry = lengthMap.higherEntry(key);
             while(entry != null) {
                 for(String word : entry.getValue()) {
-                    if(!baseEntry.getValue().contains(word)) {
-                        boolean result = isConcatenated(root, word, records, indexedWords);
-                        if(result) {
-                            results.add(word);
-                        } else {
-                            indexWord(root, word);
-                            indexedWords.add(word);
-                        }
+                    boolean result = isConcatenated(root, word, records, indexedWords);
+                    if(result) {
+                        results.add(word);
+                    } else {
+                        indexWord(root, word);
+                        indexedWords.add(word);
                     }
                 }
                 key = entry.getKey();
